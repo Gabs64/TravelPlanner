@@ -1,13 +1,16 @@
 package com.example.testapi.auth.service;
 
 import com.example.testapi.auth.model.LoginRequest;
-import com.example.testapi.auth.model.LoginResponse;
 import com.example.testapi.auth.model.RegisterRequest;
 import com.example.testapi.common.model.MessageResponse;
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.repository.UserProfileRepo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -19,13 +22,13 @@ public class AuthService {
         this.repo = repo;
     }
 
-    public Object register(RegisterRequest req) {
+    public ResponseEntity<?> register(RegisterRequest req) {
         if (req.email == null || req.password == null) {
-            return new MessageResponse("Email and password are required");
+            return ResponseEntity.badRequest().body(new MessageResponse("Email and password are required"));
         }
 
         if (repo.findByEmail(req.email).isPresent()) {
-            return new MessageResponse("Email already exists");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse("Email already exists"));
         }
 
         UserProfile p = new UserProfile();
@@ -38,21 +41,28 @@ public class AuthService {
         p.setPhone(req.phone);
 
         repo.save(p);
-        return new MessageResponse("Registration successful");
+        return ResponseEntity.ok(new MessageResponse("Registration successful"));
     }
 
-    public Object login(LoginRequest req) {
+    public ResponseEntity<?> login(LoginRequest req) {
         var opt = repo.findByEmail(req.getEmail());
-        if (opt.isEmpty()) return new MessageResponse("Login failed");
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login failed"));
+        }
 
         UserProfile p = opt.get();
         String incomingHash = Integer.toString(req.getPassword().hashCode());
 
         if (!incomingHash.equals(p.getPasswordHash())) {
-            return new MessageResponse("Login Failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login Failed"));
         }
 
         String token = UUID.randomUUID().toString();
-        return new LoginResponse("Login Successful", token, p.getId());
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+        response.put("userId", p.getId());
+        
+        return ResponseEntity.ok(response);
     }
 }
