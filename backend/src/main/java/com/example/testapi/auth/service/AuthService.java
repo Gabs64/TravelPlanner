@@ -45,15 +45,20 @@ public class AuthService {
     }
 
     public ResponseEntity<?> login(LoginRequest req) {
+        // debug output for troubleshooting
+        System.out.println("[AuthService] login request: email=" + req.getEmail() + ", password=" + req.getPassword());
         var opt = repo.findByEmail(req.getEmail());
         if (opt.isEmpty()) {
+            System.out.println("[AuthService] user not found for " + req.getEmail());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login failed"));
         }
 
         UserProfile p = opt.get();
         String incomingHash = Integer.toString(req.getPassword().hashCode());
+        System.out.println("[AuthService] incomingHash=" + incomingHash + ", storedHash=" + p.getPasswordHash());
 
         if (!incomingHash.equals(p.getPasswordHash())) {
+            System.out.println("[AuthService] password mismatch");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login Failed"));
         }
 
@@ -63,6 +68,7 @@ public class AuthService {
         response.put("token", token);
         response.put("userId", p.getId());
         
+        System.out.println("[AuthService] login successful for " + req.getEmail());
         return ResponseEntity.ok(response);
     }
 }

@@ -20,23 +20,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
-        Object result = service.register(req);
-
-        if (result instanceof MessageResponse mr) {
-            if (mr.message.toLowerCase().contains("exists") || mr.message.toLowerCase().contains("required")) {
-                return ResponseEntity.badRequest().body(result);
-            }
-        }
-        return ResponseEntity.ok(result);
+        // let the service return the appropriate ResponseEntity directly
+        return service.register(req);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-        Object result = service.login(req);
-
-        if (result instanceof MessageResponse mr && mr.message.equalsIgnoreCase("Login failed")) {
-            return ResponseEntity.status(401).body(result);
-        }
-        return ResponseEntity.ok(result);
+        // simply forward whatever status/body the service provides; it already
+        // returns UNAUTHORIZED for failures
+        return service.login(req);
     }
 }
