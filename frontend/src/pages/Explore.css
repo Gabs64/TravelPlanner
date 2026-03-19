@@ -1,0 +1,54 @@
+.main-page {
+  padding: 25px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.explore-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.explore-card {
+  width: 260px;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.explore-card:hover {
+  transform: scale(1.03);
+}
+
+.explore-card img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.explore-card h3 {
+  padding: 10px 15px;
+  margin-bottom: 10px;
+}
+
+.explore-card button {
+  width: 90%;
+  margin: 0 5%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e90ff, #007bff);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.explore-card button:hover {
+  opacity: 0.9;
+}

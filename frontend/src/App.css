@@ -1,0 +1,7 @@
+/* App.css */
+.main-content {
+  margin-left: 250px; /* Width of the sidebar */
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #f5f7fb;
+}

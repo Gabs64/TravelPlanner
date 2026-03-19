@@ -1,0 +1,45 @@
+.main-page {
+  padding: 25px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.trips-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.trip-card {
+  flex: 1 1 250px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.trip-card:hover {
+  transform: translateY(-5px);
+}
+
+.status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.upcoming {
+  background: #43e97b;
+  color: white;
+}
+
+.status.completed {
+  background: #4facfe;
+  color: white;
+}

@@ -1,76 +1,56 @@
 package com.example.testapi.profile.controller;
 
-import com.example.testapi.auth.model.MessageResponse;
-import com.example.testapi.profile.entity.UserProfile;
-import com.example.testapi.profile.model.ChangePasswordRequest;
-import com.example.testapi.profile.model.EditProfileRequest;
-import com.example.testapi.profile.repository.UserProfileRepo;
+import com.example.testapi.profile.model.*;
+import com.example.testapi.profile.service.ProfileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/profile")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ProfileController {
 
-    private final UserProfileRepo repo;
+    private final ProfileService service;
 
-    public ProfileController(UserProfileRepo repo) {
-        this.repo = repo;
+    public ProfileController(ProfileService service) {
+        this.service = service;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProfile(@PathVariable String id) {
-        return repo.findById(id)
-                .<ResponseEntity<?>>map(p -> ResponseEntity.ok(p))
-                .orElseGet(() -> ResponseEntity.status(404).body(new MessageResponse("User not found")));
+        try {
+            return ResponseEntity.ok(service.getProfile(id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> editProfile(@PathVariable String id, @RequestBody EditProfileRequest req) {
-        var opt = repo.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.status(404).body(new MessageResponse("User not found"));
-
-        UserProfile p = opt.get();
-        if (req.fullName != null) p.setFullName(req.fullName);
-        if (req.phone != null) p.setPhone(req.phone);
-
-        repo.save(p);
-        return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
+        try {
+            return ResponseEntity.ok(service.editProfile(id, req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}/password")
     public ResponseEntity<?> changePassword(@PathVariable String id, @RequestBody ChangePasswordRequest req) {
-        var opt = repo.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.status(404).body(new MessageResponse("User not found"));
-
-        UserProfile p = opt.get();
-        p.setPasswordHash(Integer.toString(req.newPassword.hashCode()));
-        repo.save(p);
-
-        return ResponseEntity.ok(new MessageResponse("Password updated successfully"));
+        try {
+            return ResponseEntity.ok(service.changePassword(id, req));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
+        }
     }
 
     @PostMapping("/{id}/photo")
-    public ResponseEntity<?> uploadPhoto(
-            @PathVariable String id,
-            @RequestParam("file") MultipartFile file
-    ) throws Exception {
-
-        String ct = file.getContentType();
-        if (ct == null || !(ct.equals("image/png") || ct.equals("image/jpeg"))) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Only .png and .jpg allowed"));
+    public ResponseEntity<?> uploadPhoto(@PathVariable String id,
+                                         @RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(service.uploadPhoto(id, file));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
-
-        var opt = repo.findById(id);
-        if (opt.isEmpty()) return ResponseEntity.status(404).body(new MessageResponse("User not found"));
-
-        UserProfile p = opt.get();
-        p.setPhotoBytes(file.getBytes());
-        p.setPhotoMime(ct);
-
-        repo.save(p);
-
-        return ResponseEntity.ok(new MessageResponse("Photo uploaded successfully"));
     }
 }

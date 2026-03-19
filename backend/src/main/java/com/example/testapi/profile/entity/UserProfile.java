@@ -7,9 +7,10 @@ import jakarta.persistence.*;
 public class UserProfile {
 
     @Id
+    @Column(length = 36)
     private String id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     private String fullName;
@@ -24,6 +25,7 @@ public class UserProfile {
 
     public UserProfile() {}
 
+    // Getters & Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

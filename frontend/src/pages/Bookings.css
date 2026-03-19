@@ -1,0 +1,37 @@
+.main-page {
+  padding: 25px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+.bookings-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.booking-card {
+  flex: 1 1 250px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.booking-card:hover {
+  transform: translateY(-5px);
+}
+
+.type {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 12px;
+  border-radius: 12px;
+  background: #43e97b;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+}
