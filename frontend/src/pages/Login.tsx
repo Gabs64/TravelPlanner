@@ -170,82 +170,86 @@ function Login() {
 
   return (
     <div className="login-page-container">
-      <div className="auth-card">
-        <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
+      <div className="login-shell">
+        <img className="login-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
 
-        {error && <div className="status-banner error-banner">{error}</div>}
-        {success && <div className="status-banner success-banner">{success}</div>}
+        <div className="auth-card">
+          <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
 
-        <div className="input-group">
-          <input
-            className="auth-input"
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          {error && <div className="status-banner error-banner">{error}</div>}
+          {success && <div className="status-banner success-banner">{success}</div>}
 
-          <input
-            className="auth-input"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="input-group">
+            <input
+              className="auth-input"
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
-          {!isLogin && (
-            <div className="fade-in register-fields">
-              <input
-                className="auth-input"
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
+            <input
+              className="auth-input"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-              <input
-                className="auth-input"
-                type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
+            {!isLogin && (
+              <div className="fade-in register-fields">
+                <input
+                  className="auth-input"
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
 
-              <input
-                className="auth-input"
-                type="text"
-                placeholder="Nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-              />
+                <input
+                  className="auth-input"
+                  type="text"
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
 
-              <input
-                className="auth-input"
-                type="tel"
-                placeholder="Phone Number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-          )}
-        </div>
+                <input
+                  className="auth-input"
+                  type="text"
+                  placeholder="Nickname"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                />
 
-        <div className="button-group">
-          <button
-            className="btn-primary button-ripple"
-            onClick={isLogin ? handleLogin : handleRegister}
-            disabled={loading}
-          >
-            {loading ? "Processing..." : isLogin ? "Login" : "Register"}
-          </button>
+                <input
+                  className="auth-input"
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+            )}
+          </div>
 
-          <button
-            className="btn-secondary button-ripple"
-            onClick={toggleMode}
-            disabled={loading}
-          >
-            {isLogin ? "Need an account? Register" : "Already have an account? Login"}
-          </button>
+          <div className="button-group">
+            <button
+              className="btn-primary button-ripple"
+              onClick={isLogin ? handleLogin : handleRegister}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : isLogin ? "Login" : "Register"}
+            </button>
+
+            <button
+              className="btn-secondary button-ripple"
+              onClick={toggleMode}
+              disabled={loading}
+            >
+              {isLogin ? "Need an account? Register" : "Already have an account? Login"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
