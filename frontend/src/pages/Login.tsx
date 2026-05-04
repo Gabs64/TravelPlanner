@@ -22,7 +22,7 @@ function Login() {
     const storedUserId = localStorage.getItem("userId");
 
     if (storedToken && storedUserId) {
-      navigate("/");
+      navigate("/home");
     }
   }, [navigate]);
 

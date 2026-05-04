@@ -22,6 +22,11 @@ body {
   background: transparent;
 }
 
+.main-content.auth-layout {
+  margin-left: 0;
+  padding: 0;
+}
+
 /* Global button animations */
 button {
   transition: all 0.2s ease-in-out;

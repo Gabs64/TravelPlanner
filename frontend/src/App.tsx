@@ -1,19 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Home from './pages/Home';
-import Explore from './pages/Explore';
-import Bookings from './pages/Bookings';
-import MyTrips from './pages/MyTrips';
-import Profile from './pages/Profile';
-import Login from './pages/Login';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Home from "./pages/Home";
+import Explore from "./pages/Explore";
+import Bookings from "./pages/Bookings";
+import MyTrips from "./pages/MyTrips";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+import "./App.css";
 
 function AnimatedRoutes() {
   const location = useLocation();
+  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
 
   return (
-    <div className="main-content">
+    <div className={isLoginPage ? "main-content auth-layout" : "main-content"}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
@@ -29,7 +30,7 @@ function AnimatedRoutes() {
 
 function Layout() {
   const location = useLocation();
-  const isLoginPage = location.pathname === '/' || location.pathname === '/login';
+  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
 
   return (
     <>
