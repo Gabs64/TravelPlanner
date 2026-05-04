@@ -7,6 +7,7 @@ import Bookings from "./pages/Bookings";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import DestinationDetails from "./pages/DestinationDetails";
 import "./App.css";
 
 function AnimatedRoutes() {
@@ -19,6 +20,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/destination/:slug" element={<DestinationDetails />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/mytrips" element={<MyTrips />} />

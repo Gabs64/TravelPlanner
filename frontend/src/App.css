@@ -61,6 +61,13 @@ button:hover {
   transition: width 0.6s, height 0.6s;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
 .button-ripple:active::before {
   width: 300px;
   height: 300px;

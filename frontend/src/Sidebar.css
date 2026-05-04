@@ -17,12 +17,27 @@
 }
 
 .sidebar-logo {
-  padding: 24px 18px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 14px 18px;
   font-size: 18px;
   font-weight: 800;
   color: #111827;
   text-align: center;
   border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.sidebar-logo img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sidebar-logo span {
+  line-height: 1;
 }
 
 .sidebar-menu {

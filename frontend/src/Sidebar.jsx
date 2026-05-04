@@ -14,7 +14,10 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo">TravelPlanner</div>
+      <div className="sidebar-logo">
+        <img src="/TPLogo.png" alt="TravelPlanner logo" />
+        <span>TravelPlanner</span>
+      </div>
 
       <ul className="sidebar-menu">
         {menuItems.map((item) => (
