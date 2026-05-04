@@ -45,14 +45,27 @@ public class AuthService {
         p.setPhone(req.phone);
 
         // Set default profile photo
-        try {
-            ClassPathResource resource = new ClassPathResource("static/images/userheadDefault.png");
-            byte[] defaultPhoto = resource.getInputStream().readAllBytes();
-            p.setPhotoBytes(defaultPhoto);
-            p.setPhotoMime("image/png");
-        } catch (IOException e) {
-            // Log warning but don't fail registration
-            System.out.println("[AuthService] Warning: Could not load default profile photo: " + e.getMessage());
+        String[] defaultPaths = {"static/images/userheadDefault.png", "static/userheadDefault.png"};
+        boolean loadedDefault = false;
+
+        for (String path : defaultPaths) {
+            try {
+                ClassPathResource resource = new ClassPathResource(path);
+                if (!resource.exists()) {
+                    continue;
+                }
+                byte[] defaultPhoto = resource.getInputStream().readAllBytes();
+                p.setPhotoBytes(defaultPhoto);
+                p.setPhotoMime("image/png");
+                loadedDefault = true;
+                break;
+            } catch (IOException e) {
+                // try next path
+            }
+        }
+
+        if (!loadedDefault) {
+            System.out.println("[AuthService] Warning: Could not load default profile photo from classpath");
         }
 
         repo.save(p);
