@@ -1,17 +1,20 @@
 package com.example.testapi.auth.service;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
 import com.example.testapi.auth.model.LoginRequest;
 import com.example.testapi.auth.model.RegisterRequest;
 import com.example.testapi.common.model.MessageResponse;
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.repository.UserProfileRepo;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -38,15 +41,31 @@ public class AuthService {
         p.setPasswordHash(Integer.toString(req.password.hashCode()));
 
         p.setFullName(req.fullName);
+        p.setNickname(req.nickname);
         p.setPhone(req.phone);
+
+        // Set default profile photo
+        try {
+            ClassPathResource resource = new ClassPathResource("static/images/userheadDefault.png");
+            byte[] defaultPhoto = resource.getInputStream().readAllBytes();
+            p.setPhotoBytes(defaultPhoto);
+            p.setPhotoMime("image/png");
+        } catch (IOException e) {
+            // Log warning but don't fail registration
+            System.out.println("[AuthService] Warning: Could not load default profile photo: " + e.getMessage());
+        }
 
         repo.save(p);
         return ResponseEntity.ok(new MessageResponse("Registration successful"));
     }
 
     public ResponseEntity<?> login(LoginRequest req) {
+        if (req.getEmail() == null || req.getPassword() == null) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Email and password are required"));
+        }
+
         // debug output for troubleshooting
-        System.out.println("[AuthService] login request: email=" + req.getEmail() + ", password=" + req.getPassword());
+        System.out.println("[AuthService] login request: email=" + req.getEmail() + ", password=<hidden>");
         var opt = repo.findByEmail(req.getEmail());
         if (opt.isEmpty()) {
             System.out.println("[AuthService] user not found for " + req.getEmail());
@@ -59,7 +78,7 @@ public class AuthService {
 
         if (!incomingHash.equals(p.getPasswordHash())) {
             System.out.println("[AuthService] password mismatch");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login Failed"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Login failed"));
         }
 
         String token = UUID.randomUUID().toString();

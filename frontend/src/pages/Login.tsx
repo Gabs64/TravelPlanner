@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-// Use CRA dev server proxy (see package.json) to avoid CORS issues
 const API_BASE = "";
 
 function Login() {
@@ -10,7 +9,9 @@ function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [nickname, setNickname] = useState("");
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -19,6 +20,7 @@ function Login() {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedUserId = localStorage.getItem("userId");
+
     if (storedToken && storedUserId) {
       navigate("/");
     }
@@ -29,23 +31,32 @@ function Login() {
     setSuccess("");
   };
 
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setFullName("");
+    setNickname("");
+    setPhone("");
+  };
+
   const handleLogin = async () => {
     clearMessages();
-    
-    // validation
+
     if (!email || !password) {
       setError("Email and password are required");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
       return;
     }
 
     setLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
@@ -54,17 +65,18 @@ function Login() {
       });
 
       const data = await response.json();
-      console.log("login response", response.status, data);
-      
+
       if (response.ok && data.token) {
-        setSuccess("Login Successful");
+        setSuccess("Login successful");
         localStorage.setItem("token", data.token);
+
         if (data.userId) {
           localStorage.setItem("userId", data.userId);
         }
+
         setTimeout(() => {
           navigate("/home");
-        }, 2000);
+        }, 1200);
       } else {
         setError(data.message || "Login failed");
         setLoading(false);
@@ -78,13 +90,19 @@ function Login() {
 
   const handleRegister = async () => {
     clearMessages();
-    
-    if (!email || !password || !fullName || !phone) {
+
+    if (!email || !password || !confirmPassword || !fullName || !nickname || !phone) {
       setError("All fields are required");
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
       return;
@@ -100,7 +118,13 @@ function Login() {
       return;
     }
 
+    if (nickname.trim().length < 2) {
+      setError("Nickname must be at least 2 characters");
+      return;
+    }
+
     const phoneDigits = phone.replace(/\D/g, "");
+
     if (phoneDigits.length < 10) {
       setError("Phone number must be at least 10 digits");
       return;
@@ -112,24 +136,21 @@ function Login() {
       const response = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, fullName, phone }),
+        body: JSON.stringify({ email, password, fullName, nickname, phone }),
       });
 
       const data = await response.json();
-      console.log("register response", response.status, data);
 
       if (response.ok) {
         const msg = data.message || "Registration successful";
         setSuccess(msg.charAt(0).toUpperCase() + msg.slice(1));
-        setEmail("");
-        setPassword("");
-        setFullName("");
-        setPhone("");
+        resetForm();
+
         setTimeout(() => {
           setIsLogin(true);
           setSuccess("");
           navigate("/login");
-        }, 2000);
+        }, 1200);
       } else {
         setError(data.message || "Registration failed");
       }
@@ -144,10 +165,7 @@ function Login() {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     clearMessages();
-    setEmail("");
-    setPassword("");
-    setFullName("");
-    setPhone("");
+    resetForm();
   };
 
   return (
@@ -166,6 +184,7 @@ function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+
           <input
             className="auth-input"
             type="password"
@@ -175,7 +194,15 @@ function Login() {
           />
 
           {!isLogin && (
-            <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div className="fade-in register-fields">
+              <input
+                className="auth-input"
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+
               <input
                 className="auth-input"
                 type="text"
@@ -183,6 +210,15 @@ function Login() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
+
+              <input
+                className="auth-input"
+                type="text"
+                placeholder="Nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+              />
+
               <input
                 className="auth-input"
                 type="tel"
@@ -196,7 +232,7 @@ function Login() {
 
         <div className="button-group">
           <button
-            className="btn-primary"
+            className="btn-primary button-ripple"
             onClick={isLogin ? handleLogin : handleRegister}
             disabled={loading}
           >
@@ -204,8 +240,9 @@ function Login() {
           </button>
 
           <button
-            className="btn-secondary"
+            className="btn-secondary button-ripple"
             onClick={toggleMode}
+            disabled={loading}
           >
             {isLogin ? "Need an account? Register" : "Already have an account? Login"}
           </button>

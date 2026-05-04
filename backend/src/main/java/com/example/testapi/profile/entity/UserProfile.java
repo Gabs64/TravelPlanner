@@ -1,6 +1,9 @@
 package com.example.testapi.profile.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user_profiles")
@@ -13,19 +16,36 @@ public class UserProfile {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(name = "full_name")
     private String fullName;
+
+    @Column(name = "nickname")
+    private String nickname;
+
+    @Column(name = "phone")
     private String phone;
 
+    @Column(name = "password_hash")
     private String passwordHash;
 
-    @Column(name = "photo_bytes")
+    @Column(name = "photo_bytes", columnDefinition = "bytea")
     private byte[] photoBytes;
 
+    @Column(name = "photo_mime")
     private String photoMime;
 
     public UserProfile() {}
 
-    // Getters & Setters
+    public UserProfile(String id, String email, String fullName, String nickname, String phone, String passwordHash, String photoMime) {
+        this.id = id;
+        this.email = email;
+        this.fullName = fullName;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.photoMime = photoMime;
+    }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -34,6 +54,9 @@ public class UserProfile {
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
