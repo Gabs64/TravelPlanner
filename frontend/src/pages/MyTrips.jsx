@@ -41,9 +41,13 @@ const initialTrips = [
 const MyTrips = () => {
   const [trips, setTrips] = useState(initialTrips);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
+  const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
 
   const closeModal = () => {
     setSelectedTrip(null);
+    setConfirmSaveOpen(false);
+    setSaveSuccessOpen(false);
   };
 
   const moveItineraryItem = (itemIndex, direction) => {
@@ -67,8 +71,21 @@ const MyTrips = () => {
     );
   };
 
-  const saveItineraryOrder = () => {
-    alert("Itinerary order saved for demo.");
+  const requestSaveItineraryOrder = () => {
+    setConfirmSaveOpen(true);
+  };
+
+  const cancelSaveOrder = () => {
+    setConfirmSaveOpen(false);
+  };
+
+  const confirmSaveOrder = () => {
+    setConfirmSaveOpen(false);
+    setSaveSuccessOpen(true);
+  };
+
+  const closeSuccessMessage = () => {
+    setSaveSuccessOpen(false);
     closeModal();
   };
 
@@ -146,13 +163,43 @@ const MyTrips = () => {
             </div>
 
             <div className="trip-modal-actions">
-              <button className="save-itinerary-btn button-ripple" onClick={saveItineraryOrder}>
+              <button
+                className="save-itinerary-btn button-ripple"
+                onClick={requestSaveItineraryOrder}
+              >
                 Save Order
               </button>
               <button className="modal-secondary-btn button-ripple" onClick={closeModal}>
                 Close
               </button>
             </div>
+
+            {confirmSaveOpen && (
+              <div className="confirm-panel">
+                <h4>Save itinerary order?</h4>
+                <p>This will save the current order of your trip activities.</p>
+
+                <div className="confirm-actions">
+                  <button className="confirm-yes-btn button-ripple" onClick={confirmSaveOrder}>
+                    Yes, Save
+                  </button>
+                  <button className="confirm-no-btn button-ripple" onClick={cancelSaveOrder}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {saveSuccessOpen && (
+              <div className="success-panel">
+                <h4>Order saved successfully</h4>
+                <p>Your itinerary order has been updated for this trip.</p>
+
+                <button className="confirm-yes-btn button-ripple" onClick={closeSuccessMessage}>
+                  Done
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -121,6 +121,7 @@
   background: rgba(15, 23, 42, 0.28);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  animation: modalBackdropIn 0.22s ease-out;
 }
 
 .trip-modal {
@@ -136,6 +137,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(24px) saturate(170%);
   -webkit-backdrop-filter: blur(24px) saturate(170%);
+  animation: modalPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .trip-modal-header {
@@ -243,7 +245,9 @@
 }
 
 .save-itinerary-btn,
-.modal-secondary-btn {
+.modal-secondary-btn,
+.confirm-yes-btn,
+.confirm-no-btn {
   flex: 1;
   height: 42px;
   border-radius: 14px;
@@ -252,17 +256,69 @@
   cursor: pointer;
 }
 
-.save-itinerary-btn {
+.save-itinerary-btn,
+.confirm-yes-btn {
   border: none;
   color: #ffffff;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
 }
 
-.modal-secondary-btn {
+.modal-secondary-btn,
+.confirm-no-btn {
   color: #475569;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.confirm-panel,
+.success-panel {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 16px 34px rgba(31, 41, 55, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  animation: panelPopIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.confirm-panel h4,
+.success-panel h4 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.confirm-panel p,
+.success-panel p {
+  margin: 0 0 14px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.success-panel {
+  border-color: rgba(16, 185, 129, 0.24);
+  background:
+    linear-gradient(135deg, rgba(220, 252, 231, 0.7), rgba(255, 255, 255, 0.52));
+}
+
+.success-panel h4 {
+  color: #047857;
+}
+
+.success-panel .confirm-yes-btn {
+  width: 100%;
 }
 
 @media (max-width: 620px) {
@@ -278,7 +334,8 @@
     flex: 1;
   }
 
-  .trip-modal-actions {
+  .trip-modal-actions,
+  .confirm-actions {
     flex-direction: column;
   }
 }
@@ -291,5 +348,43 @@
 
   .trips-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@keyframes modalBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.96);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes panelPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
   }
 }

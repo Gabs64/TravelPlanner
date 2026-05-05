@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { flushSync } from "react-dom";
 import "./Explore.css";
 
 const destinations = [
@@ -42,12 +43,15 @@ const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
 const navigateWithTransition = (navigate, path) => {
   if (document.startViewTransition) {
     document.startViewTransition(() => {
-      navigate(path);
+      flushSync(() => {
+        navigate(path);
+      });
     });
   } else {
     navigate(path);
   }
 };
+
 
 const Explore = () => {
   const navigate = useNavigate();

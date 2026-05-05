@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { flushSync } from "react-dom";
 import API_BASE from "../apiConfig";
 import "./Home.css";
 
@@ -26,12 +27,15 @@ const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
 const navigateWithTransition = (navigate, path) => {
   if (document.startViewTransition) {
     document.startViewTransition(() => {
-      navigate(path);
+      flushSync(() => {
+        navigate(path);
+      });
     });
   } else {
     navigate(path);
   }
 };
+
 
 const Home = () => {
   const navigate = useNavigate();
