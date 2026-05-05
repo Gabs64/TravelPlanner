@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API_BASE from "../apiConfig";
 import "./Home.css";
-
-const API_BASE = "";
 
 const destinations = [
   {
@@ -42,6 +41,11 @@ const Home = () => {
     hasPhoto: false,
     photoUrl: "",
   });
+  const [stats, setStats] = useState({
+    tripsPlanned: 0,
+    upcomingTrips: 0,
+    visitedPlaces: 0,
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -71,7 +75,35 @@ const Home = () => {
       }
     };
 
+    const fetchTripStats = async () => {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) return;
+
+      try {
+        const res = await fetch(`${API_BASE}/trips/${encodeURIComponent(userId)}/stats`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setStats({
+            tripsPlanned: data.tripsPlanned || 0,
+            upcomingTrips: data.upcomingTrips || 0,
+            visitedPlaces: data.visitedPlaces || 0,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching trip stats:", err);
+      }
+    };
+
     fetchProfile();
+    fetchTripStats();
   }, []);
 
   return (
@@ -92,17 +124,17 @@ const Home = () => {
         <div className="stats">
           <div className="card">
             <h3>Trips Planned</h3>
-            <p>12</p>
+            <p>{stats.tripsPlanned}</p>
           </div>
 
           <div className="card">
             <h3>Upcoming Trips</h3>
-            <p>3</p>
+            <p>{stats.upcomingTrips}</p>
           </div>
 
           <div className="card">
             <h3>Visited Places</h3>
-            <p>8</p>
+            <p>{stats.visitedPlaces}</p>
           </div>
         </div>
 
