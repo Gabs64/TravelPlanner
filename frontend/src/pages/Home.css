@@ -3,11 +3,8 @@
   padding: 18px 32px 32px;
   box-sizing: border-box;
   font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.16), transparent 34%),
-    linear-gradient(135deg, #eef5ff 0%, #f8fbff 48%, #eef2ff 100%);
-  color: #111827;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .home-content {
@@ -32,20 +29,20 @@
   height: 44px;
   padding: 0 16px;
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.34);
-  background: rgba(255, 255, 255, 0.52);
-  color: #111827;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
   box-sizing: border-box;
   backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
 }
 
 .navbar input:focus {
   border-color: rgba(37, 99, 235, 0.58);
-  background: rgba(255, 255, 255, 0.78);
+  background: var(--bg-secondary);
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
@@ -57,24 +54,17 @@
   min-height: 46px;
   padding: 7px 14px 7px 7px;
   border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(255, 255, 255, 0.42));
-  border: 1px solid rgba(255, 255, 255, 0.78);
-  box-shadow:
-    0 12px 28px rgba(31, 41, 55, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  color: #172033;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 28px rgba(31, 41, 55, 0.1);
+  color: var(--text-primary);
   font-size: 14px;
   font-weight: 800;
   cursor: pointer;
   overflow: hidden;
   backdrop-filter: blur(20px) saturate(165%);
   -webkit-backdrop-filter: blur(20px) saturate(165%);
-  transition:
-    transform 220ms ease,
-    box-shadow 220ms ease,
-    border-color 220ms ease,
-    background 220ms ease;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
 }
 
 .user::before {
@@ -90,13 +80,9 @@
 
 .user:hover {
   transform: translateY(-3px) scale(1.015);
-  border-color: rgba(96, 165, 250, 0.58);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(238, 244, 255, 0.62));
-  box-shadow:
-    0 18px 38px rgba(37, 99, 235, 0.16),
-    0 8px 20px rgba(124, 58, 237, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  border-color: rgba(37, 99, 235, 0.58);
+  background: var(--bg-tertiary);
+  box-shadow: 0 18px 38px rgba(37, 99, 235, 0.16);
 }
 
 .user:hover::before {
@@ -142,13 +128,12 @@
 
 .card,
 .destination-card {
-  background: rgba(255, 255, 255, 0.46);
-  border: 1px solid rgba(255, 255, 255, 0.68);
-  box-shadow:
-    0 18px 38px rgba(31, 41, 55, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 38px rgba(31, 41, 55, 0.1);
   backdrop-filter: blur(22px) saturate(160%);
   -webkit-backdrop-filter: blur(22px) saturate(160%);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .card {
@@ -160,23 +145,26 @@
 
 .card h3 {
   margin: 0 0 8px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .card p {
   margin: 0;
-  color: #111827;
+  color: var(--text-primary);
   font-size: 28px;
   font-weight: 800;
+  transition: color 0.3s ease;
 }
 
 .section h2 {
   margin: 0 0 14px;
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .destinations {
@@ -206,7 +194,8 @@
 .destination-card h3 {
   margin: 14px 14px 6px;
   font-size: 17px;
-  color: #111827;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .destination-card p {
@@ -214,7 +203,7 @@
   margin: 0 14px 12px;
   font-size: 13px;
   line-height: 1.45;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .destination-card button {
@@ -224,7 +213,7 @@
   border: none;
   border-radius: 14px;
   color: #ffffff;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  background: var(--gradient-primary);
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;

@@ -12,12 +12,17 @@ import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
 import "./App.css";
 
-// Initialize dark mode on startup
+// Initialize dark mode on startup - check localStorage as fallback, but exclude auth pages
 const initDarkMode = () => {
-  const isDarkMode = localStorage.getItem("darkMode") === "true";
-  if (isDarkMode) {
-    document.documentElement.classList.add("dark-mode");
-    document.body.classList.add("dark-mode-body");
+  const currentPath = window.location.pathname;
+  const isAuthPage = currentPath === "/" || currentPath === "/login" || currentPath === "/intro";
+
+  if (!isAuthPage) {
+    const isDarkMode = localStorage.getItem("darkMode") === "true";
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark-mode");
+      document.body.classList.add("dark-mode-body");
+    }
   }
 };
 

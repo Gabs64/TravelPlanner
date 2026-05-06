@@ -39,13 +39,24 @@ const Settings = () => {
         setLanguage(settings.language);
         setPrivacy(settings.privacy);
 
-        // Apply dark mode
-        if (settings.darkMode) {
-          document.documentElement.classList.add("dark-mode");
-          document.body.classList.add("dark-mode-body");
-        } else {
-          document.documentElement.classList.remove("dark-mode");
-          document.body.classList.remove("dark-mode-body");
+        // Update localStorage as backup for global dark mode initialization
+        localStorage.setItem("darkMode", settings.darkMode.toString());
+        localStorage.setItem("notifications", settings.notifications.toString());
+        localStorage.setItem("language", settings.language);
+        localStorage.setItem("privacy", settings.privacy);
+
+        // Apply dark mode (skip for auth pages)
+        const currentPath = window.location.pathname;
+        const isAuthPage = currentPath === "/" || currentPath === "/login" || currentPath === "/intro";
+
+        if (!isAuthPage) {
+          if (settings.darkMode) {
+            document.documentElement.classList.add("dark-mode");
+            document.body.classList.add("dark-mode-body");
+          } else {
+            document.documentElement.classList.remove("dark-mode");
+            document.body.classList.remove("dark-mode-body");
+          }
         }
       } else {
         console.error("Failed to load settings");
@@ -87,12 +98,18 @@ const Settings = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
 
-    if (newDarkMode) {
-      document.documentElement.classList.add("dark-mode");
-      document.body.classList.add("dark-mode-body");
-    } else {
-      document.documentElement.classList.remove("dark-mode");
-      document.body.classList.remove("dark-mode-body");
+    // Apply dark mode (skip for auth pages)
+    const currentPath = window.location.pathname;
+    const isAuthPage = currentPath === "/" || currentPath === "/login" || currentPath === "/intro";
+
+    if (!isAuthPage) {
+      if (newDarkMode) {
+        document.documentElement.classList.add("dark-mode");
+        document.body.classList.add("dark-mode-body");
+      } else {
+        document.documentElement.classList.remove("dark-mode");
+        document.body.classList.remove("dark-mode-body");
+      }
     }
 
     await saveSettings({

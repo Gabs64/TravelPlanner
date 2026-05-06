@@ -205,15 +205,23 @@
 /* Info Section */
 .info-section {
   background: var(--bg-tertiary);
-  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 8px;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 10px 0;
   font-size: 13px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+  border-bottom: none;
 }
 
 .info-label {
@@ -224,6 +232,10 @@
 .info-value {
   color: var(--text-primary);
   font-weight: 600;
+  background: var(--bg-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 /* Responsive */

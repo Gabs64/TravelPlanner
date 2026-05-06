@@ -146,13 +146,6 @@ const Profile = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    setLoading(false);
-    navigate("/");
-  };
-
   if (loading) {
     return (
       <main className="profile-page">
@@ -233,9 +226,6 @@ const Profile = () => {
               <div className="button-group">
                 <button onClick={() => setEditing(true)} className="edit-btn button-ripple">
                   Edit Profile
-                </button>
-                <button onClick={handleLogout} className="logout-btn button-ripple">
-                  Logout
                 </button>
               </div>
             </>
