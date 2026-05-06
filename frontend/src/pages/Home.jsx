@@ -68,12 +68,17 @@ const Home = () => {
 
         if (res.ok) {
           const data = await res.json();
+          const photoUrl =
+            data.photoUrl && !data.photoUrl.includes("localhost")
+              ? data.photoUrl
+              : data.hasPhoto
+                ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo`
+                : "";
+
           setUser({
             nickname: data.nickname || data.fullName || "User",
             hasPhoto: Boolean(data.hasPhoto),
-            photoUrl:
-              data.photoUrl ||
-              (data.hasPhoto ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo` : ""),
+            photoUrl,
           });
         }
       } catch (err) {

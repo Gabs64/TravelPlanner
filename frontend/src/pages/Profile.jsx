@@ -58,15 +58,20 @@ const Profile = () => {
       }
 
       const data = await res.json();
+      const photoUrl =
+        data.photoUrl && !data.photoUrl.includes("localhost")
+          ? data.photoUrl
+          : data.hasPhoto
+            ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo`
+            : "";
+
       setUser({
         fullName: data.fullName || "",
         nickname: data.nickname || "",
         email: data.email || "",
         phone: data.phone || "",
         hasPhoto: Boolean(data.hasPhoto),
-        photoUrl:
-          data.photoUrl ||
-          (data.hasPhoto ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo` : ""),
+        photoUrl,
       });
     } catch (err) {
       console.error("Error fetching profile:", err);

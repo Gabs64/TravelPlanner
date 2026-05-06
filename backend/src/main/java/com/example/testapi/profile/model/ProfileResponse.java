@@ -17,10 +17,7 @@ public class ProfileResponse {
         this.nickname = nickname;
         this.phone = phone;
         this.hasPhoto = hasPhoto;
-
-        if (hasPhoto) {
-            this.photoUrl = "http://localhost:8080/profile/" + id + "/photo";
-        }
+        this.photoUrl = null;
     }
 
     public String getId() { return id; }
