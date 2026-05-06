@@ -68,7 +68,7 @@
   gap: 12px;
   height: 44px;
   padding: 0 14px;
-  color: #475569;
+  color: var(--text-secondary);
   text-decoration: none;
   border-radius: 14px;
   font-size: 14px;
@@ -86,8 +86,8 @@
 }
 
 .menu-item:hover {
-  color: #2563eb;
-  background: rgba(255, 255, 255, 0.52);
+  color: var(--text-primary);
+  background: var(--bg-input);
   transform: translateX(2px);
 }
 

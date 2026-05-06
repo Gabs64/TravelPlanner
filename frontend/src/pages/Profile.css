@@ -296,6 +296,12 @@
   box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
 }
 
+.edit-btn:hover,
+.save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.3);
+}
+
 .logout-btn {
   color: #b91c1c;
   background: rgba(254, 226, 226, 0.72);

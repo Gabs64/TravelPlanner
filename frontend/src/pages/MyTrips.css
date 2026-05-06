@@ -57,7 +57,7 @@
 
 .trip-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 24px 48px rgba(31, 41, 55, 0.14);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
 }
 
 .trip-card h3 {
