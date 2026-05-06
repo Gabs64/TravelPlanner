@@ -7,6 +7,7 @@ import Bookings from "./pages/Bookings";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
 import "./App.css";
 
@@ -17,7 +18,8 @@ function AnimatedRoutes() {
   return (
     <div className={isLoginPage ? "main-content auth-layout" : "main-content"}>
       <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Intro />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/destination/:slug" element={<DestinationDetails />} />
@@ -25,6 +27,7 @@ function AnimatedRoutes() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/mytrips" element={<MyTrips />} />
         <Route path="/profile" element={<Profile />} />
+        
       </Routes>
     </div>
   );

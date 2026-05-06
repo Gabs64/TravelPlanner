@@ -1,0 +1,117 @@
+* {
+  box-sizing: border-box;
+}
+
+.intro-page-container {
+  min-height: 100dvh;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(102, 126, 234, 0.22), transparent 32%),
+    radial-gradient(circle at 82% 72%, rgba(118, 75, 162, 0.22), transparent 34%),
+    linear-gradient(135deg, #eef4ff 0%, #f8fbff 45%, #eee9ff 100%);
+}
+
+.intro-glass-panel {
+  width: min(920px, 100%);
+  min-height: min(620px, calc(100dvh - 48px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 34px;
+  padding: 52px 34px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 28px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.62),
+    rgba(255, 255, 255, 0.28)
+  );
+  box-shadow:
+    0 30px 80px rgba(64, 82, 145, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(22px) saturate(145%);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+}
+
+.intro-logo {
+  width: min(230px, 64vw);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 24px rgba(64, 82, 145, 0.18));
+}
+
+.intro-content {
+  max-width: 640px;
+  text-align: center;
+}
+
+.intro-content h1 {
+  margin: 0;
+  color: #151b2d;
+  font-size: clamp(2.4rem, 7vw, 4.8rem);
+  font-weight: 800;
+  line-height: 1.02;
+}
+
+.intro-content p {
+  margin: 22px auto 0;
+  max-width: 560px;
+  color: #4d5875;
+  font-size: 1.08rem;
+  line-height: 1.75;
+  font-weight: 500;
+}
+
+.join-now-btn {
+  margin-top: 34px;
+  min-width: 178px;
+  min-height: 54px;
+  border: 0;
+  border-radius: 18px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3564f4, #7a3ff2);
+  box-shadow:
+    0 16px 32px rgba(72, 92, 235, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.join-now-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 42px rgba(72, 92, 235, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.join-now-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .intro-page-container {
+    padding: 18px;
+  }
+
+  .intro-glass-panel {
+    min-height: calc(100dvh - 36px);
+    padding: 42px 22px;
+    border-radius: 24px;
+  }
+
+  .intro-content p {
+    font-size: 0.98rem;
+  }
+
+  .join-now-btn {
+    width: 100%;
+    max-width: 260px;
+  }
+}
