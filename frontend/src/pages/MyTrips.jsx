@@ -111,36 +111,13 @@ const MyTrips = () => {
     setConfirmSaveOpen(false);
   };
 
-  const confirmSaveOrder = async () => {
-    if (!selectedTrip || isCompletedTrip) return;
+  const confirmSaveOrder = () => {
+  if (!selectedTrip || isCompletedTrip) return;
 
-    const token = localStorage.getItem("token");
+  setConfirmSaveOpen(false);
+  setSaveSuccessOpen(true);
+};
 
-    try {
-      const res = await fetch(`${API_BASE}/trips/${selectedTrip.id}/itinerary`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          itinerary: selectedTrip.itinerary,
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data.message || "Unable to save itinerary order");
-      }
-
-      setConfirmSaveOpen(false);
-      setSaveSuccessOpen(true);
-    } catch (err) {
-      console.error("Error saving itinerary:", err);
-      alert(err.message || "Failed to save itinerary order");
-    }
-  };
 
   const closeSuccessMessage = () => {
     setSaveSuccessOpen(false);
