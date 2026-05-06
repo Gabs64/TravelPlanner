@@ -154,7 +154,7 @@ const Settings = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-    navigate("/intro");
+    navigate("/");
   };
 
   const handleDeleteAccount = async () => {
@@ -191,7 +191,7 @@ const Settings = () => {
       localStorage.clear();
       document.documentElement.classList.remove("dark-mode");
       document.body.classList.remove("dark-mode-body");
-      navigate("/intro");
+      navigate("/");
     } catch (err) {
       setDeleteError(err.message || "Failed to delete account");
     } finally {
