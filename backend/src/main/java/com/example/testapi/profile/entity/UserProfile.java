@@ -34,6 +34,18 @@ public class UserProfile {
     @Column(name = "photo_mime")
     private String photoMime;
 
+    @Column(name = "dark_mode", columnDefinition = "boolean default false")
+    private boolean darkMode;
+
+    @Column(name = "notifications", columnDefinition = "boolean default true")
+    private boolean notifications;
+
+    @Column(name = "language", length = 10, columnDefinition = "varchar(10) default 'en'")
+    private String language;
+
+    @Column(name = "privacy", length = 20, columnDefinition = "varchar(20) default 'public'")
+    private String privacy;
+
     public UserProfile() {}
 
     public UserProfile(String id, String email, String fullName, String nickname, String phone, String passwordHash, String photoMime) {
@@ -44,6 +56,10 @@ public class UserProfile {
         this.phone = phone;
         this.passwordHash = passwordHash;
         this.photoMime = photoMime;
+        this.darkMode = false;
+        this.notifications = true;
+        this.language = "en";
+        this.privacy = "public";
     }
 
     public String getId() { return id; }
@@ -69,4 +85,16 @@ public class UserProfile {
 
     public String getPhotoMime() { return photoMime; }
     public void setPhotoMime(String photoMime) { this.photoMime = photoMime; }
+
+    public boolean isDarkMode() { return darkMode; }
+    public void setDarkMode(boolean darkMode) { this.darkMode = darkMode; }
+
+    public boolean isNotifications() { return notifications; }
+    public void setNotifications(boolean notifications) { this.notifications = notifications; }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
+
+    public String getPrivacy() { return privacy; }
+    public void setPrivacy(String privacy) { this.privacy = privacy; }
 }

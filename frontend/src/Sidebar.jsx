@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaHome, FaMapMarkedAlt, FaBook, FaPlane, FaUser } from "react-icons/fa";
+import { FaHome, FaMapMarkedAlt, FaBook, FaPlane, FaUser, FaCog } from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
     { name: "Bookings", path: "/bookings", icon: <FaBook /> },
     { name: "My Trips", path: "/mytrips", icon: <FaPlane /> },
     { name: "Profile", path: "/profile", icon: <FaUser /> },
+    { name: "Settings", path: "/settings", icon: <FaCog /> },
   ];
 
   return (

@@ -6,10 +6,22 @@ import Explore from "./pages/Explore";
 import Bookings from "./pages/Bookings";
 import MyTrips from "./pages/MyTrips";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
 import "./App.css";
+
+// Initialize dark mode on startup
+const initDarkMode = () => {
+  const isDarkMode = localStorage.getItem("darkMode") === "true";
+  if (isDarkMode) {
+    document.documentElement.classList.add("dark-mode");
+    document.body.classList.add("dark-mode-body");
+  }
+};
+
+initDarkMode();
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -27,6 +39,7 @@ function AnimatedRoutes() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/mytrips" element={<MyTrips />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         
       </Routes>
     </div>

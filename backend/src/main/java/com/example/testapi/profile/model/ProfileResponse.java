@@ -9,8 +9,9 @@ public class ProfileResponse {
     private String phone;
     private boolean hasPhoto;
     private String photoUrl;
+    private UserSettings settings;
 
-    public ProfileResponse(String id, String email, String fullName, String nickname, String phone, boolean hasPhoto) {
+    public ProfileResponse(String id, String email, String fullName, String nickname, String phone, boolean hasPhoto, UserSettings settings) {
         this.id = id;
         this.email = email;
         this.fullName = fullName;
@@ -18,6 +19,7 @@ public class ProfileResponse {
         this.phone = phone;
         this.hasPhoto = hasPhoto;
         this.photoUrl = null;
+        this.settings = settings;
     }
 
     public String getId() { return id; }
@@ -27,4 +29,5 @@ public class ProfileResponse {
     public String getPhone() { return phone; }
     public boolean isHasPhoto() { return hasPhoto; }
     public String getPhotoUrl() { return photoUrl; }
+    public UserSettings getSettings() { return settings; }
 }

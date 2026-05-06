@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
-import com.example.testapi.profile.model.MessageResponse;
+import com.example.testapi.profile.model.UserSettings;
 import com.example.testapi.profile.service.ProfileService;
 
 @RestController
@@ -78,5 +78,14 @@ public class ProfileController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, user.getPhotoMime())
                 .body(user.getPhotoBytes());
+    }
+
+    @PutMapping("/{id}/settings")
+    public ResponseEntity<?> updateSettings(@PathVariable String id, @RequestBody UserSettings settings) {
+        try {
+            return ResponseEntity.ok(service.updateSettings(id, settings));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
+        }
     }
 }

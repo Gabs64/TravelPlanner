@@ -8,7 +8,7 @@ import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
 import com.example.testapi.profile.model.MessageResponse;
-import com.example.testapi.profile.model.ProfileResponse;
+import com.example.testapi.profile.model.UserSettings;
 import com.example.testapi.profile.repository.UserProfileRepo;
 
 @Service
@@ -28,13 +28,21 @@ public class ProfileService {
     public ProfileResponse getProfile(String id) {
         UserProfile p = getUserEntity(id);
 
+        UserSettings settings = new UserSettings(
+                p.isDarkMode(),
+                p.isNotifications(),
+                p.getLanguage(),
+                p.getPrivacy()
+        );
+
         return new ProfileResponse(
                 p.getId(),
                 p.getEmail(),
                 p.getFullName(),
                 p.getNickname(),
                 p.getPhone(),
-                p.getPhotoBytes() != null
+                p.getPhotoBytes() != null,
+                settings
         );
     }
 
@@ -78,6 +86,19 @@ public class ProfileService {
         repo.save(p);
 
         return new MessageResponse("Photo uploaded successfully");
+    }
+
+    @Transactional
+    public MessageResponse updateSettings(String id, UserSettings settings) {
+        UserProfile p = getUserEntity(id);
+
+        p.setDarkMode(settings.isDarkMode());
+        p.setNotifications(settings.isNotifications());
+        p.setLanguage(settings.getLanguage());
+        p.setPrivacy(settings.getPrivacy());
+
+        repo.save(p);
+        return new MessageResponse("Settings updated successfully");
     }
 
     @Transactional
