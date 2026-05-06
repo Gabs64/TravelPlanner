@@ -1,50 +1,79 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import API_BASE from "../apiConfig";
 import "./MyTrips.css";
 
-const initialTrips = [
-  {
-    id: 1,
-    name: "Boracay",
-    date: "March 20-25, 2026",
-    status: "Upcoming",
-    itinerary: [
-      { id: 1, time: "Day 1", title: "Arrival and hotel check-in" },
-      { id: 2, time: "Day 2", title: "Island hopping tour" },
-      { id: 3, time: "Day 3", title: "White Beach and sunset viewing" },
-      { id: 4, time: "Day 4", title: "Water activities and souvenir shopping" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Baguio",
-    date: "Jan 5-8, 2026",
-    status: "Completed",
-    itinerary: [
-      { id: 1, time: "Day 1", title: "Burnham Park and Session Road" },
-      { id: 2, time: "Day 2", title: "Mines View Park and The Mansion" },
-      { id: 3, time: "Day 3", title: "Botanical Garden and cafe hopping" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Cebu",
-    date: "Feb 10-15, 2026",
-    status: "Completed",
-    itinerary: [
-      { id: 1, time: "Day 1", title: "City tour and Magellan's Cross" },
-      { id: 2, time: "Day 2", title: "Temple of Leah and Tops Lookout" },
-      { id: 3, time: "Day 3", title: "Island hopping and beach day" },
-    ],
-  },
+const createDefaultItinerary = (destinationName) => [
+  { id: 1, time: "Day 1", title: `Arrive in ${destinationName} and check in` },
+  { id: 2, time: "Day 2", title: `Explore popular spots in ${destinationName}` },
+  { id: 3, time: "Day 3", title: "Free time, food trip, and souvenir shopping" },
 ];
 
 const MyTrips = () => {
-  const [trips, setTrips] = useState(initialTrips);
+  const navigate = useNavigate();
+
+  const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
+
+  useEffect(() => {
+    const fetchTrips = async () => {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const res = await fetch(`${API_BASE}/trips/${encodeURIComponent(userId)}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Unable to load trips");
+        }
+
+        const mappedTrips = data.map((trip) => {
+          const destinationName = trip.destinationName || "Unnamed Trip";
+
+          return {
+            id: trip.id,
+            name: destinationName,
+            date: `${trip.startDate || "No start date"} - ${trip.endDate || "No end date"}`,
+            status: trip.status || "Upcoming",
+            itinerary:
+              Array.isArray(trip.itinerary) && trip.itinerary.length > 0
+                ? trip.itinerary
+                : createDefaultItinerary(destinationName),
+          };
+        });
+
+        setTrips(mappedTrips);
+      } catch (err) {
+        console.error("Error loading trips:", err);
+        setError(err.message || "Failed to load trips");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrips();
+  }, [navigate]);
 
   const closeModal = () => {
     setSelectedTrip(null);
@@ -82,9 +111,35 @@ const MyTrips = () => {
     setConfirmSaveOpen(false);
   };
 
-  const confirmSaveOrder = () => {
-    setConfirmSaveOpen(false);
-    setSaveSuccessOpen(true);
+  const confirmSaveOrder = async () => {
+    if (!selectedTrip || isCompletedTrip) return;
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${API_BASE}/trips/${selectedTrip.id}/itinerary`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          itinerary: selectedTrip.itinerary,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.message || "Unable to save itinerary order");
+      }
+
+      setConfirmSaveOpen(false);
+      setSaveSuccessOpen(true);
+    } catch (err) {
+      console.error("Error saving itinerary:", err);
+      alert(err.message || "Failed to save itinerary order");
+    }
   };
 
   const closeSuccessMessage = () => {
@@ -100,27 +155,35 @@ const MyTrips = () => {
           <p>View your upcoming and completed travel plans.</p>
         </div>
 
-        <div className="trips-grid">
-          {trips.map((trip) => (
-            <div className="trip-card" key={trip.id}>
-              <div>
-                <h3>{trip.name}</h3>
-                <p>{trip.date}</p>
+        {loading ? (
+          <div className="loading">Loading trips...</div>
+        ) : error ? (
+          <div className="status-banner error-banner">{error}</div>
+        ) : trips.length === 0 ? (
+          <div className="empty-state">No trips found yet. Save a destination first.</div>
+        ) : (
+          <div className="trips-grid">
+            {trips.map((trip) => (
+              <div className="trip-card" key={trip.id}>
+                <div>
+                  <h3>{trip.name}</h3>
+                  <p>{trip.date}</p>
+                </div>
+
+                <span className={`status ${trip.status.toLowerCase()}`}>
+                  {trip.status}
+                </span>
+
+                <button
+                  className="itinerary-btn button-ripple"
+                  onClick={() => setSelectedTrip(trip)}
+                >
+                  View Itinerary
+                </button>
               </div>
-
-              <span className={`status ${trip.status.toLowerCase()}`}>
-                {trip.status}
-              </span>
-
-              <button
-                className="itinerary-btn button-ripple"
-                onClick={() => setSelectedTrip(trip)}
-              >
-                View Itinerary
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedTrip && (
@@ -145,7 +208,7 @@ const MyTrips = () => {
 
             <div className="itinerary-list">
               {selectedTrip.itinerary.map((item, index) => (
-                <div className="itinerary-item" key={item.id}>
+                <div className="itinerary-item" key={`${item.id}-${index}`}>
                   <div className="itinerary-order">{index + 1}</div>
 
                   <div className="itinerary-info">
