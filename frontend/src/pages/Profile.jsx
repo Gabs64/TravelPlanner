@@ -217,7 +217,7 @@ const Profile = () => {
                   <strong>{user.phone || "Not provided"}</strong>
                 </div>
 
-                <div className="info-item">
+                <div className="info-item status-item">
                   <span>Account Status</span>
                   <strong>Active</strong>
                 </div>

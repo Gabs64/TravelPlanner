@@ -25,12 +25,12 @@
   margin: 0 0 6px;
   font-size: 28px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .page-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -63,12 +63,12 @@
 .trip-card h3 {
   margin: 0 0 8px;
   font-size: 18px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .trip-card p {
   margin: 0;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
 }
 
@@ -152,12 +152,12 @@
   margin: 0 0 4px;
   font-size: 22px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .trip-modal-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 700;
 }
@@ -206,13 +206,13 @@
 .itinerary-info span {
   display: block;
   margin-bottom: 4px;
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 800;
 }
 
 .itinerary-info strong {
-  color: #111827;
+  color: var(--text-primary);
   font-size: 14px;
 }
 
@@ -373,6 +373,49 @@
     transform: translateY(0) scale(1);
     filter: blur(0);
   }
+}
+
+.trips-page {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.trips-page .page-header p {
+  color: var(--text-secondary);
+}
+
+.trips-page .trip-card,
+.trips-page .trip-modal,
+.trips-page .itinerary-item,
+.trips-page .confirm-panel,
+.trips-page .success-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.trips-page .trip-card h3,
+.trips-page .trip-modal-header h3,
+.trips-page .itinerary-info strong,
+.trips-page .confirm-panel h4,
+.trips-page .success-panel h4 {
+  color: var(--text-primary);
+}
+
+.trips-page .trip-card p,
+.trips-page .trip-modal-header p,
+.trips-page .itinerary-info span,
+.trips-page .confirm-panel p,
+.trips-page .success-panel p {
+  color: var(--text-secondary);
+}
+
+.trips-page .modal-close-btn,
+.trips-page .itinerary-controls button,
+.trips-page .modal-secondary-btn,
+.trips-page .confirm-no-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
 }
 
 @keyframes panelPopIn {
