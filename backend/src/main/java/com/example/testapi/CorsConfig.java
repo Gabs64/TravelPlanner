@@ -18,6 +18,7 @@ public class CorsConfig {
                         .allowedOriginPatterns(
                                 "http://localhost:3000",
                                 "http://localhost:5173",
+                                "https://travel-planner-g8yfkt666-gabs64s-projects.vercel.app",
                                 "https://travel-planner-4w9qf16hd-gabs64s-projects.vercel.app",
                                 "https://*.vercel.app"
                         )
