@@ -24,6 +24,8 @@ const Settings = () => {
   const [deleteError, setDeleteError] = useState("");
   const [deleting, setDeleting] = useState(false);
 
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+
   const API_BASE =
     process.env.REACT_APP_API_BASE || "https://travelplanner-backend-rp6r.onrender.com";
 
@@ -151,9 +153,10 @@ const Settings = () => {
     });
   };
 
-  const handleLogout = () => {
+  const confirmLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
+    setLogoutModalOpen(false);
     navigate("/");
   };
 
@@ -327,7 +330,10 @@ const Settings = () => {
             </section>
 
             <section className="settings-section logout-section">
-              <button onClick={handleLogout} className="logout-btn button-ripple">
+              <button
+                onClick={() => setLogoutModalOpen(true)}
+                className="logout-btn button-ripple"
+              >
                 <FaSignOutAlt /> Logout
               </button>
             </section>
@@ -345,6 +351,28 @@ const Settings = () => {
           </div>
         )}
       </div>
+
+      {logoutModalOpen && (
+        <div className="delete-modal-overlay" onClick={() => setLogoutModalOpen(false)}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Logout?</h3>
+            <p>Are you sure you want to log out of your TravelPlanner account?</p>
+
+            <div className="delete-modal-actions">
+              <button className="confirm-logout-btn button-ripple" onClick={confirmLogout}>
+                Yes, Logout
+              </button>
+
+              <button
+                className="cancel-delete-btn button-ripple"
+                onClick={() => setLogoutModalOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteModalOpen && (
         <div className="delete-modal-overlay" onClick={() => setDeleteModalOpen(false)}>

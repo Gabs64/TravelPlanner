@@ -484,3 +484,17 @@
     filter: blur(0);
   }
 }
+
+.confirm-logout-btn {
+  flex: 1;
+  height: 42px;
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+}
+
