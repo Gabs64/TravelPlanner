@@ -64,7 +64,9 @@ const Profile = () => {
         email: data.email || "",
         phone: data.phone || "",
         hasPhoto: Boolean(data.hasPhoto),
-        photoUrl: data.photoUrl || "",
+        photoUrl:
+          data.photoUrl ||
+          (data.hasPhoto ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo` : ""),
       });
     } catch (err) {
       console.error("Error fetching profile:", err);

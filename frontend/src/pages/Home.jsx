@@ -71,7 +71,9 @@ const Home = () => {
           setUser({
             nickname: data.nickname || data.fullName || "User",
             hasPhoto: Boolean(data.hasPhoto),
-            photoUrl: data.photoUrl || "",
+            photoUrl:
+              data.photoUrl ||
+              (data.hasPhoto ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo` : ""),
           });
         }
       } catch (err) {

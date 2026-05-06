@@ -15,13 +15,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
 
                 registry.addMapping("/**")
-                        .allowedOriginPatterns(
-                                "http://localhost:3000",
-                                "http://localhost:5173",
-                                "https://travel-planner-g8yfkt666-gabs64s-projects.vercel.app",
-                                "https://travel-planner-4w9qf16hd-gabs64s-projects.vercel.app",
-                                "https://*.vercel.app"
-                        )
+                        .allowedOrigins("*")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(false)
