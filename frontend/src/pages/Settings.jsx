@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaMoon, FaSun, FaBell, FaGlobe, FaShieldAlt, FaSignOutAlt } from "react-icons/fa";
 import "./Settings.css";
@@ -10,15 +10,10 @@ const Settings = () => {
   const [language, setLanguage] = useState("en");
   const [privacy, setPrivacy] = useState("public");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   const API_BASE = process.env.REACT_APP_API_BASE || "https://travelplanner-backend-rp6r.onrender.com";
 
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
@@ -60,10 +55,13 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate, API_BASE]);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const saveSettings = async (updatedSettings) => {
-    setSaving(true);
     try {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
@@ -82,8 +80,6 @@ const Settings = () => {
       }
     } catch (error) {
       console.error("Error saving settings:", error);
-    } finally {
-      setSaving(false);
     }
   };
 
