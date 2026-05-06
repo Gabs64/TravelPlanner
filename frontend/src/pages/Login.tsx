@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
-const API_BASE = "";
+const API_BASE = "https://travelplanner-backend-rp6r.onrender.com";
 
 function Login() {
   const navigate = useNavigate();
