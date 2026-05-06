@@ -2,6 +2,7 @@ package com.example.testapi.profile.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
+import com.example.testapi.profile.model.DeleteAccountRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
 import com.example.testapi.profile.model.MessageResponse;
 import com.example.testapi.profile.model.UserSettings;
 import com.example.testapi.profile.service.ProfileService;
+
 
 @RestController
 @RequestMapping("/profile")
@@ -89,4 +92,13 @@ public class ProfileController {
             return ResponseEntity.status(404).body(new MessageResponse(e.getMessage()));
         }
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MessageResponse> deleteAccount(
+            @PathVariable String id,
+            @RequestBody DeleteAccountRequest req
+    ) {
+        return ResponseEntity.ok(service.deleteAccount(id, req));
+
+    }
+
 }

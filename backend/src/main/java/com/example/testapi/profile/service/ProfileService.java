@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
+import com.example.testapi.profile.model.DeleteAccountRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
 import com.example.testapi.profile.model.MessageResponse;
 import com.example.testapi.profile.model.ProfileResponse;
@@ -106,4 +107,24 @@ public class ProfileService {
     public void saveUser(UserProfile user) {
         repo.save(user);
     }
+
+    @Transactional
+    public MessageResponse deleteAccount(String id, DeleteAccountRequest req) {
+        UserProfile user = getUserEntity(id);
+
+        if (req.getPassword() == null || req.getPassword().isBlank()) {
+            throw new RuntimeException("Password is required");
+        }
+
+        String enteredHash = Integer.toString(req.getPassword().hashCode());
+
+        if (!enteredHash.equals(user.getPasswordHash())) {
+            throw new RuntimeException("Incorrect password");
+        }
+
+        repo.delete(user);
+
+        return new MessageResponse("Account deleted successfully");
+    }
+
 }
