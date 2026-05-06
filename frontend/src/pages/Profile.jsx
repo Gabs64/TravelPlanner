@@ -150,7 +150,7 @@ const Profile = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     setLoading(false);
-    navigate("/intro");
+    navigate("/");
   };
 
   if (loading) {
