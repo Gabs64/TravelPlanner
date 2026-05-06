@@ -195,7 +195,12 @@
     flex-direction: column;
   }
 
+  .navbar input {
+    width: 100%;
+  }
+
   .user {
     width: fit-content;
+    align-self: flex-end;
   }
 }
