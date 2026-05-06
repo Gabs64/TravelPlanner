@@ -2,7 +2,6 @@ package com.example.testapi.profile.controller;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import com.example.testapi.profile.service.ProfileService;
 
 @RestController
 @RequestMapping("/profile")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ProfileController {
 
     private final ProfileService service;
