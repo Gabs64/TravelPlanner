@@ -146,6 +146,17 @@ const Profile = () => {
     }
   };
 
+  const handleCancel = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setAvatarFile(null);
+    setPreviewUrl("");
+    setEditing(false);
+    fetchProfile();
+  };
+
   if (loading) {
     return (
       <main className="profile-page">
@@ -159,81 +170,102 @@ const Profile = () => {
   return (
     <main className="profile-page">
       <div className="profile-content">
-        <div className="page-header">
+        <div className="page-header profile-page-header">
           <h2>My Profile</h2>
           <p>Manage your account details and travel identity.</p>
         </div>
 
-        {error && <div className="status-banner error-banner">{error}</div>}
+        {error && <div className="profile-alert">{error}</div>}
 
-        <section className="profile-card">
-          <div className="profile-summary">
-            <div className="avatar-section">
+        <section className="profile-shell">
+          <aside className="profile-hero-card">
+            <div className="profile-avatar-wrap">
               <img
                 src={previewUrl || user.photoUrl || "https://via.placeholder.com/150?text=User"}
                 alt="Avatar"
               />
-
-              {editing && (
-                <label className="avatar-upload">
-                  Change Photo
-                  <input
-                    type="file"
-                    accept=".png,.jpg,.jpeg"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-
-                      if (previewUrl) {
-                        URL.revokeObjectURL(previewUrl);
-                      }
-
-                      const url = URL.createObjectURL(file);
-                      setAvatarFile(file);
-                      setPreviewUrl(url);
-                      setUser({ ...user, photoUrl: url, hasPhoto: true });
-                    }}
-                  />
-                </label>
-              )}
             </div>
 
-            <div className="profile-identity">
-              <h3>{user.fullName || "Your Name"}</h3>
-              <p>{user.nickname ? `@${user.nickname}` : "No nickname set"}</p>
-            </div>
-          </div>
+            {editing && (
+              <label className="avatar-upload">
+                Change Photo
+                <input
+                  type="file"
+                  accept=".png,.jpg,.jpeg"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
 
-          {!editing ? (
-            <>
-              <div className="profile-info-grid">
-                <div className="info-item">
-                  <span>Email</span>
+                    if (previewUrl) {
+                      URL.revokeObjectURL(previewUrl);
+                    }
+
+                    const url = URL.createObjectURL(file);
+                    setAvatarFile(file);
+                    setPreviewUrl(url);
+                    setUser({ ...user, photoUrl: url, hasPhoto: true });
+                  }}
+                />
+              </label>
+            )}
+
+            <h3>{user.fullName || "Your Name"}</h3>
+            <p>{user.nickname ? `@${user.nickname}` : "No nickname set"}</p>
+
+            <div className="profile-status-pill">Active Account</div>
+          </aside>
+
+          <section className="profile-main-card">
+            <div className="profile-section-title">
+              <h3>{editing ? "Edit Profile" : "Account Information"}</h3>
+              <p>
+                {editing
+                  ? "Update your visible profile information."
+                  : "Your saved contact and profile details."}
+              </p>
+            </div>
+
+            {!editing ? (
+              <div className="profile-detail-list">
+                <div className="profile-detail-row">
+                  <span>Email Address</span>
                   <strong>{user.email || "Not provided"}</strong>
                 </div>
 
-                <div className="info-item">
-                  <span>Phone</span>
+                <div className="profile-detail-row">
+                  <span>Phone Number</span>
                   <strong>{user.phone || "Not provided"}</strong>
                 </div>
 
-                <div className="info-item status-item">
-                  <span>Account Status</span>
-                  <strong>Active</strong>
+                <div className="profile-detail-row">
+                  <span>Display Name</span>
+                  <strong>{user.fullName || "Not provided"}</strong>
+                </div>
+
+                <div className="profile-detail-row">
+                  <span>Nickname</span>
+                  <strong>{user.nickname || "Not provided"}</strong>
                 </div>
               </div>
+            ) : (
+              <div className="profile-detail-list">
+                <div className="profile-detail-row readonly-row">
+                  <span>Email Address</span>
+                  <strong>{user.email || "Not provided"}</strong>
+                </div>
 
-              <div className="button-group">
-                <button onClick={() => setEditing(true)} className="edit-btn button-ripple">
-                  Edit Profile
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="edit-form">
-              <div className="form-grid">
-                <label>
-                  Full Name
+                <label className="profile-edit-row">
+                  <span>Phone Number</span>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={user.phone}
+                    onChange={(e) => setUser({ ...user, phone: e.target.value })}
+                  />
+                </label>
+
+                <label className="profile-edit-row">
+                  <span>Display Name</span>
                   <input
                     type="text"
                     name="fullName"
@@ -242,8 +274,8 @@ const Profile = () => {
                   />
                 </label>
 
-                <label>
-                  Nickname
+                <label className="profile-edit-row">
+                  <span>Nickname</span>
                   <input
                     type="text"
                     name="nickname"
@@ -251,39 +283,26 @@ const Profile = () => {
                     onChange={(e) => setUser({ ...user, nickname: e.target.value })}
                   />
                 </label>
-
-                <label>
-                  Phone
-                  <input
-                    type="text"
-                    name="phone"
-                    value={user.phone}
-                    onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                  />
-                </label>
               </div>
+            )}
 
-              <div className="button-group">
-                <button onClick={handleSave} className="save-btn button-ripple">
-                  Save Changes
+            <div className="profile-actions">
+              {!editing ? (
+                <button onClick={() => setEditing(true)} className="edit-btn button-ripple">
+                  Edit Profile
                 </button>
-                <button
-                  onClick={() => {
-                    if (previewUrl) {
-                      URL.revokeObjectURL(previewUrl);
-                    }
-                    setAvatarFile(null);
-                    setPreviewUrl("");
-                    setEditing(false);
-                    fetchProfile();
-                  }}
-                  className="cancel-btn button-ripple"
-                >
-                  Cancel
-                </button>
-              </div>
+              ) : (
+                <>
+                  <button onClick={handleSave} className="save-btn button-ripple">
+                    Save Changes
+                  </button>
+                  <button onClick={handleCancel} className="cancel-btn button-ripple">
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
-          )}
+          </section>
         </section>
       </div>
     </main>

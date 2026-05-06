@@ -321,6 +321,17 @@
   width: 100%;
 }
 
+.locked-itinerary-banner {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  font-size: 13px;
+  font-weight: 800;
+}
+
 @media (max-width: 620px) {
   .itinerary-item {
     grid-template-columns: 34px 1fr;
@@ -431,3 +442,4 @@
     filter: blur(0);
   }
 }
+

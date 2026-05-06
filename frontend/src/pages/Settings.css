@@ -336,3 +336,151 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.danger-section {
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.danger-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.delete-account-btn {
+  min-width: 150px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.24);
+}
+
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: settingsBackdropIn 0.22s ease-out;
+}
+
+.delete-modal {
+  width: min(100%, 460px);
+  padding: 22px;
+  border-radius: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow:
+    0 24px 60px rgba(31, 41, 55, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  animation: settingsModalIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.delete-modal h3 {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.delete-modal p {
+  margin: 0 0 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.delete-modal input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.delete-modal input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.delete-error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.confirm-delete-btn,
+.cancel-delete-btn {
+  flex: 1;
+  height: 42px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.confirm-delete-btn {
+  border: none;
+  color: #ffffff;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.24);
+}
+
+.cancel-delete-btn {
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+}
+
+.confirm-delete-btn:disabled,
+.cancel-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes settingsBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes settingsModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}

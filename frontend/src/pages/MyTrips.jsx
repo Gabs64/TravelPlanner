@@ -44,6 +44,8 @@ const MyTrips = () => {
   const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
 
+  const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
+
   const closeModal = () => {
     setSelectedTrip(null);
     setConfirmSaveOpen(false);
@@ -51,7 +53,7 @@ const MyTrips = () => {
   };
 
   const moveItineraryItem = (itemIndex, direction) => {
-    if (!selectedTrip) return;
+    if (!selectedTrip || isCompletedTrip) return;
 
     const newIndex = itemIndex + direction;
     if (newIndex < 0 || newIndex >= selectedTrip.itinerary.length) return;
@@ -72,6 +74,7 @@ const MyTrips = () => {
   };
 
   const requestSaveItineraryOrder = () => {
+    if (isCompletedTrip) return;
     setConfirmSaveOpen(true);
   };
 
@@ -134,6 +137,12 @@ const MyTrips = () => {
               </button>
             </div>
 
+            {isCompletedTrip && (
+              <div className="locked-itinerary-banner">
+                This trip is completed. The itinerary is now read-only.
+              </div>
+            )}
+
             <div className="itinerary-list">
               {selectedTrip.itinerary.map((item, index) => (
                 <div className="itinerary-item" key={item.id}>
@@ -144,37 +153,42 @@ const MyTrips = () => {
                     <strong>{item.title}</strong>
                   </div>
 
-                  <div className="itinerary-controls">
-                    <button
-                      onClick={() => moveItineraryItem(index, -1)}
-                      disabled={index === 0}
-                    >
-                      Up
-                    </button>
-                    <button
-                      onClick={() => moveItineraryItem(index, 1)}
-                      disabled={index === selectedTrip.itinerary.length - 1}
-                    >
-                      Down
-                    </button>
-                  </div>
+                  {!isCompletedTrip && (
+                    <div className="itinerary-controls">
+                      <button
+                        onClick={() => moveItineraryItem(index, -1)}
+                        disabled={index === 0}
+                      >
+                        Up
+                      </button>
+                      <button
+                        onClick={() => moveItineraryItem(index, 1)}
+                        disabled={index === selectedTrip.itinerary.length - 1}
+                      >
+                        Down
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
             <div className="trip-modal-actions">
-              <button
-                className="save-itinerary-btn button-ripple"
-                onClick={requestSaveItineraryOrder}
-              >
-                Save Order
-              </button>
+              {!isCompletedTrip && (
+                <button
+                  className="save-itinerary-btn button-ripple"
+                  onClick={requestSaveItineraryOrder}
+                >
+                  Save Order
+                </button>
+              )}
+
               <button className="modal-secondary-btn button-ripple" onClick={closeModal}>
                 Close
               </button>
             </div>
 
-            {confirmSaveOpen && (
+            {confirmSaveOpen && !isCompletedTrip && (
               <div className="confirm-panel">
                 <h4>Save itinerary order?</h4>
                 <p>This will save the current order of your trip activities.</p>
