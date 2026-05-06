@@ -147,7 +147,10 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    redirectToLogin();
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    setLoading(false);
+    navigate("/intro");
   };
 
   if (loading) {
