@@ -61,6 +61,11 @@
   box-shadow: 0 12px 28px rgba(31, 41, 55, 0.08);
   font-size: 14px;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.user:hover {
+  transform: translateY(-1px);
 }
 
 .user img {

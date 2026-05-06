@@ -123,7 +123,7 @@ const Home = () => {
         <div className="navbar">
           <input type="text" placeholder="Search destinations..." />
 
-          <div className="user">
+          <div className="user" onClick={() => navigate('/profile')}>
             <img
               src={user.photoUrl || "https://via.placeholder.com/40?text=User"}
               alt="user"
