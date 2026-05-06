@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
+import com.example.testapi.profile.model.MessageResponse;
 import com.example.testapi.profile.model.UserSettings;
 import com.example.testapi.profile.service.ProfileService;
 

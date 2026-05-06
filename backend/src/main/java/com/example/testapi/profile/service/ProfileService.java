@@ -8,6 +8,7 @@ import com.example.testapi.profile.entity.UserProfile;
 import com.example.testapi.profile.model.ChangePasswordRequest;
 import com.example.testapi.profile.model.EditProfileRequest;
 import com.example.testapi.profile.model.MessageResponse;
+import com.example.testapi.profile.model.ProfileResponse;
 import com.example.testapi.profile.model.UserSettings;
 import com.example.testapi.profile.repository.UserProfileRepo;
 
