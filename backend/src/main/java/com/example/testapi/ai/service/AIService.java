@@ -279,7 +279,16 @@ public class AIService {
             "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}",
             "{\"name\": \"Bohol\", \"desc\": \"Chocolate Hills, white sand beaches, and unique tarsiers.\", \"imageKeyword\": \"bohol\"}",
             "{\"name\": \"Tagaytay\", \"desc\": \"Cool breezes, scenic parks, and stunning views of Taal Volcano.\", \"imageKeyword\": \"lake\"}",
-            "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}"
+            "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}",
+            "{\"name\": \"Batanes\", \"desc\": \"Dramatic emerald hills, traditional stone houses, and lighthouses.\", \"imageKeyword\": \"hills\"}",
+            "{\"name\": \"Sagada\", \"desc\": \"Mysterious hanging coffins, pine-clad valleys, and cool caves.\", \"imageKeyword\": \"mountain\"}",
+            "{\"name\": \"Camiguin\", \"desc\": \"Unique island of seven volcanoes, hot springs, and white sandbars.\", \"imageKeyword\": \"volcano\"}",
+            "{\"name\": \"Siquijor\", \"desc\": \"Mystical waterfalls, centuries-old balete trees, and quiet coves.\", \"imageKeyword\": \"waterfall\"}",
+            "{\"name\": \"Legazpi\", \"desc\": \"Majestic views of Mount Mayon's perfect cone and exciting ATV trails.\", \"imageKeyword\": \"volcano\"}",
+            "{\"name\": \"Iloilo\", \"desc\": \"Stunning heritage churches, delicious batchoy, and local island groups.\", \"imageKeyword\": \"church\"}",
+            "{\"name\": \"Davao\", \"desc\": \"Mount Apo, massive durian fruit stalls, and eagle conversation parks.\", \"imageKeyword\": \"mountain\"}",
+            "{\"name\": \"Dumaguete\", \"desc\": \"Apo Island sea turtles, clean bayside boulevards, and quiet university vibe.\", \"imageKeyword\": \"turtle\"}",
+            "{\"name\": \"Puerto Galera\", \"desc\": \"Beautiful pocket beaches, lively marine diving reefs, and water sports.\", \"imageKeyword\": \"beach\"}"
         );
         java.util.Set<String> activeExcludes = new java.util.HashSet<>();
         if (excludes != null && !excludes.isEmpty()) {
@@ -338,7 +347,8 @@ public class AIService {
 
         String excludeInstructions = "";
         if (!excludesList.isEmpty()) {
-            excludeInstructions = "You MUST NOT suggest any of the following destinations: " + String.join(", ", excludesList) + ". ";
+            excludeInstructions = "You MUST NOT suggest any of the following destinations (or sub-regions/places within them): " + String.join(", ", excludesList) + ". " +
+                    "Also, do not suggest any spelling variations, cities, or sub-destinations inside these excluded spots (e.g. if 'Palawan' is excluded, do not recommend 'El Nido', 'Coron', or 'Puerto Princesa'). ";
         }
 
         String prompt = "Suggest exactly 3 popular travel destinations in the Philippines (other than Boracay, Baguio, Cebu). " +
