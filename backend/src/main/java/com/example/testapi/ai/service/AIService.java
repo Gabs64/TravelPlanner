@@ -258,7 +258,21 @@ public class AIService {
         );
     }
 
-    private String getMockPopularDestinations() {
+    private String getDestinationNameFromJson(String json) {
+        try {
+            int nameIndex = json.indexOf("\"name\": \"");
+            if (nameIndex != -1) {
+                int start = nameIndex + 9;
+                int end = json.indexOf("\"", start);
+                if (end != -1) {
+                    return json.substring(start, end);
+                }
+            }
+        } catch (Exception e) {}
+        return "";
+    }
+
+    private String getMockPopularDestinations(List<String> excludes) {
         List<String> mockDestinations = List.of(
             "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}",
             "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}",
@@ -267,12 +281,42 @@ public class AIService {
             "{\"name\": \"Tagaytay\", \"desc\": \"Cool breezes, scenic parks, and stunning views of Taal Volcano.\", \"imageKeyword\": \"lake\"}",
             "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}"
         );
-        java.util.ArrayList<String> list = new java.util.ArrayList<>(mockDestinations);
-        java.util.Collections.shuffle(list);
-        return "[" + String.join(",", list.subList(0, 3)) + "]";
+        java.util.Set<String> activeExcludes = new java.util.HashSet<>();
+        if (excludes != null && !excludes.isEmpty()) {
+            for (int i = excludes.size() - 1; i >= 0; i--) {
+                String ex = excludes.get(i).trim().toLowerCase();
+                if (ex.isEmpty()) continue;
+                int matchCount = 0;
+                for (String destJson : mockDestinations) {
+                    String name = getDestinationNameFromJson(destJson).toLowerCase();
+                    if (name.equals(ex) || activeExcludes.contains(name)) {
+                        matchCount++;
+                    }
+                }
+                if (mockDestinations.size() - matchCount >= 3) {
+                    for (String destJson : mockDestinations) {
+                        String name = getDestinationNameFromJson(destJson).toLowerCase();
+                        if (name.equals(ex)) {
+                            activeExcludes.add(name);
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        java.util.ArrayList<String> filtered = new java.util.ArrayList<>();
+        for (String destJson : mockDestinations) {
+            String name = getDestinationNameFromJson(destJson).toLowerCase();
+            if (!activeExcludes.contains(name)) {
+                filtered.add(destJson);
+            }
+        }
+        java.util.Collections.shuffle(filtered);
+        return "[" + String.join(",", filtered.subList(0, 3)) + "]";
     }
 
-    public String getPopularDestinations(String apiKey) throws Exception {
+    public String getPopularDestinations(String exclude, String apiKey) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -281,13 +325,24 @@ public class AIService {
             resolvedKey = System.getenv("GEMINI_API_KEY");
         }
 
+        List<String> excludesList = List.of();
+        if (exclude != null && !exclude.isBlank()) {
+            excludesList = List.of(exclude.split(","));
+        }
+
         if (resolvedKey == null || resolvedKey.isBlank()) {
-            return getMockPopularDestinations();
+            return getMockPopularDestinations(excludesList);
         }
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
 
-        String prompt = "Suggest exactly 3 popular travel destinations in the Philippines (other than Boracay, Baguio, Cebu) for a travel planning website. " +
+        String excludeInstructions = "";
+        if (!excludesList.isEmpty()) {
+            excludeInstructions = "You MUST NOT suggest any of the following destinations: " + String.join(", ", excludesList) + ". ";
+        }
+
+        String prompt = "Suggest exactly 3 popular travel destinations in the Philippines (other than Boracay, Baguio, Cebu). " +
+                excludeInstructions +
                 "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. " +
                 "Each object MUST have exactly these fields:\n" +
                 "1. \"name\": the name of the destination (e.g. \"Siargao\").\n" +
@@ -317,7 +372,7 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Popular Destinations API error: " + response.body());
-            return getMockPopularDestinations();
+            return getMockPopularDestinations(excludesList);
         }
 
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
@@ -326,7 +381,7 @@ public class AIService {
             return cleanJsonResponse(text);
         } catch (Exception e) {
             System.err.println("Error parsing popular destinations: " + e.getMessage());
-            return getMockPopularDestinations();
+            return getMockPopularDestinations(excludesList);
         }
     }
 

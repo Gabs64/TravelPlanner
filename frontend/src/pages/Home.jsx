@@ -79,12 +79,14 @@ const Home = () => {
 
   const [aiDestinations, setAiDestinations] = useState([]);
   const [aiLoading, setAiLoading] = useState(true);
+  const [recentDestinations, setRecentDestinations] = useState([]);
 
-  const fetchAiDestinations = async () => {
+  const fetchAiDestinations = async (currentHistory = recentDestinations) => {
     setAiLoading(true);
     const token = localStorage.getItem("token");
+    const excludeParam = currentHistory.join(",");
     try {
-      const res = await fetch(`${API_BASE}/ai/popular-destinations`, {
+      const res = await fetch(`${API_BASE}/ai/popular-destinations?exclude=${encodeURIComponent(excludeParam)}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -93,6 +95,14 @@ const Home = () => {
       if (res.ok) {
         const data = await res.json();
         setAiDestinations(data);
+        const newNames = data.map(d => d.name);
+        setRecentDestinations(prev => {
+          const nextHistory = [...prev.filter(name => !newNames.includes(name)), ...newNames];
+          if (nextHistory.length > 20) {
+            return nextHistory.slice(nextHistory.length - 20);
+          }
+          return nextHistory;
+        });
       }
     } catch (err) {
       console.error("Error fetching AI destinations:", err);
@@ -165,7 +175,7 @@ const Home = () => {
 
     fetchProfile();
     fetchTripStats();
-    fetchAiDestinations();
+    fetchAiDestinations([]);
   }, []);
 
   return (
@@ -239,7 +249,7 @@ const Home = () => {
             <h2>✨ AI Recommended Destinations</h2>
             <button 
               className="refresh-ai-btn button-ripple" 
-              onClick={fetchAiDestinations} 
+              onClick={() => fetchAiDestinations()} 
               disabled={aiLoading}
             >
               🔄 Refresh Recommendations

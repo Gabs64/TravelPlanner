@@ -64,11 +64,12 @@ public class AIController {
 
     @GetMapping(value = "/popular-destinations", produces = "application/json")
     public ResponseEntity<?> getPopularDestinations(
+            @RequestParam(value = "exclude", required = false) String exclude,
             @RequestHeader(value = "X-Api-Key", required = false) String headerApiKey,
             @RequestParam(value = "apiKey", required = false) String paramApiKey) {
         try {
             String apiKey = (headerApiKey != null && !headerApiKey.isBlank()) ? headerApiKey : paramApiKey;
-            String result = aiService.getPopularDestinations(apiKey);
+            String result = aiService.getPopularDestinations(exclude, apiKey);
             return ResponseEntity.ok(result);
         } catch (Exception ex) {
             ex.printStackTrace();
