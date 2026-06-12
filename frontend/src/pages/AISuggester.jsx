@@ -3,6 +3,74 @@ import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./AISuggester.css";
 
+const parseMessageText = (text) => {
+  if (!text) return "";
+  const lines = text.split("\n");
+  
+  return lines.map((line, lineIndex) => {
+    let currentLine = line.trim();
+    if (!currentLine) {
+      return <div key={lineIndex} style={{ height: "0.8em" }} />;
+    }
+    
+    // Check for bullet points
+    const isBullet = currentLine.startsWith("* ") || currentLine.startsWith("- ");
+    if (isBullet) {
+      currentLine = currentLine.substring(2).trim();
+    }
+    
+    // Check for headers (e.g., ### title or ## title)
+    let isHeader = false;
+    if (currentLine.startsWith("### ")) {
+      isHeader = true;
+      currentLine = currentLine.substring(4).trim();
+    } else if (currentLine.startsWith("## ")) {
+      isHeader = true;
+      currentLine = currentLine.substring(3).trim();
+    }
+    
+    // Parse bold text: **text**
+    const parts = [];
+    let lastIndex = 0;
+    const boldRegex = /\*\*([^*]+)\*\*/g;
+    let match;
+    
+    while ((match = boldRegex.exec(currentLine)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(currentLine.substring(lastIndex, match.index));
+      }
+      parts.push(<strong key={match.index}>{match[1]}</strong>);
+      lastIndex = boldRegex.lastIndex;
+    }
+    
+    if (lastIndex < currentLine.length) {
+      parts.push(currentLine.substring(lastIndex));
+    }
+    
+    if (isBullet) {
+      return (
+        <li key={lineIndex} style={{ marginLeft: "1.2rem", marginBottom: "4px", listStyleType: "disc" }}>
+          {parts}
+        </li>
+      );
+    }
+    
+    if (isHeader) {
+      return (
+        <h4 key={lineIndex} style={{ marginTop: "12px", marginBottom: "6px", fontWeight: "700" }}>
+          {parts}
+        </h4>
+      );
+    }
+    
+    return (
+      <p key={lineIndex} style={{ margin: "4px 0", lineHeight: "1.5" }}>
+        {parts}
+      </p>
+    );
+  });
+};
+
 const AISuggester = () => {
   const [messages, setMessages] = useState([
     {
@@ -127,7 +195,9 @@ const AISuggester = () => {
                     {msg.role === "model" ? <FaRobot /> : "U"}
                   </div>
                   <div className="message-bubble">
-                    <p style={{ whiteSpace: "pre-line" }}>{msg.text}</p>
+                    <div className="message-text-content">
+                      {parseMessageText(msg.text)}
+                    </div>
                   </div>
                 </div>
               ))}
