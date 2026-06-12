@@ -81,6 +81,8 @@ const AISuggester = () => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [mapQuery, setMapQuery] = useState("Philippines");
+  const [activeTab, setActiveTab] = useState("chat");
+  const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
 
 
@@ -138,6 +140,7 @@ const AISuggester = () => {
       if (match) {
         const location = match[1].trim();
         setMapQuery(location);
+        setMapUpdated(true);
         // Strip the [MAP: ...] tag from the response text
         aiResponseText = aiResponseText.replace(mapRegex, "").trim();
       }
@@ -168,6 +171,13 @@ const AISuggester = () => {
     handleSend(text);
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === "map") {
+      setMapUpdated(false);
+    }
+  };
+
   const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
 
   return (
@@ -185,9 +195,26 @@ const AISuggester = () => {
 
 
 
+        {/* Mobile View Tab Controls */}
+        <div className="mobile-tabs-header">
+          <button
+            className={`mobile-tab-btn ${activeTab === "chat" ? "active" : ""}`}
+            onClick={() => handleTabChange("chat")}
+          >
+            💬 Chat Assistant
+          </button>
+          <button
+            className={`mobile-tab-btn ${activeTab === "map" ? "active" : ""}`}
+            onClick={() => handleTabChange("map")}
+          >
+            🗺️ Navigation Map
+            {mapUpdated && <span className="tab-badge"></span>}
+          </button>
+        </div>
+
         <div className="ai-layout">
           {/* Chat Panel */}
-          <div className="chat-panel">
+          <div className={`chat-panel ${activeTab === "chat" ? "mobile-show" : "mobile-hide"}`}>
             <div className="chat-messages">
               {messages.map((msg, index) => (
                 <div key={index} className={`message-bubble-wrapper ${msg.role}`}>
@@ -249,7 +276,7 @@ const AISuggester = () => {
           </div>
 
           {/* Map Panel */}
-          <div className="map-panel">
+          <div className={`map-panel ${activeTab === "map" ? "mobile-show" : "mobile-hide"}`}>
             <div className="map-card-header">
               <h4>
                 <FaMapMarkerAlt /> Interactive Navigation
