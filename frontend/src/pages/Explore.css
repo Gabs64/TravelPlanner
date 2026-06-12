@@ -269,8 +269,7 @@
 
 .explore-page .explore-count span,
 .explore-page .explore-card h3,
-.explore-page .explore-card button,
-.explore-page .category-filter button {
+.explore-page .category-filter button:not(.active) {
   color: var(--text-primary);
 }
 
