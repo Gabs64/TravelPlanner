@@ -8,8 +8,10 @@ import {
   FaShieldAlt,
   FaSignOutAlt,
   FaTrashAlt,
+  FaRobot,
 } from "react-icons/fa";
 import "./Settings.css";
+import API_BASE from "../apiConfig";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -19,6 +21,9 @@ const Settings = () => {
   const [privacy, setPrivacy] = useState("public");
   const [loading, setLoading] = useState(true);
 
+  const [geminiApiKey, setGeminiApiKey] = useState("");
+  const [keySaved, setKeySaved] = useState(false);
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
@@ -26,8 +31,20 @@ const Settings = () => {
 
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
-  const API_BASE =
-    process.env.REACT_APP_API_BASE || "https://travelplanner-backend-rp6r.onrender.com";
+
+
+  useEffect(() => {
+    const key = localStorage.getItem("geminiApiKey") || "";
+    setGeminiApiKey(key);
+  }, []);
+
+  const handleGeminiKeyChange = (e) => {
+    const newKey = e.target.value;
+    setGeminiApiKey(newKey);
+    localStorage.setItem("geminiApiKey", newKey);
+    setKeySaved(true);
+    setTimeout(() => setKeySaved(false), 2000);
+  };
 
   const loadSettings = useCallback(async () => {
     try {
@@ -280,6 +297,33 @@ const Settings = () => {
                   <option value="ja">日本語 (Japanese)</option>
                   <option value="ph">Filipino (Tagalog)</option>
                 </select>
+              </div>
+            </section>
+
+            <section className="settings-section">
+              <div className="section-title">
+                <span className="section-icon"><FaRobot /></span>
+                <h3>AI Assistant Settings</h3>
+              </div>
+
+              <div className="settings-item">
+                <div className="item-label">
+                  <span className="item-title">Gemini API Key</span>
+                  <span className="item-description">
+                    Enter your Gemini API key to activate the live AI Travel Suggester agent.
+                  </span>
+                </div>
+                <div className="ai-key-input-container" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <input
+                    type="password"
+                    placeholder="Enter API Key"
+                    value={geminiApiKey}
+                    onChange={handleGeminiKeyChange}
+                    className="select-input"
+                    style={{ width: "220px", height: "38px", padding: "0 12px", borderRadius: "10px", border: "1px solid var(--border-color)", background: "var(--bg-input)", color: "var(--text-primary)" }}
+                  />
+                  {keySaved && <span style={{ color: "#10b981", fontSize: "12px", fontWeight: "bold" }}>Saved!</span>}
+                </div>
               </div>
             </section>
 

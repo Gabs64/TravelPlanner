@@ -10,6 +10,7 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
+import AISuggester from "./pages/AISuggester";
 import "./App.css";
 
 // Initialize dark mode on startup - check localStorage as fallback, but exclude auth pages
@@ -45,6 +46,7 @@ function AnimatedRoutes() {
         <Route path="/mytrips" element={<MyTrips />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/ai-suggester" element={<AISuggester />} />
         
       </Routes>
     </div>

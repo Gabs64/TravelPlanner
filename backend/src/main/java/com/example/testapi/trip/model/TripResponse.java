@@ -1,5 +1,6 @@
 package com.example.testapi.trip.model;
 
+import java.util.List;
 import com.example.testapi.trip.entity.Trip;
 
 public class TripResponse {
@@ -9,6 +10,7 @@ public class TripResponse {
     private String startDate;
     private String endDate;
     private String status;
+    private List<ItineraryItem> itinerary;
 
     public TripResponse() {}
 
@@ -19,6 +21,17 @@ public class TripResponse {
         this.startDate = trip.getStartDate().toString();
         this.endDate = trip.getEndDate().toString();
         this.status = status;
+        this.itinerary = List.of();
+    }
+
+    public TripResponse(Trip trip, String status, List<ItineraryItem> itinerary) {
+        this.id = trip.getId();
+        this.destinationSlug = trip.getDestinationSlug();
+        this.destinationName = trip.getDestinationName();
+        this.startDate = trip.getStartDate().toString();
+        this.endDate = trip.getEndDate().toString();
+        this.status = status;
+        this.itinerary = itinerary;
     }
 
     public String getId() {
@@ -43,5 +56,9 @@ public class TripResponse {
 
     public String getStatus() {
         return status;
+    }
+
+    public List<ItineraryItem> getItinerary() {
+        return itinerary;
     }
 }

@@ -19,6 +19,9 @@ const MyTrips = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState(null);
+
   const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
 
   useEffect(() => {
@@ -54,6 +57,8 @@ const MyTrips = () => {
           return {
             id: trip.id,
             name: destinationName,
+            startDate: trip.startDate,
+            endDate: trip.endDate,
             date: `${trip.startDate || "No start date"} - ${trip.endDate || "No end date"}`,
             status: trip.status || "Upcoming",
             itinerary:
@@ -79,6 +84,53 @@ const MyTrips = () => {
     setSelectedTrip(null);
     setConfirmSaveOpen(false);
     setSaveSuccessOpen(false);
+    setAiSuggestions(null);
+  };
+
+  const generateAIItinerary = async () => {
+    if (!selectedTrip) return;
+    setGeneratingAI(true);
+    setAiSuggestions(null);
+    try {
+      const token = localStorage.getItem("token");
+      const savedKey = localStorage.getItem("geminiApiKey") || "";
+
+      const res = await fetch(`${API_BASE}/ai/generate-itinerary`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          destination: selectedTrip.name,
+          startDate: selectedTrip.startDate,
+          endDate: selectedTrip.endDate,
+          apiKey: savedKey,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to generate AI itinerary");
+      const data = await res.json();
+      setAiSuggestions(data);
+    } catch (err) {
+      console.error(err);
+      alert("Error generating AI itinerary: " + err.message);
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const applyAIItinerary = () => {
+    if (!selectedTrip || !aiSuggestions) return;
+    const updatedTrip = {
+      ...selectedTrip,
+      itinerary: aiSuggestions,
+    };
+    setSelectedTrip(updatedTrip);
+    setTrips((prev) =>
+      prev.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip))
+    );
+    setAiSuggestions(null);
   };
 
   const moveItineraryItem = (itemIndex, direction) => {
@@ -111,12 +163,29 @@ const MyTrips = () => {
     setConfirmSaveOpen(false);
   };
 
-  const confirmSaveOrder = () => {
-  if (!selectedTrip || isCompletedTrip) return;
+  const confirmSaveOrder = async () => {
+    if (!selectedTrip || isCompletedTrip) return;
 
-  setConfirmSaveOpen(false);
-  setSaveSuccessOpen(true);
-};
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/trips/${selectedTrip.id}/itinerary`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(selectedTrip.itinerary),
+      });
+
+      if (!res.ok) throw new Error("Failed to save itinerary order");
+
+      setConfirmSaveOpen(false);
+      setSaveSuccessOpen(true);
+    } catch (err) {
+      console.error(err);
+      alert("Error saving itinerary order: " + err.message);
+    }
+  };
 
 
   const closeSuccessMessage = () => {
@@ -213,7 +282,52 @@ const MyTrips = () => {
               ))}
             </div>
 
-            <div className="trip-modal-actions">
+            {!isCompletedTrip && (
+              <div className="ai-modal-section" style={{ marginTop: "20px", padding: "16px", border: "1px dashed var(--border-color)", borderRadius: "14px", background: "rgba(255,255,255,0.02)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                  <h4 style={{ margin: 0, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>🤖 AI Itinerary Suggester</h4>
+                  <button
+                    className="button-ripple"
+                    onClick={generateAIItinerary}
+                    disabled={generatingAI}
+                    style={{ padding: "6px 12px", borderRadius: "10px", border: "none", background: "var(--gradient-primary)", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                  >
+                    {generatingAI ? "Generating..." : "Generate AI Suggestions"}
+                  </button>
+                </div>
+
+                {aiSuggestions && (
+                  <div className="ai-preview-container" style={{ marginTop: "14px" }}>
+                    <p style={{ margin: "0 0 8px", fontSize: "12.5px", color: "var(--text-secondary)", fontWeight: "600" }}>Preview Suggested Activities:</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", background: "var(--bg-input)", border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", marginBottom: "12px" }}>
+                      {aiSuggestions.map((item, index) => (
+                        <div key={index} style={{ fontSize: "13px", lineHeight: "1.4" }}>
+                          <strong>{item.time}:</strong> {item.title}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        className="button-ripple"
+                        onClick={applyAIItinerary}
+                        style={{ padding: "6px 12px", borderRadius: "8px", border: "none", background: "#10b981", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                      >
+                        Apply to Trip
+                      </button>
+                      <button
+                        className="button-ripple"
+                        onClick={() => setAiSuggestions(null)}
+                        style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "transparent", color: "var(--text-primary)", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                      >
+                        Discard
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="trip-modal-actions" style={{ marginTop: "24px" }}>
               {!isCompletedTrip && (
                 <button
                   className="save-itinerary-btn button-ripple"

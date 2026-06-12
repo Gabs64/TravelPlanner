@@ -12,13 +12,17 @@ import com.example.testapi.trip.entity.Trip;
 import com.example.testapi.trip.model.TripRequest;
 import com.example.testapi.trip.model.TripResponse;
 import com.example.testapi.trip.model.TripStatsResponse;
+import com.example.testapi.trip.model.ItineraryItem;
 import com.example.testapi.trip.repository.TripRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class TripService {
 
     private final TripRepository tripRepository;
     private final UserProfileRepo userProfileRepo;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TripService(TripRepository tripRepository, UserProfileRepo userProfileRepo) {
         this.tripRepository = tripRepository;
@@ -82,6 +86,38 @@ public class TripService {
                 .collect(Collectors.toList());
     }
 
+    public TripResponse updateItinerary(String tripId, List<ItineraryItem> itinerary) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+        trip.setItinerary(serializeItinerary(itinerary));
+        Trip saved = tripRepository.save(trip);
+        return toResponse(saved);
+    }
+
+    private List<ItineraryItem> parseItinerary(String json) {
+        if (json == null || json.isBlank()) {
+            return List.of();
+        }
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<ItineraryItem>>() {});
+        } catch (Exception e) {
+            System.err.println("Error parsing itinerary JSON: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    private String serializeItinerary(List<ItineraryItem> items) {
+        if (items == null) {
+            return "[]";
+        }
+        try {
+            return objectMapper.writeValueAsString(items);
+        } catch (Exception e) {
+            System.err.println("Error serializing itinerary list: " + e.getMessage());
+            return "[]";
+        }
+    }
+
     private TripResponse toResponse(Trip trip) {
         LocalDate today = LocalDate.now();
         String status;
@@ -94,6 +130,7 @@ public class TripService {
             status = "Ongoing";
         }
 
-        return new TripResponse(trip, status);
+        List<ItineraryItem> itinerary = parseItinerary(trip.getItinerary());
+        return new TripResponse(trip, status, itinerary);
     }
 }

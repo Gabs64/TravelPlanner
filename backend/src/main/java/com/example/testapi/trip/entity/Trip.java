@@ -30,6 +30,9 @@ public class Trip {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "itinerary", columnDefinition = "text")
+    private String itinerary;
+
     public Trip() {}
 
     public Trip(String id, String userId, String destinationSlug, String destinationName, LocalDate startDate, LocalDate endDate) {
@@ -87,5 +90,13 @@ public class Trip {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public String getItinerary() {
+        return itinerary;
+    }
+
+    public void setItinerary(String itinerary) {
+        this.itinerary = itinerary;
     }
 }
