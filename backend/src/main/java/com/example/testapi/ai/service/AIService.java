@@ -258,6 +258,20 @@ public class AIService {
         );
     }
 
+    private String getMockPopularDestinations() {
+        List<String> mockDestinations = List.of(
+            "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}",
+            "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}",
+            "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}",
+            "{\"name\": \"Bohol\", \"desc\": \"Chocolate Hills, white sand beaches, and unique tarsiers.\", \"imageKeyword\": \"bohol\"}",
+            "{\"name\": \"Tagaytay\", \"desc\": \"Cool breezes, scenic parks, and stunning views of Taal Volcano.\", \"imageKeyword\": \"lake\"}",
+            "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}"
+        );
+        java.util.ArrayList<String> list = new java.util.ArrayList<>(mockDestinations);
+        java.util.Collections.shuffle(list);
+        return "[" + String.join(",", list.subList(0, 3)) + "]";
+    }
+
     public String getPopularDestinations(String apiKey) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
@@ -268,11 +282,7 @@ public class AIService {
         }
 
         if (resolvedKey == null || resolvedKey.isBlank()) {
-            return "[" +
-                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
-                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
-                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
-                    "]";
+            return getMockPopularDestinations();
         }
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
@@ -307,11 +317,7 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Popular Destinations API error: " + response.body());
-            return "[" +
-                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
-                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
-                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
-                    "]";
+            return getMockPopularDestinations();
         }
 
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
@@ -320,11 +326,7 @@ public class AIService {
             return cleanJsonResponse(text);
         } catch (Exception e) {
             System.err.println("Error parsing popular destinations: " + e.getMessage());
-            return "[" +
-                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
-                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
-                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
-                    "]";
+            return getMockPopularDestinations();
         }
     }
 

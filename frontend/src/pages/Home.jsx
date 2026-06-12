@@ -80,6 +80,27 @@ const Home = () => {
   const [aiDestinations, setAiDestinations] = useState([]);
   const [aiLoading, setAiLoading] = useState(true);
 
+  const fetchAiDestinations = async () => {
+    setAiLoading(true);
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${API_BASE}/ai/popular-destinations`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAiDestinations(data);
+      }
+    } catch (err) {
+      console.error("Error fetching AI destinations:", err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
@@ -139,26 +160,6 @@ const Home = () => {
         }
       } catch (err) {
         console.error("Error fetching trip stats:", err);
-      }
-    };
-
-    const fetchAiDestinations = async () => {
-      const token = localStorage.getItem("token");
-      try {
-        const res = await fetch(`${API_BASE}/ai/popular-destinations`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setAiDestinations(data);
-        }
-      } catch (err) {
-        console.error("Error fetching AI destinations:", err);
-      } finally {
-        setAiLoading(false);
       }
     };
 
@@ -234,7 +235,16 @@ const Home = () => {
         </section>
 
         <section className="section ai-section">
-          <h2>✨ AI Recommended Destinations</h2>
+          <div className="ai-section-header">
+            <h2>✨ AI Recommended Destinations</h2>
+            <button 
+              className="refresh-ai-btn button-ripple" 
+              onClick={fetchAiDestinations} 
+              disabled={aiLoading}
+            >
+              🔄 Refresh Recommendations
+            </button>
+          </div>
 
           <div className="destinations">
             {aiLoading ? (
