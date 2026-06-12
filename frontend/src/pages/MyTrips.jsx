@@ -93,7 +93,6 @@ const MyTrips = () => {
     setAiSuggestions(null);
     try {
       const token = localStorage.getItem("token");
-      const savedKey = localStorage.getItem("geminiApiKey") || "";
 
       const res = await fetch(`${API_BASE}/ai/generate-itinerary`, {
         method: "POST",
@@ -105,7 +104,6 @@ const MyTrips = () => {
           destination: selectedTrip.name,
           startDate: selectedTrip.startDate,
           endDate: selectedTrip.endDate,
-          apiKey: savedKey,
         }),
       });
 

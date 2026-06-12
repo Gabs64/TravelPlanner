@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import { FaRobot, FaPaperPlane, FaMapMarkerAlt, FaInfoCircle } from "react-icons/fa";
+import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./AISuggester.css";
 
@@ -14,14 +13,8 @@ const AISuggester = () => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [mapQuery, setMapQuery] = useState("Philippines");
-  const [hasApiKey, setHasApiKey] = useState(false);
-
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    const key = localStorage.getItem("geminiApiKey");
-    setHasApiKey(!!key);
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,7 +39,7 @@ const AISuggester = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const savedKey = localStorage.getItem("geminiApiKey") || "";
+
 
       // Build chat history in ChatMessage format
       const history = messages.map((m) => ({
@@ -63,7 +56,6 @@ const AISuggester = () => {
         body: JSON.stringify({
           message: text,
           history,
-          apiKey: savedKey,
         }),
       });
 
@@ -116,22 +108,14 @@ const AISuggester = () => {
         <div className="page-header">
           <div className="header-title-row">
             <h2>AI Travel Agent Suggester</h2>
-            <div className={`api-badge ${hasApiKey ? "active" : "demo"}`}>
-              <FaRobot /> {hasApiKey ? "Gemini Live" : "Demo Mode"}
+             <div className="api-badge active">
+              <FaRobot /> AI Active
             </div>
           </div>
           <p>Interact with our smart agent to plan details, find local spots, and map destinations.</p>
         </div>
 
-        {!hasApiKey && (
-          <div className="demo-notice-banner">
-            <FaInfoCircle />
-            <span>
-              Running in <strong>Demo Mode</strong> with local simulated responses. Provide your own Gemini API Key in the{" "}
-              <Link to="/settings" className="settings-link">Settings page</Link> to enable fully live travel suggestions!
-            </span>
-          </div>
-        )}
+
 
         <div className="ai-layout">
           {/* Chat Panel */}
