@@ -37,7 +37,7 @@ public class AIService {
             return generateMockResponse(userMessage);
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + resolvedKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + resolvedKey;
 
         ObjectNode requestBody = objectMapper.createObjectNode();
         
@@ -111,7 +111,7 @@ public class AIService {
             return generateMockItinerary(destination, startDate, endDate);
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + resolvedKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + resolvedKey;
 
         String prompt = "Create a custom day-by-day travel itinerary for destination '" + destination + "' starting on " + startDate + " and ending on " + endDate + ".\n" +
                 "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. Return a raw JSON array.\n" +
