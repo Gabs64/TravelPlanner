@@ -257,4 +257,152 @@ public class AIService {
                 new ItineraryItem(3, "Day 3", "Souvenir shopping (pasalubong), check out cafe hopping spots, and head back to the airport for departure.")
         );
     }
+
+    public String getPopularDestinations(String apiKey) throws Exception {
+        String resolvedKey = apiKey;
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            resolvedKey = defaultApiKey;
+        }
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            resolvedKey = System.getenv("GEMINI_API_KEY");
+        }
+
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            return "[" +
+                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
+                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
+                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
+                    "]";
+        }
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
+
+        String prompt = "Suggest exactly 3 popular travel destinations in the Philippines (other than Boracay, Baguio, Cebu) for a travel planning website. " +
+                "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. " +
+                "Each object MUST have exactly these fields:\n" +
+                "1. \"name\": the name of the destination (e.g. \"Siargao\").\n" +
+                "2. \"desc\": a short catchy description (e.g. \"World-class surfing and coconut forest\").\n" +
+                "3. \"imageKeyword\": a single word tag for image search (e.g. \"surf\", \"beach\", \"mountain\").\n";
+
+        ObjectNode requestBody = objectMapper.createObjectNode();
+        ArrayNode contents = objectMapper.createArrayNode();
+        ObjectNode userContent = objectMapper.createObjectNode();
+        userContent.put("role", "user");
+        ArrayNode parts = objectMapper.createArrayNode();
+        parts.add(objectMapper.createObjectNode().put("text", prompt));
+        userContent.set("parts", parts);
+        contents.add(userContent);
+        requestBody.set("contents", contents);
+
+        String json = objectMapper.writeValueAsString(requestBody);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            System.err.println("Gemini Popular Destinations API error: " + response.body());
+            return "[" +
+                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
+                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
+                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
+                    "]";
+        }
+
+        ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
+        try {
+            String text = root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
+            return cleanJsonResponse(text);
+        } catch (Exception e) {
+            System.err.println("Error parsing popular destinations: " + e.getMessage());
+            return "[" +
+                    "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}," +
+                    "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}," +
+                    "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}" +
+                    "]";
+        }
+    }
+
+    public String getDestinationDetails(String slug, String apiKey) throws Exception {
+        String resolvedKey = apiKey;
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            resolvedKey = defaultApiKey;
+        }
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            resolvedKey = System.getenv("GEMINI_API_KEY");
+        }
+
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            return generateMockDetails(slug);
+        }
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
+
+        String prompt = "Create travel details for the destination slug '" + slug + "'.\n" +
+                "You must return ONLY a valid JSON object. Do NOT wrap it in ```json or ``` markdown blocks.\n" +
+                "The object MUST have exactly these fields:\n" +
+                "1. \"name\": Capitalized name (e.g. \"El Nido\").\n" +
+                "2. \"desc\": Description of the place.\n" +
+                "3. \"location\": Exact location string (e.g. \"El Nido, Palawan, Philippines\").\n" +
+                "4. \"bestFor\": Best activities/highlights (e.g. \"Lagoons, island hopping, snorkeling\").\n" +
+                "5. \"budget\": Estimated budget range in PHP (e.g. \"PHP 8,000 - PHP 15,000\").\n" +
+                "6. \"duration\": Recommended duration (e.g. \"3 - 5 days\").\n" +
+                "7. \"activities\": A JSON array of exactly 4 strings containing popular spots or activities (e.g. [\"Big Lagoon\", \"Nacpan Beach\", \"Small Lagoon\", \"Las Cabanas Beach\"]).\n";
+
+        ObjectNode requestBody = objectMapper.createObjectNode();
+        ArrayNode contents = objectMapper.createArrayNode();
+        ObjectNode userContent = objectMapper.createObjectNode();
+        userContent.put("role", "user");
+        ArrayNode parts = objectMapper.createArrayNode();
+        parts.add(objectMapper.createObjectNode().put("text", prompt));
+        userContent.set("parts", parts);
+        contents.add(userContent);
+        requestBody.set("contents", contents);
+
+        String json = objectMapper.writeValueAsString(requestBody);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            System.err.println("Gemini Destination Details API error: " + response.body());
+            return generateMockDetails(slug);
+        }
+
+        ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
+        try {
+            String text = root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
+            return cleanJsonResponse(text);
+        } catch (Exception e) {
+            System.err.println("Error parsing destination details: " + e.getMessage());
+            return generateMockDetails(slug);
+        }
+    }
+
+    private String generateMockDetails(String slug) {
+        String name = slug.substring(0, 1).toUpperCase() + slug.substring(1);
+        if (name.contains("-")) {
+            name = name.replace("-", " ");
+        }
+        return "{\n" +
+                "  \"name\": \"" + name + "\",\n" +
+                "  \"desc\": \"A beautiful travel destination offering scenic views and unique local culture.\",\n" +
+                "  \"location\": \"" + name + ", Philippines\",\n" +
+                "  \"bestFor\": \"Sightseeing, local food, and relaxation\",\n" +
+                "  \"budget\": \"PHP 5,000 - PHP 10,000\",\n" +
+                "  \"duration\": \"2 - 4 days\",\n" +
+                "  \"activities\": [\"Local sightseeing\", \"Food crawl\", \"Nature walk\", \"Souvenir shopping\"]\n" +
+                "}";
+    }
 }

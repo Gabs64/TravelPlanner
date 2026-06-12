@@ -263,3 +263,80 @@
     white-space: nowrap;
   }
 }
+
+/* Skeleton Loading Animations */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite ease-in-out;
+  border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-card {
+  pointer-events: none;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 138px;
+  border-radius: 20px 20px 0 0;
+}
+
+.skeleton-title {
+  height: 20px;
+  margin: 18px 14px 10px;
+  width: 50%;
+}
+
+.skeleton-desc {
+  height: 34px;
+  margin: 0 14px 18px;
+  width: 80%;
+}
+
+.skeleton-btn {
+  height: 40px;
+  margin: 0 14px 14px;
+  width: calc(100% - 28px);
+  border-radius: 14px;
+}
+
+/* AI Section styling */
+.ai-section {
+  margin-top: 32px;
+}
+
+.ai-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-card {
+  border: 1px dashed rgba(37, 99, 235, 0.4);
+  position: relative;
+}
+
+.ai-card::before {
+  content: "AI Recommended";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--gradient-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  z-index: 2;
+}

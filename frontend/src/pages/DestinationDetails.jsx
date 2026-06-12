@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API_BASE from "../apiConfig";
 import "./DestinationDetails.css";
@@ -96,16 +96,75 @@ const DestinationDetails = () => {
     budget: false,
   });
 
-  const destination = destinationData[slug];
+  const staticDest = destinationData[slug];
+  const [destination, setDestination] = useState(staticDest || null);
+  const [loading, setLoading] = useState(!staticDest);
+  const [errorText, setErrorText] = useState("");
 
-  if (!destination) {
+  useEffect(() => {
+    if (staticDest) {
+      setDestination(staticDest);
+      setLoading(false);
+      return;
+    }
+
+    const fetchDynamicDetails = async () => {
+      setLoading(true);
+      setErrorText("");
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`${API_BASE}/ai/destination-details/${encodeURIComponent(slug)}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDestination(data);
+        } else {
+          setErrorText("Unable to load travel suggestions for this destination.");
+        }
+      } catch (err) {
+        console.error("Error fetching destination details:", err);
+        setErrorText("Failed to connect to the backend server.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDynamicDetails();
+  }, [slug, staticDest]);
+
+  if (loading) {
+    return (
+      <main className="destination-page">
+        <div className="destination-content loading-state">
+          <div className="loading-wrapper">
+            <div className="loading-spinner"></div>
+            <p>✨ Consulting Gemini AI to map activities & details...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (errorText || !destination) {
     return (
       <main className="destination-page">
         <div className="destination-content">
-          <button className="back-btn button-ripple" onClick={() => navigate("/home")}>
-            Back
-          </button>
-          <h2>Destination not found</h2>
+          <div className="destination-topbar">
+            <button className="back-btn button-ripple" onClick={() => navigate("/home")}>
+              Back
+            </button>
+          </div>
+          <div className="error-wrapper">
+            <h2>Oops! Destination Details Unavailable</h2>
+            <p>{errorText || "Could not retrieve info. Please verify your connection or try again."}</p>
+            <button className="button-ripple" onClick={() => navigate("/home")}>
+              Go Home
+            </button>
+          </div>
         </div>
       </main>
     );
@@ -309,7 +368,7 @@ const DestinationDetails = () => {
               </div>
 
               <div className="activity-list">
-                {destination.activities.map((activity) => (
+                {(destination.activities || []).map((activity) => (
                   <button
                     className="activity-pill"
                     key={activity}
