@@ -90,7 +90,7 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate, API_BASE]);
+  }, [navigate]);
 
   useEffect(() => {
     loadSettings();
