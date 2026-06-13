@@ -73,10 +73,28 @@ public class TripService {
     }
 
     public TripStatsResponse getStats(String userId) {
+        List<Trip> trips = tripRepository.findByUserIdOrderByStartDateAsc(userId);
+        long planned = trips.size();
+        long upcoming = 0;
+        long visited = 0;
         LocalDate today = LocalDate.now();
-        long planned = tripRepository.countByUserId(userId);
-        long upcoming = tripRepository.countByUserIdAndEndDateGreaterThanEqual(userId, today);
-        long visited = tripRepository.countByUserIdAndEndDateBefore(userId, today);
+        for (Trip trip : trips) {
+            String status = trip.getStatus();
+            if (status == null || status.isBlank()) {
+                if (trip.getEndDate().isBefore(today)) {
+                    status = "Completed";
+                } else if (trip.getStartDate().isAfter(today)) {
+                    status = "Upcoming";
+                } else {
+                    status = "Ongoing";
+                }
+            }
+            if ("Completed".equalsIgnoreCase(status)) {
+                visited++;
+            } else {
+                upcoming++;
+            }
+        }
         return new TripStatsResponse(planned, upcoming, visited);
     }
 
@@ -92,6 +110,21 @@ public class TripService {
         trip.setItinerary(serializeItinerary(itinerary));
         Trip saved = tripRepository.save(trip);
         return toResponse(saved);
+    }
+
+    public TripResponse updateTripStatus(String tripId, String status) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+        trip.setStatus(status);
+        Trip saved = tripRepository.save(trip);
+        return toResponse(saved);
+    }
+
+    public void deleteTrip(String tripId) {
+        if (!tripRepository.existsById(tripId)) {
+            throw new RuntimeException("Trip not found");
+        }
+        tripRepository.deleteById(tripId);
     }
 
     private List<ItineraryItem> parseItinerary(String json) {
@@ -119,15 +152,16 @@ public class TripService {
     }
 
     private TripResponse toResponse(Trip trip) {
-        LocalDate today = LocalDate.now();
-        String status;
-
-        if (trip.getEndDate().isBefore(today)) {
-            status = "Completed";
-        } else if (trip.getStartDate().isAfter(today)) {
-            status = "Upcoming";
-        } else {
-            status = "Ongoing";
+        String status = trip.getStatus();
+        if (status == null || status.isBlank()) {
+            LocalDate today = LocalDate.now();
+            if (trip.getEndDate().isBefore(today)) {
+                status = "Completed";
+            } else if (trip.getStartDate().isAfter(today)) {
+                status = "Upcoming";
+            } else {
+                status = "Ongoing";
+            }
         }
 
         List<ItineraryItem> itinerary = parseItinerary(trip.getItinerary());

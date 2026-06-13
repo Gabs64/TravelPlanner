@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,6 +67,27 @@ public class TripController {
         try {
             TripResponse response = service.updateItinerary(tripId, itinerary);
             return ResponseEntity.ok(response);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/{tripId}/status")
+    public ResponseEntity<?> updateTripStatus(@PathVariable String tripId, @RequestBody java.util.Map<String, String> body) {
+        try {
+            String status = body.get("status");
+            TripResponse response = service.updateTripStatus(tripId, status);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{tripId}")
+    public ResponseEntity<?> deleteTrip(@PathVariable String tripId) {
+        try {
+            service.deleteTrip(tripId);
+            return ResponseEntity.ok(new MessageResponse("Trip deleted successfully"));
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(ex.getMessage()));
         }

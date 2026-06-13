@@ -60,26 +60,70 @@ const Bookings = () => {
     setSelectedBooking(null);
   };
 
-  const markAsComplete = () => {
+  const markAsComplete = async () => {
     if (!selectedBooking) return;
+    const token = localStorage.getItem("token");
 
-    setBookings((prev) =>
-      prev.map((booking) =>
-        booking.id === selectedBooking.id
-          ? {
-              ...booking,
-              status: "Completed",
-              type: "Completed",
-            }
-          : booking
-      )
-    );
+    try {
+      const res = await fetch(`${API_BASE}/trips/${selectedBooking.id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "Completed" }),
+      });
 
-    setSelectedBooking((prev) => ({
-      ...prev,
-      status: "Completed",
-      type: "Completed",
-    }));
+      if (!res.ok) {
+        throw new Error("Failed to update status");
+      }
+
+      setBookings((prev) =>
+        prev.map((booking) =>
+          booking.id === selectedBooking.id
+            ? {
+                ...booking,
+                status: "Completed",
+                type: "Completed",
+              }
+            : booking
+        )
+      );
+
+      setSelectedBooking((prev) => ({
+        ...prev,
+        status: "Completed",
+        type: "Completed",
+      }));
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert(err.message || "Failed to mark booking as complete");
+    }
+  };
+
+  const handleDelete = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to delete this booking?")) return;
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${API_BASE}/trips/${bookingId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to delete booking");
+      }
+
+      setBookings((prev) => prev.filter((booking) => booking.id !== bookingId));
+    } catch (err) {
+      console.error("Error deleting booking:", err);
+      alert(err.message || "Failed to delete booking");
+    }
   };
 
   return (
@@ -109,12 +153,21 @@ const Bookings = () => {
                   {booking.type}
                 </span>
 
-                <button
-                  className="details-btn button-ripple"
-                  onClick={() => setSelectedBooking(booking)}
-                >
-                  View Details
-                </button>
+                <div className="card-actions">
+                  <button
+                    className="details-btn button-ripple"
+                    onClick={() => setSelectedBooking(booking)}
+                  >
+                    View Details
+                  </button>
+                  <button
+                    className="delete-btn button-ripple"
+                    onClick={() => handleDelete(booking.id)}
+                    title="Delete booking"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             ))}
           </div>

@@ -21,8 +21,102 @@ const MyTrips = () => {
 
   const [generatingAI, setGeneratingAI] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
+  const [draggedIndex, setDraggedIndex] = useState(null);
 
   const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
+
+  const handleDragStart = (e, index) => {
+    if (isCompletedTrip) return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e, index) => {
+    if (isCompletedTrip) return;
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, targetIndex) => {
+    if (isCompletedTrip || draggedIndex === null) return;
+    e.preventDefault();
+    if (draggedIndex === targetIndex) return;
+
+    const newItinerary = [...selectedTrip.itinerary];
+    const [draggedItem] = newItinerary.splice(draggedIndex, 1);
+    newItinerary.splice(targetIndex, 0, draggedItem);
+
+    const updatedTrip = {
+      ...selectedTrip,
+      itinerary: newItinerary,
+    };
+
+    setSelectedTrip(updatedTrip);
+    setTrips((prev) =>
+      prev.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
+    );
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  const handleDelete = async (tripId) => {
+    if (!window.confirm("Are you sure you want to delete this trip?")) return;
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${API_BASE}/trips/${tripId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to delete trip");
+      }
+
+      setTrips((prev) => prev.filter((trip) => trip.id !== tripId));
+    } catch (err) {
+      console.error("Error deleting trip:", err);
+      alert(err.message || "Failed to delete trip");
+    }
+  };
+
+  const markAsComplete = async () => {
+    if (!selectedTrip) return;
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${API_BASE}/trips/${selectedTrip.id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "Completed" }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Failed to update status");
+      }
+
+      const updatedTrip = {
+        ...selectedTrip,
+        status: "Completed",
+      };
+      setSelectedTrip(updatedTrip);
+      setTrips((prev) =>
+        prev.map((t) => (t.id === updatedTrip.id ? updatedTrip : t))
+      );
+    } catch (err) {
+      console.error("Error updating status:", err);
+      alert(err.message || "Failed to mark trip as complete");
+    }
+  };
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -218,12 +312,21 @@ const MyTrips = () => {
                   {trip.status}
                 </span>
 
-                <button
-                  className="itinerary-btn button-ripple"
-                  onClick={() => setSelectedTrip(trip)}
-                >
-                  View Itinerary
-                </button>
+                <div className="card-actions">
+                  <button
+                    className="itinerary-btn button-ripple"
+                    onClick={() => setSelectedTrip(trip)}
+                  >
+                    View Itinerary
+                  </button>
+                  <button
+                    className="delete-btn button-ripple"
+                    onClick={() => handleDelete(trip.id)}
+                    title="Delete trip"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -252,7 +355,20 @@ const MyTrips = () => {
 
             <div className="itinerary-list">
               {selectedTrip.itinerary.map((item, index) => (
-                <div className="itinerary-item" key={`${item.id}-${index}`}>
+                <div
+                  className={`itinerary-item ${draggedIndex === index ? "dragging" : ""}`}
+                  key={`${item.id}-${index}`}
+                  draggable={!isCompletedTrip}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                >
+                  {!isCompletedTrip && (
+                    <div className="drag-handle" title="Drag to reorder">
+                      ⋮⋮
+                    </div>
+                  )}
                   <div className="itinerary-order">{index + 1}</div>
 
                   <div className="itinerary-info">
@@ -325,14 +441,22 @@ const MyTrips = () => {
               </div>
             )}
 
-            <div className="trip-modal-actions" style={{ marginTop: "24px" }}>
+            <div className="trip-modal-actions" style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
               {!isCompletedTrip && (
-                <button
-                  className="save-itinerary-btn button-ripple"
-                  onClick={requestSaveItineraryOrder}
-                >
-                  Save Order
-                </button>
+                <>
+                  <button
+                    className="complete-btn button-ripple"
+                    onClick={markAsComplete}
+                  >
+                    Mark as Complete
+                  </button>
+                  <button
+                    className="save-itinerary-btn button-ripple"
+                    onClick={requestSaveItineraryOrder}
+                  >
+                    Save Order
+                  </button>
+                </>
               )}
 
               <button className="modal-secondary-btn button-ripple" onClick={closeModal}>

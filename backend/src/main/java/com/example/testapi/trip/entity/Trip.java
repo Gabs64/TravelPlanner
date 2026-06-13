@@ -33,6 +33,9 @@ public class Trip {
     @Column(name = "itinerary", columnDefinition = "text")
     private String itinerary;
 
+    @Column(name = "status")
+    private String status;
+
     public Trip() {}
 
     public Trip(String id, String userId, String destinationSlug, String destinationName, LocalDate startDate, LocalDate endDate) {
@@ -98,5 +101,13 @@ public class Trip {
 
     public void setItinerary(String itinerary) {
         this.itinerary = itinerary;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
