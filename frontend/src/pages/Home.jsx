@@ -115,13 +115,14 @@ const Home = () => {
   const [aiDestinations, setAiDestinations] = useState([]);
   const [aiLoading, setAiLoading] = useState(true);
   const [recentDestinations, setRecentDestinations] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("Philippines");
 
-  const fetchAiDestinations = async (currentHistory = recentDestinations) => {
+  const fetchAiDestinations = async (currentHistory = recentDestinations, country = selectedCountry) => {
     setAiLoading(true);
     const token = localStorage.getItem("token");
     const excludeParam = currentHistory.join(",");
     try {
-      const res = await fetch(`${API_BASE}/ai/popular-destinations?exclude=${encodeURIComponent(excludeParam)}`, {
+      const res = await fetch(`${API_BASE}/ai/popular-destinations?exclude=${encodeURIComponent(excludeParam)}&country=${encodeURIComponent(country)}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -210,9 +211,13 @@ const Home = () => {
 
     fetchProfile();
     fetchTripStats();
-    fetchAiDestinations([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    fetchAiDestinations([], selectedCountry);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCountry]);
 
   return (
     <main className="home-container">
@@ -283,13 +288,32 @@ const Home = () => {
         <section className="section ai-section">
           <div className="ai-section-header">
             <h2>✨ AI Recommended Destinations</h2>
-            <button 
-              className="refresh-ai-btn button-ripple" 
-              onClick={() => fetchAiDestinations()} 
-              disabled={aiLoading}
-            >
-              🔄 Refresh Recommendations
-            </button>
+            <div className="ai-controls">
+              <select
+                className="country-select"
+                value={selectedCountry}
+                onChange={(e) => {
+                  setSelectedCountry(e.target.value);
+                  setRecentDestinations([]);
+                }}
+                disabled={aiLoading}
+              >
+                <option value="Philippines">Philippines 🇵🇭</option>
+                <option value="Japan">Japan 🇯🇵</option>
+                <option value="Italy">Italy 🇮🇹</option>
+                <option value="Indonesia">Indonesia 🇮🇩</option>
+                <option value="France">France 🇫🇷</option>
+                <option value="Switzerland">Switzerland 🇨🇭</option>
+                <option value="USA">USA 🇺🇸</option>
+              </select>
+              <button 
+                className="refresh-ai-btn button-ripple" 
+                onClick={() => fetchAiDestinations(recentDestinations, selectedCountry)} 
+                disabled={aiLoading}
+              >
+                🔄 Refresh Recommendations
+              </button>
+            </div>
           </div>
 
           <div className="destinations">

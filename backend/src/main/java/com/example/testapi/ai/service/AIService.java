@@ -239,6 +239,46 @@ public class AIService {
                     "- **Picnic Grove:** Great for family ziplines and picnics.\n" +
                     "- **Sky Ranch:** A theme park with a giant ferris wheel overlooking the ridge.\n\n" +
                     "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Tagaytay Picnic Grove]";
+        } else if (msg.contains("tokyo")) {
+            return "🗼 **Tokyo** is a dazzling metropolis combining futuristic skyscrapers, historic temples, and vibrant street life.\n\n" +
+                    "**Recommended Spots:**\n" +
+                    "- **Senso-ji Temple:** Tokyo's oldest and most iconic Buddhist temple in Asakusa.\n" +
+                    "- **Shibuya Crossing:** The world's busiest pedestrian crossing.\n" +
+                    "- **Meiji Jingu Shrine:** A peaceful shrine situated in a lush forest park.\n\n" +
+                    "**Suggested Food:** Try fresh sushi at Tsukiji Outer Market or ramen in Shinjuku!\n\n" +
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Sensoji Temple Tokyo]";
+        } else if (msg.contains("kyoto")) {
+            return "⛩️ **Kyoto** is the cultural heart of Japan, famous for thousands of classical temples, gardens, and traditional wooden houses.\n\n" +
+                    "**Recommended Spots:**\n" +
+                    "- **Fushimi Inari Shrine:** Famous for its path of thousands of vibrant red torii gates.\n" +
+                    "- **Kinkaku-ji (Golden Pavilion):** A stunning Zen temple covered in gold leaf.\n" +
+                    "- **Arashiyama Bamboo Grove:** Walk through towering green bamboo stalks.\n\n" +
+                    "**Suggested Activities:** Stroll through Gion district for a chance to spot geishas!\n\n" +
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Fushimi Inari Shrine Kyoto]";
+        } else if (msg.contains("rome")) {
+            return "🏛️ **Rome** is a city of historic ruins, monumental art, and vibrant street life.\n\n" +
+                    "**Recommended Spots:**\n" +
+                    "- **Colosseum:** The world's largest ancient amphitheater.\n" +
+                    "- **Trevi Fountain:** Throw a coin in to guarantee a return trip to Rome.\n" +
+                    "- **Vatican Museums & St. Peter's:** Home to the Sistine Chapel and classic Renaissance art.\n\n" +
+                    "**Suggested Food:** Try authentic Carbonara or cacio e pepe at a Trastevere tavern!\n\n" +
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Colosseum Rome]";
+        } else if (msg.contains("bali")) {
+            return "🏝️ **Bali** is Indonesia's holiday island, known for its forested volcanic mountains, beaches, and coral reefs.\n\n" +
+                    "**Recommended Spots:**\n" +
+                    "- **Ubud Monkey Forest:** A sanctuary of long-tailed macaques among ancient temples.\n" +
+                    "- **Tanah Lot Temple:** A majestic Hindu temple perched on an offshore rock formation.\n" +
+                    "- **Tegallalang Rice Terraces:** Stunning terraced slopes offering signature swings.\n\n" +
+                    "**Suggested Activities:** Catch a sunset surfing session in Uluwatu or Seminyak!\n\n" +
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Tegallalang Rice Terraces Bali]";
+        } else if (msg.contains("paris")) {
+            return "🗼 **Paris** is a global center for art, fashion, gastronomy, and culture.\n\n" +
+                    "**Recommended Spots:**\n" +
+                    "- **Eiffel Tower:** The iconic iron lattice tower along the Seine River.\n" +
+                    "- **Louvre Museum:** Home of the Mona Lisa and countless historic art treasures.\n" +
+                    "- **Notre-Dame Cathedral:** A masterpiece of French Gothic architecture.\n\n" +
+                    "**Suggested Food:** Enjoy fresh croissants at a Montmartre cafe or dine along the Seine!\n\n" +
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Eiffel Tower Paris]";
         } else {
             return "✈️ **Hello! I am your AI Travel Agent Suggester.**\n\n" +
                     "I can recommend the best destinations, must-see sights, local dining, and organize travel itineraries for you. Ask me things like:\n" +
@@ -272,24 +312,83 @@ public class AIService {
         return "";
     }
 
-    private String getMockPopularDestinations(List<String> excludes) {
-        List<String> mockDestinations = List.of(
-            "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}",
-            "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}",
-            "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}",
-            "{\"name\": \"Bohol\", \"desc\": \"Chocolate Hills, white sand beaches, and unique tarsiers.\", \"imageKeyword\": \"bohol\"}",
-            "{\"name\": \"Tagaytay\", \"desc\": \"Cool breezes, scenic parks, and stunning views of Taal Volcano.\", \"imageKeyword\": \"lake\"}",
-            "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}",
-            "{\"name\": \"Batanes\", \"desc\": \"Dramatic emerald hills, traditional stone houses, and lighthouses.\", \"imageKeyword\": \"hills\"}",
-            "{\"name\": \"Sagada\", \"desc\": \"Mysterious hanging coffins, pine-clad valleys, and cool caves.\", \"imageKeyword\": \"mountain\"}",
-            "{\"name\": \"Camiguin\", \"desc\": \"Unique island of seven volcanoes, hot springs, and white sandbars.\", \"imageKeyword\": \"volcano\"}",
-            "{\"name\": \"Siquijor\", \"desc\": \"Mystical waterfalls, centuries-old balete trees, and quiet coves.\", \"imageKeyword\": \"waterfall\"}",
-            "{\"name\": \"Legazpi\", \"desc\": \"Majestic views of Mount Mayon's perfect cone and exciting ATV trails.\", \"imageKeyword\": \"volcano\"}",
-            "{\"name\": \"Iloilo\", \"desc\": \"Stunning heritage churches, delicious batchoy, and local island groups.\", \"imageKeyword\": \"church\"}",
-            "{\"name\": \"Davao\", \"desc\": \"Mount Apo, massive durian fruit stalls, and eagle conversation parks.\", \"imageKeyword\": \"mountain\"}",
-            "{\"name\": \"Dumaguete\", \"desc\": \"Apo Island sea turtles, clean bayside boulevards, and quiet university vibe.\", \"imageKeyword\": \"turtle\"}",
-            "{\"name\": \"Puerto Galera\", \"desc\": \"Beautiful pocket beaches, lively marine diving reefs, and water sports.\", \"imageKeyword\": \"beach\"}"
-        );
+    private String getMockPopularDestinations(List<String> excludes, String country) {
+        String c = (country != null) ? country.trim().toLowerCase() : "philippines";
+        List<String> mockDestinations;
+        
+        if (c.contains("japan")) {
+            mockDestinations = List.of(
+                "{\"name\": \"Tokyo\", \"desc\": \"Vibrant metropolis with historic shrines, tech hubs, and neon-lit streets.\", \"imageKeyword\": \"tokyo\"}",
+                "{\"name\": \"Kyoto\", \"desc\": \"Historic temples, traditional wooden houses, and beautiful bamboo forests.\", \"imageKeyword\": \"kyoto\"}",
+                "{\"name\": \"Osaka\", \"desc\": \"Famous street food markets, modern towers, and historic castle parks.\", \"imageKeyword\": \"osaka\"}",
+                "{\"name\": \"Hokkaido\", \"desc\": \"Stunning volcanic landscapes, hot springs, and world-class ski resorts.\", \"imageKeyword\": \"hokkaido\"}",
+                "{\"name\": \"Okinawa\", \"desc\": \"Tropical beaches, beautiful coral reefs, and unique Ryukyu heritage.\", \"imageKeyword\": \"okinawa\"}",
+                "{\"name\": \"Nara\", \"desc\": \"Ancient temples, historic parklands, and friendly roaming deer.\", \"imageKeyword\": \"nara\"}",
+                "{\"name\": \"Hakone\", \"desc\": \"Hot spring resorts, views of Mt. Fuji, and peaceful forest shrines.\", \"imageKeyword\": \"hakone\"}"
+            );
+        } else if (c.contains("italy")) {
+            mockDestinations = List.of(
+                "{\"name\": \"Rome\", \"desc\": \"Ancient ruins like the Colosseum, historic fountains, and Vatican city.\", \"imageKeyword\": \"rome\"}",
+                "{\"name\": \"Florence\", \"desc\": \"Birthplace of the Renaissance, historic art galleries, and scenic bridges.\", \"imageKeyword\": \"florence\"}",
+                "{\"name\": \"Venice\", \"desc\": \"Scenic canals, historic gondolas, and beautiful gothic architecture.\", \"imageKeyword\": \"venice\"}",
+                "{\"name\": \"Amalfi Coast\", \"desc\": \"Colorful cliffside villages overlooking the sparkling blue sea.\", \"imageKeyword\": \"amalfi\"}",
+                "{\"name\": \"Milan\", \"desc\": \"High fashion, massive gothic cathedral, and historic art murals.\", \"imageKeyword\": \"milan\"}",
+                "{\"name\": \"Tuscany\", \"desc\": \"Rolling vineyard hills, historic estates, and beautiful medieval towns.\", \"imageKeyword\": \"tuscany\"}"
+            );
+        } else if (c.contains("indonesia")) {
+            mockDestinations = List.of(
+                "{\"name\": \"Bali\", \"desc\": \"Tropical beaches, iconic temples, and beautiful rice terrace sweeps.\", \"imageKeyword\": \"bali\"}",
+                "{\"name\": \"Yogyakarta\", \"desc\": \"Ancient temples of Borobudur and Prambanan, and rich Javanese art.\", \"imageKeyword\": \"temple\"}",
+                "{\"name\": \"Komodo Island\", \"desc\": \"Unique komodo dragons, pink sand beaches, and crystal dive coves.\", \"imageKeyword\": \"island\"}",
+                "{\"name\": \"Lombok\", \"desc\": \"Pristine beaches, mount Rinjani volcano hikes, and quiet surf spots.\", \"imageKeyword\": \"surf\"}",
+                "{\"name\": \"Bandung\", \"desc\": \"Cool highland weather, volcanic craters, and tea plantation estates.\", \"imageKeyword\": \"plantation\"}",
+                "{\"name\": \"Jakarta\", \"desc\": \"Vibrant capital city, historic old town, and massive shopping malls.\", \"imageKeyword\": \"jakarta\"}"
+            );
+        } else if (c.contains("france")) {
+            mockDestinations = List.of(
+                "{\"name\": \"Paris\", \"desc\": \"Eiffel Tower, world-class art museums, and romantic Seine cruises.\", \"imageKeyword\": \"paris\"}",
+                "{\"name\": \"Nice\", \"desc\": \"Scenic French Riviera beaches, azure seas, and sunny promenades.\", \"imageKeyword\": \"nice\"}",
+                "{\"name\": \"Provence\", \"desc\": \"Stunning purple lavender fields, olive groves, and quiet stone villages.\", \"imageKeyword\": \"lavender\"}",
+                "{\"name\": \"Mont Saint-Michel\", \"desc\": \"Magical medieval abbey perched on a rocky tidal island.\", \"imageKeyword\": \"abbey\"}",
+                "{\"name\": \"Bordeaux\", \"desc\": \"World-famous wine estates, historic plazas, and river walks.\", \"imageKeyword\": \"vineyard\"}"
+            );
+        } else if (c.contains("switzerland")) {
+            mockDestinations = List.of(
+                "{\"name\": \"Zurich\", \"desc\": \"Scenic lakeside city with historic streets and premium shopping.\", \"imageKeyword\": \"zurich\"}",
+                "{\"name\": \"Zermatt\", \"desc\": \"Iconic pyramid peak Matterhorn, ski slopes, and alpine valleys.\", \"imageKeyword\": \"matterhorn\"}",
+                "{\"name\": \"Interlaken\", \"desc\": \"Scenic valleys, sparkling lakes, and high-altitude hiking peaks.\", \"imageKeyword\": \"lake\"}",
+                "{\"name\": \"Lucerne\", \"desc\": \"Preserved wooden bridge, medieval towers, and lake vistas.\", \"imageKeyword\": \"bridge\"}",
+                "{\"name\": \"Geneva\", \"desc\": \"Cosmopolitan lakeside hub, historic old town, and diplomatic parks.\", \"imageKeyword\": \"geneva\"}"
+            );
+        } else if (c.contains("usa") || c.contains("united states") || c.contains("america")) {
+            mockDestinations = List.of(
+                "{\"name\": \"New York\", \"desc\": \"Times Square, Central Park, Broadway shows, and iconic skyline.\", \"imageKeyword\": \"nyc\"}",
+                "{\"name\": \"Grand Canyon\", \"desc\": \"Stunning deep red rock formations and hiking canyon trails.\", \"imageKeyword\": \"canyon\"}",
+                "{\"name\": \"Hawaii\", \"desc\": \"Tropical beaches, dynamic volcanic parks, and historic surf culture.\", \"imageKeyword\": \"hawaii\"}",
+                "{\"name\": \"San Francisco\", \"desc\": \"Golden Gate Bridge, historic cable cars, and rolling street hills.\", \"imageKeyword\": \"bridge\"}",
+                "{\"name\": \"Las Vegas\", \"desc\": \"Lively casinos, world-class entertainment, and glowing neon strips.\", \"imageKeyword\": \"vegas\"}",
+                "{\"name\": \"Miami\", \"desc\": \"Art deco beach vibes, vibrant nightlife, and Latin food scenes.\", \"imageKeyword\": \"miami\"}"
+            );
+        } else {
+            mockDestinations = List.of(
+                "{\"name\": \"Palawan\", \"desc\": \"Stunning lagoons, limestone cliffs, and crystal clear water.\", \"imageKeyword\": \"palawan\"}",
+                "{\"name\": \"Siargao\", \"desc\": \"World-class surfing waves, coconut trees, and tide pools.\", \"imageKeyword\": \"surf\"}",
+                "{\"name\": \"Vigan\", \"desc\": \"Cobblestone streets and preserved Spanish-colonial architecture.\", \"imageKeyword\": \"vigan\"}",
+                "{\"name\": \"Bohol\", \"desc\": \"Chocolate Hills, white sand beaches, and unique tarsiers.\", \"imageKeyword\": \"bohol\"}",
+                "{\"name\": \"Tagaytay\", \"desc\": \"Cool breezes, scenic parks, and stunning views of Taal Volcano.\", \"imageKeyword\": \"lake\"}",
+                "{\"name\": \"Coron\", \"desc\": \"World-class shipwreck diving sites and crystal clear volcanic lakes.\", \"imageKeyword\": \"coron\"}",
+                "{\"name\": \"Batanes\", \"desc\": \"Dramatic emerald hills, traditional stone houses, and lighthouses.\", \"imageKeyword\": \"hills\"}",
+                "{\"name\": \"Sagada\", \"desc\": \"Mysterious hanging coffins, pine-clad valleys, and cool caves.\", \"imageKeyword\": \"mountain\"}",
+                "{\"name\": \"Camiguin\", \"desc\": \"Unique island of seven volcanoes, hot springs, and white sandbars.\", \"imageKeyword\": \"volcano\"}",
+                "{\"name\": \"Siquijor\", \"desc\": \"Mystical waterfalls, centuries-old balete trees, and quiet coves.\", \"imageKeyword\": \"waterfall\"}",
+                "{\"name\": \"Legazpi\", \"desc\": \"Majestic views of Mount Mayon's perfect cone and exciting ATV trails.\", \"imageKeyword\": \"volcano\"}",
+                "{\"name\": \"Iloilo\", \"desc\": \"Stunning heritage churches, delicious batchoy, and local island groups.\", \"imageKeyword\": \"church\"}",
+                "{\"name\": \"Davao\", \"desc\": \"Mount Apo, massive durian fruit stalls, and eagle conversation parks.\", \"imageKeyword\": \"mountain\"}",
+                "{\"name\": \"Dumaguete\", \"desc\": \"Apo Island sea turtles, clean bayside boulevards, and quiet university vibe.\", \"imageKeyword\": \"turtle\"}",
+                "{\"name\": \"Puerto Galera\", \"desc\": \"Beautiful pocket beaches, lively marine diving reefs, and water sports.\", \"imageKeyword\": \"beach\"}"
+            );
+        }
+        
         java.util.Set<String> activeExcludes = new java.util.HashSet<>();
         if (excludes != null && !excludes.isEmpty()) {
             for (int i = excludes.size() - 1; i >= 0; i--) {
@@ -322,10 +421,10 @@ public class AIService {
             }
         }
         java.util.Collections.shuffle(filtered);
-        return "[" + String.join(",", filtered.subList(0, 3)) + "]";
+        return "[" + String.join(",", filtered.subList(0, Math.min(3, filtered.size()))) + "]";
     }
 
-    public String getPopularDestinations(String exclude, String apiKey) throws Exception {
+    public String getPopularDestinations(String exclude, String country, String apiKey) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -340,7 +439,7 @@ public class AIService {
         }
 
         if (resolvedKey == null || resolvedKey.isBlank()) {
-            return getMockPopularDestinations(excludesList);
+            return getMockPopularDestinations(excludesList, country);
         }
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
@@ -348,16 +447,17 @@ public class AIService {
         String excludeInstructions = "";
         if (!excludesList.isEmpty()) {
             excludeInstructions = "You MUST NOT suggest any of the following destinations (or sub-regions/places within them): " + String.join(", ", excludesList) + ". " +
-                    "Also, do not suggest any spelling variations, cities, or sub-destinations inside these excluded spots (e.g. if 'Palawan' is excluded, do not recommend 'El Nido', 'Coron', or 'Puerto Princesa'). ";
+                    "Also, do not suggest any spelling variations, cities, or sub-destinations inside these excluded spots. ";
         }
 
-        String prompt = "Suggest exactly 3 popular travel destinations in the Philippines (other than Boracay, Baguio, Cebu). " +
+        String targetCountry = (country != null && !country.isBlank()) ? country : "Philippines";
+        String prompt = "Suggest exactly 3 popular travel destinations in " + targetCountry + ". " +
                 excludeInstructions +
                 "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. " +
                 "Each object MUST have exactly these fields:\n" +
-                "1. \"name\": the name of the destination (e.g. \"Siargao\").\n" +
-                "2. \"desc\": a short catchy description (e.g. \"World-class surfing and coconut forest\").\n" +
-                "3. \"imageKeyword\": a single word tag for image search (e.g. \"surf\", \"beach\", \"mountain\").\n";
+                "1. \"name\": the name of the destination (e.g. \"Tokyo\", \"Siargao\").\n" +
+                "2. \"desc\": a short catchy description (e.g. \"Historic temples and traditional wooden houses\", \"World-class surfing and coconut forest\").\n" +
+                "3. \"imageKeyword\": a single word tag for image search (e.g. \"tokyo\", \"surf\", \"beach\", \"mountain\").\n";
 
         ObjectNode requestBody = objectMapper.createObjectNode();
         ArrayNode contents = objectMapper.createArrayNode();
@@ -382,7 +482,7 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Popular Destinations API error: " + response.body());
-            return getMockPopularDestinations(excludesList);
+            return getMockPopularDestinations(excludesList, country);
         }
 
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
@@ -391,7 +491,7 @@ public class AIService {
             return cleanJsonResponse(text);
         } catch (Exception e) {
             System.err.println("Error parsing popular destinations: " + e.getMessage());
-            return getMockPopularDestinations(excludesList);
+            return getMockPopularDestinations(excludesList, country);
         }
     }
 
