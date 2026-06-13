@@ -26,25 +26,60 @@ const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
 
 const getUnsplashImage = (keyword) => {
   const kw = (keyword || "").toLowerCase();
-  if (kw.includes("palawan") || kw.includes("lagoon") || kw.includes("coron")) {
-    return "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=400&q=80";
+  
+  // Bohol - Chocolate Hills
+  if (kw.includes("bohol") || kw.includes("chocolate")) {
+    return "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&q=80";
   }
+  // Palawan & Coron - Lagoons & Limestone Cliffs
+  if (kw.includes("palawan") || kw.includes("lagoon") || kw.includes("coron") || kw.includes("el nido")) {
+    return "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=500&q=80";
+  }
+  // Siargao - Surfing & Surf Breaks
   if (kw.includes("siargao") || kw.includes("surf") || kw.includes("waves")) {
-    return "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=400&q=80";
+    return "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=500&q=80";
   }
-  if (kw.includes("vigan") || kw.includes("heritage") || kw.includes("streets") || kw.includes("colonial")) {
-    return "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=80";
+  // Vigan - Calle Crisologo Cobblestone streets
+  if (kw.includes("vigan") || kw.includes("heritage") || kw.includes("streets") || kw.includes("colonial") || kw.includes("crisologo")) {
+    return "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=80";
   }
-  if (kw.includes("mountain") || kw.includes("hiking") || kw.includes("banaue")) {
-    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80";
+  // Batanes - Green Rolling Hills & Cliffs
+  if (kw.includes("batanes") || kw.includes("hills")) {
+    return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80";
   }
-  if (kw.includes("beach") || kw.includes("island") || kw.includes("sea")) {
-    return "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80";
+  // Volcanoes - Legazpi (Mayon) / Camiguin
+  if (kw.includes("legazpi") || kw.includes("mayon") || kw.includes("camiguin") || kw.includes("volcano") || kw.includes("crater")) {
+    return "https://images.unsplash.com/photo-1580258169129-c8526b1f2eb0?auto=format&fit=crop&w=500&q=80";
   }
+  // Sagada / Davao / Mountains / Hiking
+  if (kw.includes("sagada") || kw.includes("davao") || kw.includes("mountain") || kw.includes("hiking") || kw.includes("banaue") || kw.includes("apo")) {
+    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=500&q=80";
+  }
+  // Siquijor - Waterfalls
+  if (kw.includes("siquijor") || kw.includes("waterfall") || kw.includes("falls")) {
+    return "https://images.unsplash.com/photo-1432406776043-698612709636?auto=format&fit=crop&w=500&q=80";
+  }
+  // Iloilo - Heritage Churches
+  if (kw.includes("iloilo") || kw.includes("church") || kw.includes("cathedral")) {
+    return "https://images.unsplash.com/photo-1548625361-155de0cbb3e5?auto=format&fit=crop&w=500&q=80";
+  }
+  // Dumaguete - Apo Island Sea Turtles
+  if (kw.includes("dumaguete") || kw.includes("turtle") || kw.includes("marine")) {
+    return "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=500&q=80";
+  }
+  // Tagaytay - Taal Lake Views
+  if (kw.includes("tagaytay") || kw.includes("lake") || kw.includes("taal")) {
+    return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=500&q=80";
+  }
+  // Generic Beach / Puerto Galera / Boracay / Cebu
+  if (kw.includes("beach") || kw.includes("island") || kw.includes("sea") || kw.includes("boracay") || kw.includes("puerto") || kw.includes("cebu")) {
+    return "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=500&q=80";
+  }
+
   const fallbacks = [
-    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80"
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=500&q=80",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=500&q=80"
   ];
   const charSum = kw.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
   return fallbacks[charSum % fallbacks.length];
