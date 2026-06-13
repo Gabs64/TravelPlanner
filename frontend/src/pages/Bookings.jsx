@@ -6,6 +6,7 @@ import "./Bookings.css";
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookingToDelete, setBookingToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -102,7 +103,6 @@ const Bookings = () => {
   };
 
   const handleDelete = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to delete this booking?")) return;
     const token = localStorage.getItem("token");
 
     try {
@@ -162,7 +162,7 @@ const Bookings = () => {
                   </button>
                   <button
                     className="delete-btn button-ripple"
-                    onClick={() => handleDelete(booking.id)}
+                    onClick={() => setBookingToDelete(booking.id)}
                     title="Delete booking"
                   >
                     🗑️
@@ -224,6 +224,34 @@ const Bookings = () => {
 
               <button className="modal-secondary-btn button-ripple" onClick={closeModal}>
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {bookingToDelete && (
+        <div className="delete-modal-overlay" onClick={() => setBookingToDelete(null)}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Booking?</h3>
+            <p>Are you sure you want to delete this booking? This action cannot be undone.</p>
+
+            <div className="delete-modal-actions">
+              <button
+                className="confirm-delete-btn button-ripple"
+                onClick={() => {
+                  handleDelete(bookingToDelete);
+                  setBookingToDelete(null);
+                }}
+              >
+                Yes, Delete
+              </button>
+
+              <button
+                className="cancel-delete-btn button-ripple"
+                onClick={() => setBookingToDelete(null)}
+              >
+                Cancel
               </button>
             </div>
           </div>

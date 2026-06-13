@@ -22,6 +22,7 @@ const MyTrips = () => {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
+  const [tripToDelete, setTripToDelete] = useState(null);
 
   const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
 
@@ -61,7 +62,6 @@ const MyTrips = () => {
   };
 
   const handleDelete = async (tripId) => {
-    if (!window.confirm("Are you sure you want to delete this trip?")) return;
     const token = localStorage.getItem("token");
 
     try {
@@ -321,7 +321,7 @@ const MyTrips = () => {
                   </button>
                   <button
                     className="delete-btn button-ripple"
-                    onClick={() => handleDelete(trip.id)}
+                    onClick={() => setTripToDelete(trip.id)}
                     title="Delete trip"
                   >
                     🗑️
@@ -464,32 +464,70 @@ const MyTrips = () => {
               </button>
             </div>
 
-            {confirmSaveOpen && !isCompletedTrip && (
-              <div className="confirm-panel">
-                <h4>Save itinerary order?</h4>
-                <p>This will save the current order of your trip activities.</p>
+          </div>
+        </div>
+      )}
 
-                <div className="confirm-actions">
-                  <button className="confirm-yes-btn button-ripple" onClick={confirmSaveOrder}>
-                    Yes, Save
-                  </button>
-                  <button className="confirm-no-btn button-ripple" onClick={cancelSaveOrder}>
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
+      {confirmSaveOpen && !isCompletedTrip && (
+        <div className="delete-modal-overlay" onClick={cancelSaveOrder}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Save Itinerary Order?</h3>
+            <p>This will save the current order of your trip activities.</p>
 
-            {saveSuccessOpen && (
-              <div className="success-panel">
-                <h4>Order saved successfully</h4>
-                <p>Your itinerary order has been updated for this trip.</p>
+            <div className="delete-modal-actions">
+              <button className="confirm-logout-btn button-ripple" onClick={confirmSaveOrder}>
+                Yes, Save
+              </button>
+              <button className="cancel-delete-btn button-ripple" onClick={cancelSaveOrder}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                <button className="confirm-yes-btn button-ripple" onClick={closeSuccessMessage}>
-                  Done
-                </button>
-              </div>
-            )}
+      {saveSuccessOpen && (
+        <div className="delete-modal-overlay" onClick={closeSuccessMessage}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ color: "#10b981" }}>Success!</h3>
+            <p>Your itinerary order has been updated for this trip.</p>
+
+            <div className="delete-modal-actions">
+              <button
+                className="confirm-logout-btn button-ripple"
+                onClick={closeSuccessMessage}
+                style={{
+                  background: "linear-gradient(135deg, #10b981, #059669)",
+                  boxShadow: "0 10px 20px rgba(16, 185, 129, 0.24)",
+                }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tripToDelete && (
+        <div className="delete-modal-overlay" onClick={() => setTripToDelete(null)}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Trip?</h3>
+            <p>Are you sure you want to delete this trip? This action cannot be undone.</p>
+
+            <div className="delete-modal-actions">
+              <button
+                className="confirm-delete-btn button-ripple"
+                onClick={() => {
+                  handleDelete(tripToDelete);
+                  setTripToDelete(null);
+                }}
+              >
+                Yes, Delete
+              </button>
+              <button className="cancel-delete-btn button-ripple" onClick={() => setTripToDelete(null)}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
