@@ -94,4 +94,14 @@ public class AIController {
                     .body(new MessageResponse("Error fetching destination details: " + ex.getMessage()));
         }
     }
+
+    @GetMapping(value = "/status", produces = "application/json")
+    public ResponseEntity<?> getAiStatus() {
+        boolean active = aiService.isAiActive();
+        java.util.Map<String, Object> status = new java.util.HashMap<>();
+        status.put("active", active);
+        status.put("mode", active ? "live" : "demo");
+        status.put("errorMessage", aiService.getLastErrorMessage());
+        return ResponseEntity.ok(status);
+    }
 }

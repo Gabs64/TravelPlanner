@@ -24,6 +24,9 @@ public class AIService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private volatile boolean lastCallSuccessful = true;
+    private volatile String lastErrorMessage = null;
+
     public String generateChatResponse(List<ChatMessage> history, String userMessage, String apiKey) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
@@ -87,9 +90,13 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Chat API error: " + response.body());
+            lastCallSuccessful = false;
+            lastErrorMessage = "Chat API status: " + response.statusCode();
             return "[Error: Unable to connect to Gemini API. Fallback to Demo Mode] " + generateMockResponse(userMessage);
         }
 
+        lastCallSuccessful = true;
+        lastErrorMessage = null;
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
         try {
             return root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
@@ -148,9 +155,13 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Itinerary API error: " + response.body());
+            lastCallSuccessful = false;
+            lastErrorMessage = "Itinerary API status: " + response.statusCode();
             return generateMockItinerary(destination, startDate, endDate);
         }
 
+        lastCallSuccessful = true;
+        lastErrorMessage = null;
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
         try {
             String text = root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
@@ -482,9 +493,13 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Popular Destinations API error: " + response.body());
+            lastCallSuccessful = false;
+            lastErrorMessage = "Popular Destinations API status: " + response.statusCode();
             return getMockPopularDestinations(excludesList, country);
         }
 
+        lastCallSuccessful = true;
+        lastErrorMessage = null;
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
         try {
             String text = root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
@@ -544,9 +559,13 @@ public class AIService {
 
         if (response.statusCode() != 200) {
             System.err.println("Gemini Destination Details API error: " + response.body());
+            lastCallSuccessful = false;
+            lastErrorMessage = "Destination Details API status: " + response.statusCode();
             return generateMockDetails(slug);
         }
 
+        lastCallSuccessful = true;
+        lastErrorMessage = null;
         ObjectNode root = (ObjectNode) objectMapper.readTree(response.body());
         try {
             String text = root.get("candidates").get(0).get("content").get("parts").get(0).get("text").asText();
@@ -571,5 +590,20 @@ public class AIService {
                 "  \"duration\": \"2 - 4 days\",\n" +
                 "  \"activities\": [\"Local sightseeing\", \"Food crawl\", \"Nature walk\", \"Souvenir shopping\"]\n" +
                 "}";
+    }
+
+    public boolean isAiActive() {
+        String resolvedKey = defaultApiKey;
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            resolvedKey = System.getenv("GEMINI_API_KEY");
+        }
+        if (resolvedKey == null || resolvedKey.isBlank()) {
+            return false;
+        }
+        return lastCallSuccessful;
+    }
+
+    public String getLastErrorMessage() {
+        return lastErrorMessage;
     }
 }

@@ -101,11 +101,6 @@ const navigateWithTransition = (navigate, path) => {
 const Home = () => {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState({
-    nickname: "",
-    hasPhoto: false,
-    photoUrl: "",
-  });
   const [stats, setStats] = useState({
     tripsPlanned: 0,
     upcomingTrips: 0,
@@ -148,40 +143,6 @@ const Home = () => {
   };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
-      if (!token || !userId) return;
-
-      try {
-        const res = await fetch(`${API_BASE}/profile/${encodeURIComponent(userId)}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const photoUrl =
-            data.photoUrl && !data.photoUrl.includes("localhost")
-              ? data.photoUrl
-              : data.hasPhoto
-                ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo`
-                : "";
-
-          setUser({
-            nickname: data.nickname || data.fullName || "User",
-            hasPhoto: Boolean(data.hasPhoto),
-            photoUrl,
-          });
-        }
-      } catch (err) {
-        console.error("Error fetching profile:", err);
-      }
-    };
-
     const fetchTripStats = async () => {
       const token = localStorage.getItem("token");
       const userId = localStorage.getItem("userId");
@@ -209,7 +170,6 @@ const Home = () => {
       }
     };
 
-    fetchProfile();
     fetchTripStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -224,14 +184,6 @@ const Home = () => {
       <div className="home-content">
         <div className="navbar">
           <input type="text" placeholder="Search destinations..." />
-
-          <div className="user" onClick={() => navigate('/profile')}>
-            <img
-              src={user.photoUrl || "https://via.placeholder.com/40?text=User"}
-              alt="user"
-            />
-            <span>{user.nickname || "User"}</span>
-          </div>
         </div>
 
         <div className="stats">

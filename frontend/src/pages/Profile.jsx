@@ -26,8 +26,10 @@ const Profile = () => {
     navigate("/login");
   };
 
-  const fetchProfile = async () => {
-    setLoading(true);
+  const fetchProfile = async (showLoading = true) => {
+    if (showLoading) {
+      setLoading(true);
+    }
     setError("");
 
     const token = localStorage.getItem("token");
@@ -60,9 +62,9 @@ const Profile = () => {
       const data = await res.json();
       const photoUrl =
         data.photoUrl && !data.photoUrl.includes("localhost")
-          ? data.photoUrl
+          ? `${data.photoUrl}?t=${Date.now()}`
           : data.hasPhoto
-            ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo`
+            ? `${API_BASE}/profile/${encodeURIComponent(userId)}/photo?t=${Date.now()}`
             : "";
 
       setUser({
@@ -77,7 +79,9 @@ const Profile = () => {
       console.error("Error fetching profile:", err);
       setError("Unable to load profile. Please try again.");
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -139,7 +143,8 @@ const Profile = () => {
       setAvatarFile(null);
       setPreviewUrl("");
       setEditing(false);
-      fetchProfile();
+      fetchProfile(false);
+      window.dispatchEvent(new Event("profileUpdated"));
     } catch (err) {
       console.error("Error updating profile:", err);
       alert(err.message || "Failed to update profile");
@@ -154,7 +159,7 @@ const Profile = () => {
     setAvatarFile(null);
     setPreviewUrl("");
     setEditing(false);
-    fetchProfile();
+    fetchProfile(false);
   };
 
   if (loading) {
