@@ -9,6 +9,26 @@ const createDefaultItinerary = (destinationName) => [
   { id: 3, time: "Day 3", title: "Free time, food trip, and souvenir shopping" },
 ];
 
+const calculateItemDate = (startDateStr, index) => {
+  if (!startDateStr) return "";
+  try {
+    const parts = startDateStr.split("-");
+    if (parts.length !== 3) return "";
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // 0-indexed month
+    const day = parseInt(parts[2], 10);
+    const date = new Date(year, month, day);
+    date.setDate(date.getDate() + index);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+  } catch (e) {
+    return "";
+  }
+};
+
 const MyTrips = () => {
   const navigate = useNavigate();
 
@@ -212,17 +232,34 @@ const MyTrips = () => {
     }
   };
 
-  const applyAIItinerary = () => {
+  const applyAIItinerary = async () => {
     if (!selectedTrip || !aiSuggestions) return;
-    const updatedTrip = {
-      ...selectedTrip,
-      itinerary: aiSuggestions,
-    };
-    setSelectedTrip(updatedTrip);
-    setTrips((prev) =>
-      prev.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip))
-    );
-    setAiSuggestions(null);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE}/trips/${selectedTrip.id}/itinerary`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(aiSuggestions),
+      });
+
+      if (!res.ok) throw new Error("Failed to save AI itinerary");
+
+      const updatedTrip = {
+        ...selectedTrip,
+        itinerary: aiSuggestions,
+      };
+      setSelectedTrip(updatedTrip);
+      setTrips((prev) =>
+        prev.map((trip) => (trip.id === updatedTrip.id ? updatedTrip : trip))
+      );
+      setAiSuggestions(null);
+    } catch (err) {
+      console.error(err);
+      alert("Error applying AI itinerary: " + err.message);
+    }
   };
 
   const moveItineraryItem = (itemIndex, direction) => {
@@ -372,7 +409,7 @@ const MyTrips = () => {
                   <div className="itinerary-order">{index + 1}</div>
 
                   <div className="itinerary-info">
-                    <span>{item.time}</span>
+                    <span>{calculateItemDate(selectedTrip.startDate, index)} {item.time ? `(${item.time})` : ""}</span>
                     <strong>{item.title}</strong>
                   </div>
 
