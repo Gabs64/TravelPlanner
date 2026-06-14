@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API_BASE from "../apiConfig";
 import "./DestinationDetails.css";
+
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
 const destinationData = {
   boracay: {
@@ -98,6 +100,80 @@ const DestinationDetails = () => {
 
   const staticDest = destinationData[slug];
   const [destination, setDestination] = useState(staticDest || null);
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+
+  // Clean up map on unmount
+  useEffect(() => {
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  // Geocoding and Map flying logic
+  useEffect(() => {
+    if (!window.mapboxgl || !MAPBOX_TOKEN || !destination) return;
+    
+    // Initialize map if not initialized
+    if (!mapRef.current) {
+      window.mapboxgl.accessToken = MAPBOX_TOKEN;
+      mapRef.current = new window.mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: [121.7740, 12.8797], // Philippines center
+        zoom: 5,
+      });
+      // Add standard navigation controls
+      mapRef.current.addControl(new window.mapboxgl.NavigationControl(), "top-right");
+    }
+
+    const geocodeLocation = async () => {
+      const targetQuery = mapQuery || destination.location;
+      try {
+        const cleanQuery = targetQuery.replace(/[:.,;]+$/, "").trim();
+        if (!cleanQuery) return;
+        
+        let proximityParam = "";
+        if (mapRef.current) {
+          const center = mapRef.current.getCenter();
+          proximityParam = `&proximity=${center.lng},${center.lat}`;
+        }
+
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}`
+        );
+        const data = await res.json();
+        
+        if (data.features && data.features.length > 0) {
+          const [lng, lat] = data.features[0].center;
+          
+          // Move map camera smoothly
+          mapRef.current.flyTo({
+            center: [lng, lat],
+            zoom: 12,
+            essential: true
+          });
+
+          // Update marker position
+          if (markerRef.current) {
+            markerRef.current.setLngLat([lng, lat]);
+          } else {
+            markerRef.current = new window.mapboxgl.Marker({ color: "#ef4444" })
+              .setLngLat([lng, lat])
+              .addTo(mapRef.current);
+          }
+        }
+      } catch (err) {
+        console.error("Geocoding failed:", err);
+      }
+    };
+
+    geocodeLocation();
+  }, [mapQuery, destination]);
   const [loading, setLoading] = useState(!staticDest);
   const [errorText, setErrorText] = useState("");
 
@@ -170,10 +246,7 @@ const DestinationDetails = () => {
     );
   }
 
-  const activeMapQuery = mapQuery || destination.location;
-  const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
-    activeMapQuery
-  )}&output=embed`;
+
 
   const handleSaveTrip = async () => {
     const token = localStorage.getItem("token");
@@ -330,13 +403,14 @@ const DestinationDetails = () => {
             <div
               className="map-card"
               style={{ viewTransitionName: `dest-image-${slug}` }}
+              ref={mapContainerRef}
             >
-              <iframe
-                title={`${destination.name} Map`}
-                src={mapUrl}
-                loading="lazy"
-                allowFullScreen
-              />
+              {!MAPBOX_TOKEN && (
+                <div className="mapbox-missing-token-overlay">
+                  <p>🗺️ Mapbox Access Token is missing</p>
+                  <span>Please configure <code>REACT_APP_MAPBOX_ACCESS_TOKEN</code> in your <code>.env</code> file in the <code>frontend/</code> directory.</span>
+                </div>
+              )}
             </div>
 
             <div className="quick-info-grid">
