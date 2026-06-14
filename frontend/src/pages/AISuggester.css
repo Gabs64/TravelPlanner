@@ -317,17 +317,13 @@
   color: var(--text-secondary);
 }
 
-.map-iframe-container {
+.mapbox-map-container {
   flex: 1;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.02);
-}
-
-.map-iframe-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
+  border-radius: 0 0 24px 24px;
+  overflow: hidden;
 }
 
 /* Mobile View Segment Toggle and Panels */
@@ -456,4 +452,52 @@
 :root.dark-mode .place-link:hover {
   color: #93c5fd;
   background-color: rgba(96, 165, 250, 0.14);
+}
+
+/* Mapbox Missing Token Overlay */
+.mapbox-missing-token-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 32px;
+  box-sizing: border-box;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  border-radius: 0 0 24px 24px;
+}
+
+:root.dark-mode .mapbox-missing-token-overlay {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.mapbox-missing-token-overlay p {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: #ef4444;
+}
+
+.mapbox-missing-token-overlay span {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+.mapbox-missing-token-overlay code {
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+}
+
+:root.dark-mode .mapbox-missing-token-overlay code {
+  background: rgba(255, 255, 255, 0.1);
 }

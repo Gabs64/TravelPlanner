@@ -85,6 +85,8 @@ const parseMessageText = (text, onPlaceClick) => {
   });
 };
 
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
+
 const AISuggester = () => {
   const [messages, setMessages] = useState([
     {
@@ -98,6 +100,74 @@ const AISuggester = () => {
   const [activeTab, setActiveTab] = useState("chat");
   const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+
+  // Clean up map on unmount
+  useEffect(() => {
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  // Geocoding and Map flying logic
+  useEffect(() => {
+    if (!window.mapboxgl || !MAPBOX_TOKEN) return;
+    
+    // Initialize map if not initialized
+    if (!mapRef.current) {
+      window.mapboxgl.accessToken = MAPBOX_TOKEN;
+      mapRef.current = new window.mapboxgl.Map({
+        container: mapContainerRef.current,
+        style: "mapbox://styles/mapbox/streets-v12",
+        center: [121.7740, 12.8797], // Philippines center
+        zoom: 5,
+      });
+      // Add standard navigation controls
+      mapRef.current.addControl(new window.mapboxgl.NavigationControl(), "top-right");
+    }
+
+    const geocodeLocation = async () => {
+      try {
+        const cleanQuery = mapQuery.replace(/[:.,;]+$/, "").trim();
+        if (!cleanQuery) return;
+        const res = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}`
+        );
+        const data = await res.json();
+        
+        if (data.features && data.features.length > 0) {
+          const [lng, lat] = data.features[0].center;
+          
+          // Move map camera smoothly
+          mapRef.current.flyTo({
+            center: [lng, lat],
+            zoom: 12,
+            essential: true
+          });
+
+          // Update marker position
+          if (markerRef.current) {
+            markerRef.current.setLngLat([lng, lat]);
+          } else {
+            markerRef.current = new window.mapboxgl.Marker({ color: "#ef4444" })
+              .setLngLat([lng, lat])
+              .addTo(mapRef.current);
+          }
+        }
+      } catch (err) {
+        console.error("Geocoding failed:", err);
+      }
+    };
+
+    if (mapQuery) {
+      geocodeLocation();
+    }
+  }, [mapQuery]);
 
   const handlePlaceClick = (placeName) => {
     setMapQuery(placeName);
@@ -197,7 +267,7 @@ const AISuggester = () => {
     }
   };
 
-  const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+
 
   return (
     <main className="ai-suggester-page">
@@ -302,13 +372,13 @@ const AISuggester = () => {
               </h4>
               <span className="location-focus">Focus: <strong>{mapQuery}</strong></span>
             </div>
-            <div className="map-iframe-container">
-              <iframe
-                title="AI Suggester Google Map"
-                src={mapUrl}
-                loading="lazy"
-                allowFullScreen
-              />
+            <div className="mapbox-map-container" ref={mapContainerRef}>
+              {!MAPBOX_TOKEN && (
+                <div className="mapbox-missing-token-overlay">
+                  <p>🗺️ Mapbox Access Token is missing</p>
+                  <span>Please configure <code>REACT_APP_MAPBOX_ACCESS_TOKEN</code> in your <code>.env</code> file in the <code>frontend/</code> directory.</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
