@@ -103,6 +103,7 @@ const DestinationDetails = () => {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const primaryCoordsRef = useRef(null);
 
   // Clean up map on unmount
   useEffect(() => {
@@ -131,8 +132,53 @@ const DestinationDetails = () => {
       mapRef.current.addControl(new window.mapboxgl.NavigationControl(), "top-right");
     }
 
+    const optimizeActivityQuery = (query, destName) => {
+      if (!destName) return query;
+      if (query.toLowerCase() === destName.toLowerCase()) {
+        return query;
+      }
+      
+      let activity = query;
+      if (query.toLowerCase().endsWith(`, ${destName.toLowerCase()}`)) {
+        activity = query.slice(0, -(destName.length + 2)).trim();
+      }
+
+      const replacements = [
+        { regex: /cafe\s+hopping/i, replacement: "cafe" },
+        { regex: /coffee\s+hopping/i, replacement: "coffee shop" },
+        { regex: /beach\s+hopping/i, replacement: "beach" },
+        { regex: /island\s+hopping/i, replacement: "island" },
+        { regex: /pub\s+crawl/i, replacement: "pub" },
+        { regex: /bar\s+hopping/i, replacement: "bar" },
+        { regex: /food\s+crawl/i, replacement: "restaurant" },
+        { regex: /local\s+sightseeing/i, replacement: "tourist attraction" },
+        { regex: /nature\s+walk/i, replacement: "park" },
+        { regex: /souvenir\s+shopping/i, replacement: "market" },
+        { regex: /shopping/i, replacement: "mall" },
+        { regex: /sightseeing/i, replacement: "landmark" }
+      ];
+
+      let cleanedActivity = activity;
+      for (const { regex, replacement } of replacements) {
+        if (regex.test(cleanedActivity)) {
+          cleanedActivity = cleanedActivity.replace(regex, replacement);
+        }
+      }
+
+      return `${cleanedActivity}, ${destName}`;
+    };
+
     const geocodeLocation = async () => {
-      const targetQuery = mapQuery || destination.location;
+      let targetQuery = mapQuery || destination.location;
+      
+      // If this is the initial destination loading, reset the primary coordinates ref
+      if (targetQuery === destination.location) {
+        primaryCoordsRef.current = null;
+      } else {
+        // Otherwise optimize the query string
+        targetQuery = optimizeActivityQuery(targetQuery, destination.name);
+      }
+
       try {
         const cleanQuery = targetQuery.replace(/[:.,;]+$/, "").trim();
         if (!cleanQuery) return;
@@ -143,14 +189,42 @@ const DestinationDetails = () => {
           proximityParam = `&proximity=${center.lng},${center.lat}`;
         }
 
-        const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}`
-        );
-        const data = await res.json();
+        let countryParam = "";
+        const locLower = destination.location ? destination.location.toLowerCase() : "";
+        if (locLower.includes("philippines")) {
+          countryParam = "&country=ph";
+        }
+
+        let bboxParam = "";
+        // Restrict to local bbox around primary coords (approx 15-20km bounding box)
+        if (targetQuery !== destination.location && primaryCoordsRef.current) {
+          const [pLng, pLat] = primaryCoordsRef.current;
+          const minLng = pLng - 0.15;
+          const minLat = pLat - 0.15;
+          const maxLng = pLng + 0.15;
+          const maxLat = pLat + 0.15;
+          bboxParam = `&bbox=${minLng},${minLat},${maxLng},${maxLat}`;
+        }
+
+        let url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}${bboxParam}`;
+        let res = await fetch(url);
+        let data = await res.json();
         
+        // Fallback: If no results with bbox limit, try without bbox constraint (but keeping country limit)
+        if ((!data.features || data.features.length === 0) && bboxParam) {
+          url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}`;
+          res = await fetch(url);
+          data = await res.json();
+        }
+
         if (data.features && data.features.length > 0) {
           const [lng, lat] = data.features[0].center;
           
+          // Save primary destination coordinates on initial load
+          if (targetQuery === destination.location) {
+            primaryCoordsRef.current = [lng, lat];
+          }
+
           // Move map camera smoothly
           mapRef.current.flyTo({
             center: [lng, lat],
@@ -165,6 +239,23 @@ const DestinationDetails = () => {
             markerRef.current = new window.mapboxgl.Marker({ color: "#ef4444" })
               .setLngLat([lng, lat])
               .addTo(mapRef.current);
+          }
+        } else {
+          // If no matches at all, center back to default primary coordinates
+          if (primaryCoordsRef.current) {
+            const [lng, lat] = primaryCoordsRef.current;
+            mapRef.current.flyTo({
+              center: [lng, lat],
+              zoom: 12,
+              essential: true
+            });
+            if (markerRef.current) {
+              markerRef.current.setLngLat([lng, lat]);
+            } else {
+              markerRef.current = new window.mapboxgl.Marker({ color: "#ef4444" })
+                .setLngLat([lng, lat])
+                .addTo(mapRef.current);
+            }
           }
         }
       } catch (err) {

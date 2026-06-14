@@ -131,19 +131,64 @@ const AISuggester = () => {
       mapRef.current.addControl(new window.mapboxgl.NavigationControl(), "top-right");
     }
 
+    const optimizeSuggesterQuery = (query) => {
+      const replacements = [
+        { regex: /cafe\s+hopping/i, replacement: "cafe" },
+        { regex: /coffee\s+hopping/i, replacement: "coffee shop" },
+        { regex: /beach\s+hopping/i, replacement: "beach" },
+        { regex: /island\s+hopping/i, replacement: "island" },
+        { regex: /pub\s+crawl/i, replacement: "pub" },
+        { regex: /bar\s+hopping/i, replacement: "bar" },
+        { regex: /food\s+crawl/i, replacement: "restaurant" },
+        { regex: /local\s+sightseeing/i, replacement: "tourist attraction" },
+        { regex: /nature\s+walk/i, replacement: "park" },
+        { regex: /souvenir\s+shopping/i, replacement: "market" },
+        { regex: /shopping/i, replacement: "mall" },
+        { regex: /sightseeing/i, replacement: "landmark" }
+      ];
+
+      let cleaned = query;
+      for (const { regex, replacement } of replacements) {
+        if (regex.test(cleaned)) {
+          cleaned = cleaned.replace(regex, replacement);
+        }
+      }
+      return cleaned;
+    };
+
     const geocodeLocation = async () => {
       try {
-        const cleanQuery = mapQuery.replace(/[:.,;]+$/, "").trim();
+        let optimizedQuery = optimizeSuggesterQuery(mapQuery);
+        const cleanQuery = optimizedQuery.replace(/[:.,;]+$/, "").trim();
         if (!cleanQuery) return;
         
         let proximityParam = "";
+        let isPH = false;
         if (mapRef.current) {
           const center = mapRef.current.getCenter();
           proximityParam = `&proximity=${center.lng},${center.lat}`;
+          if (center.lng >= 114.0 && center.lng <= 127.0 && center.lat >= 4.0 && center.lat <= 22.0) {
+            isPH = true;
+          }
+        }
+
+        let countryParam = "";
+        const queryLower = cleanQuery.toLowerCase();
+        if (
+          isPH ||
+          queryLower.includes("philippines") ||
+          queryLower.includes("boracay") ||
+          queryLower.includes("palawan") ||
+          queryLower.includes("siargao") ||
+          queryLower.includes("vigan") ||
+          queryLower.includes("bohol") ||
+          queryLower.includes("tagaytay")
+        ) {
+          countryParam = "&country=ph";
         }
 
         const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}`
         );
         const data = await res.json();
         
