@@ -446,7 +446,7 @@ const DestinationDetails = () => {
                   <button
                     className="activity-pill"
                     key={activity}
-                    onClick={() => setMapQuery(`${activity} near ${destination.location}`)}
+                    onClick={() => setMapQuery(`${activity}, ${destination.name}`)}
                   >
                     {activity}
                   </button>
