@@ -426,3 +426,34 @@
     min-height: 440px;
   }
 }
+
+/* Clickable Place Recommendations */
+.place-link {
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dashed;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  transition: all 0.2s ease-in-out;
+  display: inline-block;
+  font-weight: 700;
+  padding: 0 3px;
+  border-radius: 4px;
+}
+
+:root.dark-mode .place-link {
+  color: #60a5fa;
+}
+
+.place-link:hover {
+  color: #1d4ed8;
+  background-color: rgba(37, 99, 235, 0.08);
+  text-decoration-style: solid;
+  transform: translateY(-0.5px);
+}
+
+:root.dark-mode .place-link:hover {
+  color: #93c5fd;
+  background-color: rgba(96, 165, 250, 0.14);
+}

@@ -3,7 +3,7 @@ import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./AISuggester.css";
 
-const parseMessageText = (text) => {
+const parseMessageText = (text, onPlaceClick) => {
   if (!text) return "";
   const lines = text.split("\n");
   
@@ -39,7 +39,21 @@ const parseMessageText = (text) => {
       if (match.index > lastIndex) {
         parts.push(currentLine.substring(lastIndex, match.index));
       }
-      parts.push(<strong key={match.index}>{match[1]}</strong>);
+      const placeName = match[1];
+      if (onPlaceClick) {
+        parts.push(
+          <strong
+            key={match.index}
+            className="place-link"
+            onClick={() => onPlaceClick(placeName)}
+            title={`Click to view ${placeName} on map`}
+          >
+            {placeName}
+          </strong>
+        );
+      } else {
+        parts.push(<strong key={match.index}>{placeName}</strong>);
+      }
       lastIndex = boldRegex.lastIndex;
     }
     
@@ -85,6 +99,11 @@ const AISuggester = () => {
   const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const handlePlaceClick = (placeName) => {
+    setMapQuery(placeName);
+    setMapUpdated(true);
+    setActiveTab("map");
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -223,7 +242,7 @@ const AISuggester = () => {
                   </div>
                   <div className="message-bubble">
                     <div className="message-text-content">
-                      {parseMessageText(msg.text)}
+                      {parseMessageText(msg.text, msg.role === "model" ? handlePlaceClick : null)}
                     </div>
                   </div>
                 </div>
