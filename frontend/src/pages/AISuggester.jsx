@@ -135,8 +135,15 @@ const AISuggester = () => {
       try {
         const cleanQuery = mapQuery.replace(/[:.,;]+$/, "").trim();
         if (!cleanQuery) return;
+        
+        let proximityParam = "";
+        if (mapRef.current) {
+          const center = mapRef.current.getCenter();
+          proximityParam = `&proximity=${center.lng},${center.lat}`;
+        }
+
         const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}`
         );
         const data = await res.json();
         
