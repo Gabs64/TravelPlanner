@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {
+  FaArrowLeft,
+  FaRoute,
+  FaMapPin,
+  FaWallet,
+  FaRegClock,
+  FaClipboardList,
+  FaMapMarkedAlt
+} from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./DestinationDetails.css";
 
@@ -78,6 +87,69 @@ const destinationData = {
     duration: "1 - 2 days",
     activities: ["Taal Lake view", "Picnic Grove", "Sky Ranch", "Cafe hopping"],
   },
+};
+
+const getCategoryBadge = (name) => {
+  const n = name.toLowerCase();
+  if (n.includes("boracay") || n.includes("beach") || n.includes("island") || n.includes("lagoon") || n.includes("coron") || n.includes("palawan") || n.includes("siargao")) {
+    return "🏝️ Island Paradise";
+  }
+  if (n.includes("baguio") || n.includes("mountain") || n.includes("hiking") || n.includes("hills") || n.includes("batanes") || n.includes("sagada")) {
+    return "🌲 Mountain Escape";
+  }
+  if (n.includes("vigan") || n.includes("heritage") || n.includes("culture") || n.includes("cebu") || n.includes("church") || n.includes("iloilo")) {
+    return "🏛️ Cultural Heritage";
+  }
+  return "✈️ Scenic Adventure";
+};
+
+const getUnsplashImage = (keyword) => {
+  const kw = (keyword || "").toLowerCase();
+  
+  if (kw.includes("bohol") || kw.includes("chocolate")) {
+    return "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("palawan") || kw.includes("lagoon") || kw.includes("coron") || kw.includes("el nido")) {
+    return "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("siargao") || kw.includes("surf") || kw.includes("waves")) {
+    return "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("vigan") || kw.includes("heritage") || kw.includes("streets") || kw.includes("colonial") || kw.includes("crisologo")) {
+    return "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("batanes") || kw.includes("hills")) {
+    return "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("legazpi") || kw.includes("mayon") || kw.includes("camiguin") || kw.includes("volcano") || kw.includes("crater")) {
+    return "https://images.unsplash.com/photo-1580258169129-c8526b1f2eb0?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("sagada") || kw.includes("davao") || kw.includes("mountain") || kw.includes("hiking") || kw.includes("banaue") || kw.includes("apo")) {
+    return "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("siquijor") || kw.includes("waterfall") || kw.includes("falls")) {
+    return "https://images.unsplash.com/photo-1432406776043-698612709636?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("iloilo") || kw.includes("church") || kw.includes("cathedral")) {
+    return "https://images.unsplash.com/photo-1548625361-155de0cbb3e5?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("dumaguete") || kw.includes("turtle") || kw.includes("marine")) {
+    return "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("tagaytay") || kw.includes("lake") || kw.includes("taal")) {
+    return "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80";
+  }
+  if (kw.includes("beach") || kw.includes("island") || kw.includes("sea") || kw.includes("boracay") || kw.includes("puerto") || kw.includes("cebu")) {
+    return "https://images.unsplash.com/photo-1506929562872-bb421503ef21?auto=format&fit=crop&w=800&q=80";
+  }
+
+  const fallbacks = [
+    "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80",
+    "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80"
+  ];
+  const charSum = kw.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return fallbacks[charSum % fallbacks.length];
 };
 
 const DestinationDetails = () => {
@@ -265,6 +337,7 @@ const DestinationDetails = () => {
 
     geocodeLocation();
   }, [mapQuery, destination]);
+
   const [loading, setLoading] = useState(!staticDest);
   const [errorText, setErrorText] = useState("");
 
@@ -337,8 +410,6 @@ const DestinationDetails = () => {
     );
   }
 
-
-
   const handleSaveTrip = async () => {
     const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
@@ -387,33 +458,46 @@ const DestinationDetails = () => {
 
   return (
     <main className="destination-page">
-      <div className="destination-content">
-        <div className="destination-topbar">
-          <button className="back-btn button-ripple" onClick={() => navigate("/home")}>
-            Back
+      {/* Dynamic Destination Hero Banner */}
+      <div 
+        className="destination-hero" 
+        style={{ 
+          backgroundImage: `url(${getUnsplashImage(destination.imageKeyword || destination.name)})`,
+          viewTransitionName: `dest-image-${slug}`
+        }}
+      >
+        <div className="hero-overlay"></div>
+        <div className="hero-content">
+          <button className="back-btn-premium button-ripple" onClick={() => navigate("/home")}>
+            <FaArrowLeft /> Dashboard
           </button>
-        </div>
-
-        <div className="page-header">
-          <h2>{destination.name}</h2>
+          <span className="destination-category">{getCategoryBadge(destination.name)}</span>
+          <h1>{destination.name}</h1>
           <p>{destination.desc}</p>
         </div>
+      </div>
 
+      <div className="destination-content">
         <section className="destination-layout">
+          {/* Left Panel: Plan & Prep */}
           <div
             className="destination-panel"
             style={{ viewTransitionName: `dest-card-${slug}` }}
           >
-            <h3>Trip Planning</h3>
-            <p>
+            <div className="panel-section-header">
+              <FaRoute className="panel-icon" />
+              <h3>Trip Planning</h3>
+            </div>
+            
+            <p className="location-info">
               <strong>Location:</strong> {destination.location}
             </p>
-            <p>Choose your travel dates and save this destination to your trip list.</p>
+            <p className="helper-text">Select your preferred travel dates and lock in your adventure.</p>
 
             <div className="destination-actions">
               <div className="trip-dates">
                 <label>
-                  Start date
+                  <span>Start Date</span>
                   <input
                     type="date"
                     value={startDate}
@@ -422,7 +506,7 @@ const DestinationDetails = () => {
                 </label>
 
                 <label>
-                  End date
+                  <span>End Date</span>
                   <input
                     type="date"
                     value={endDate}
@@ -431,15 +515,15 @@ const DestinationDetails = () => {
                 </label>
               </div>
 
-              <button className="button-ripple" onClick={handleSaveTrip} disabled={saving}>
-                {saving ? "Saving..." : "Save Trip"}
+              <button className="button-ripple primary-btn" onClick={handleSaveTrip} disabled={saving}>
+                {saving ? "Saving Trip..." : "Save Trip to Database"}
               </button>
 
               <button
-                className="button-ripple secondary-action"
+                className="button-ripple secondary-btn"
                 onClick={() => setMapQuery(destination.location)}
               >
-                Show Destination Map
+                Focus Primary Map
               </button>
             </div>
 
@@ -448,98 +532,146 @@ const DestinationDetails = () => {
 
             <div className="checklist-card">
               <div className="mini-card-header">
-                <h4>Preparation</h4>
-                <span>{completedItems}/4 done</span>
+                <h4>
+                  <FaClipboardList className="header-icon" /> Preparation Checklist
+                </h4>
+                <span className="checklist-progress">{completedItems}/4 done</span>
+              </div>
+              
+              <div className="progress-bar-container">
+                <div 
+                  className="progress-bar-fill" 
+                  style={{ width: `${(completedItems / 4) * 100}%` }}
+                ></div>
               </div>
 
-              <label>
-                <input
-                  type="checkbox"
-                  checked={checklist.validId}
-                  onChange={() => toggleChecklist("validId")}
-                />
-                Valid ID ready
-              </label>
+              <div className="checklist-options">
+                <label className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={checklist.validId}
+                    onChange={() => toggleChecklist("validId")}
+                  />
+                  <span className="checkbox-custom"></span>
+                  Valid ID / Passport ready
+                </label>
 
-              <label>
-                <input
-                  type="checkbox"
-                  checked={checklist.hotel}
-                  onChange={() => toggleChecklist("hotel")}
-                />
-                Hotel selected
-              </label>
+                <label className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={checklist.hotel}
+                    onChange={() => toggleChecklist("hotel")}
+                  />
+                  <span className="checkbox-custom"></span>
+                  Hotel reservation selected
+                </label>
 
-              <label>
-                <input
-                  type="checkbox"
-                  checked={checklist.transport}
-                  onChange={() => toggleChecklist("transport")}
-                />
-                Transport planned
-              </label>
+                <label className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={checklist.transport}
+                    onChange={() => toggleChecklist("transport")}
+                  />
+                  <span className="checkbox-custom"></span>
+                  Transport ticket/route booked
+                </label>
 
-              <label>
-                <input
-                  type="checkbox"
-                  checked={checklist.budget}
-                  onChange={() => toggleChecklist("budget")}
-                />
-                Budget prepared
-              </label>
+                <label className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={checklist.budget}
+                    onChange={() => toggleChecklist("budget")}
+                  />
+                  <span className="checkbox-custom"></span>
+                  Trip budget prepared
+                </label>
+              </div>
             </div>
           </div>
 
+          {/* Right Panel: Map, Facts, & Activities */}
           <div className="destination-main">
-            <div
-              className="map-card"
-              style={{ viewTransitionName: `dest-image-${slug}` }}
-              ref={mapContainerRef}
-            >
-              {!MAPBOX_TOKEN && (
-                <div className="mapbox-missing-token-overlay">
-                  <p>🗺️ Mapbox Access Token is missing</p>
-                  <span>Please configure <code>REACT_APP_MAPBOX_ACCESS_TOKEN</code> in your <code>.env</code> file in the <code>frontend/</code> directory.</span>
+            {/* Interactive Mapbox Container */}
+            <div className="map-card-wrapper">
+              <div className="map-header">
+                <div className="map-title-row">
+                  <FaMapMarkedAlt />
+                  <h4>Interactive Explorer Map</h4>
                 </div>
-              )}
+                {mapQuery && (
+                  <span className="map-focus-label">
+                    Focus: <strong>{mapQuery.split(",")[0]}</strong>
+                  </span>
+                )}
+              </div>
+              <div
+                className="map-card"
+                ref={mapContainerRef}
+              >
+                {!MAPBOX_TOKEN && (
+                  <div className="mapbox-missing-token-overlay">
+                    <p>🗺️ Mapbox Access Token is missing</p>
+                    <span>Please configure <code>REACT_APP_MAPBOX_ACCESS_TOKEN</code> in your <code>.env</code> file in the <code>frontend/</code> directory.</span>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Quick Facts Grid */}
             <div className="quick-info-grid">
-              <div className="quick-info-card">
-                <span>Best For</span>
-                <strong>{destination.bestFor}</strong>
+              <div className="quick-info-card best-for">
+                <div className="fact-icon-container">
+                  <FaRoute />
+                </div>
+                <div className="fact-details">
+                  <span>Best For</span>
+                  <strong>{destination.bestFor}</strong>
+                </div>
               </div>
 
-              <div className="quick-info-card">
-                <span>Estimated Budget</span>
-                <strong>{destination.budget}</strong>
+              <div className="quick-info-card budget">
+                <div className="fact-icon-container">
+                  <FaWallet />
+                </div>
+                <div className="fact-details">
+                  <span>Est. Budget Range</span>
+                  <strong>{destination.budget}</strong>
+                </div>
               </div>
 
-              <div className="quick-info-card">
-                <span>Suggested Stay</span>
-                <strong>{destination.duration}</strong>
+              <div className="quick-info-card duration">
+                <div className="fact-icon-container">
+                  <FaRegClock />
+                </div>
+                <div className="fact-details">
+                  <span>Suggested Stay</span>
+                  <strong>{destination.duration}</strong>
+                </div>
               </div>
             </div>
 
+            {/* Suggested Activities */}
             <div className="activities-card">
               <div className="mini-card-header">
-                <h4>Suggested Activities</h4>
+                <h4>🎉 Suggested Local Activities</h4>
                 <button
-                  className="reset-map-btn"
+                  className="reset-map-btn button-ripple"
                   onClick={() => setMapQuery(destination.location)}
                 >
-                  Reset Map
+                  Reset Map View
                 </button>
               </div>
+
+              <p className="activities-hint">Click any pill to geocode and locate it on the map:</p>
 
               <div className="activity-list">
                 {(destination.activities || []).map((activity) => (
                   <button
-                    className="activity-pill"
+                    className="activity-pill button-ripple"
                     key={activity}
                     onClick={() => setMapQuery(`${activity}, ${destination.name}`)}
                   >
-                    {activity}
+                    <FaMapPin className="pin-icon" /> {activity}
                   </button>
                 ))}
               </div>
