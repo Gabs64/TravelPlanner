@@ -8,6 +8,7 @@ import {
   FaShieldAlt,
   FaSignOutAlt,
   FaTrashAlt,
+  FaCog,
 } from "react-icons/fa";
 import "./Settings.css";
 import API_BASE from "../apiConfig";
@@ -205,9 +206,16 @@ const Settings = () => {
   return (
     <main className="settings-page">
       <div className="settings-content">
-        <div className="page-header">
-          <h2>Settings</h2>
-          <p>Manage your preferences and account settings.</p>
+        <div className="page-header settings-header">
+          <div className="header-title-wrapper">
+            <div className="header-icon-badge">
+              <FaCog />
+            </div>
+            <div>
+              <h2>Settings</h2>
+              <p>Manage your preferences and account settings.</p>
+            </div>
+          </div>
         </div>
 
         {loading ? (
