@@ -139,7 +139,13 @@ const Bookings = () => {
         ) : error ? (
           <div className="status-banner error-banner">{error}</div>
         ) : bookings.length === 0 ? (
-          <div className="empty-state">No bookings found yet. Save a trip to get started.</div>
+          <div className="empty-state">
+            <p>No bookings found yet.</p>
+            <span>Start planning and booking your custom itineraries to get started.</span>
+            <button className="explore-btn button-ripple" onClick={() => navigate("/explore")}>
+              Explore Destinations
+            </button>
+          </div>
         ) : (
           <div className="bookings-grid">
             {bookings.map((booking) => (

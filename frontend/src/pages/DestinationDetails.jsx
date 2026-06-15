@@ -164,6 +164,7 @@ const DestinationDetails = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [mapQuery, setMapQuery] = useState("");
+  const [bookingSuccessModal, setBookingSuccessModal] = useState(false);
   const [checklist, setChecklist] = useState({
     validId: false,
     hotel: false,
@@ -420,6 +421,11 @@ const DestinationDetails = () => {
       return;
     }
 
+    if (new Date(startDate) > new Date(endDate)) {
+      setError("Start date cannot be after end date.");
+      return;
+    }
+
     setSaving(true);
     setMessage("");
     setError("");
@@ -442,7 +448,8 @@ const DestinationDetails = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Unable to save trip");
 
-      setMessage("Trip saved successfully. You can see it in My Trips.");
+      setMessage("Trip booked successfully!");
+      setBookingSuccessModal(true);
     } catch (err) {
       console.error("Error saving trip:", err);
       setError(err.message || "Failed to save trip");
@@ -530,7 +537,7 @@ const DestinationDetails = () => {
               </div>
 
               <button className="button-ripple primary-btn" onClick={handleSaveTrip} disabled={saving}>
-                {saving ? "Saving Trip..." : "Save Trip to Database"}
+                {saving ? "Booking..." : "Book This Trip"}
               </button>
 
               <button
@@ -693,6 +700,52 @@ const DestinationDetails = () => {
           </div>
         </section>
       </div>
+
+      {bookingSuccessModal && (
+        <div className="delete-modal-overlay" onClick={() => setBookingSuccessModal(false)}>
+          <div className="delete-modal success-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="success-icon-circle">
+              ✓
+            </div>
+            <h3>Booking Confirmed! 🎉</h3>
+            <p style={{ fontSize: "14px", margin: "8px 0 16px" }}>
+              Your trip to <strong>{destination.name}</strong> is locked in.
+            </p>
+            
+            <div className="booking-summary-box">
+              <div className="summary-row">
+                <span>Travel Dates</span>
+                <strong>
+                  {new Date(startDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} - {new Date(endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </strong>
+              </div>
+            </div>
+
+            <div className="delete-modal-actions">
+              <button 
+                className="confirm-delete-btn button-ripple" 
+                style={{ background: "linear-gradient(135deg, #10b981, #059669)", boxShadow: "0 8px 20px rgba(16, 185, 129, 0.25)" }}
+                onClick={() => {
+                  setBookingSuccessModal(false);
+                  navigate("/mytrips");
+                }}
+              >
+                Go to Itinerary
+              </button>
+              
+              <button 
+                className="cancel-delete-btn button-ripple" 
+                onClick={() => {
+                  setBookingSuccessModal(false);
+                  navigate("/bookings");
+                }}
+              >
+                View Bookings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };

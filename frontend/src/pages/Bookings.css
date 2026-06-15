@@ -376,3 +376,56 @@
   }
 }
 
+/* Empty state layout */
+.bookings-page .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(31, 41, 55, 0.04);
+}
+
+.bookings-page .empty-state p {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.bookings-page .empty-state span {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 0 0 24px 0;
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+.bookings-page .explore-btn {
+  height: 42px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  background-size: 200% auto;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bookings-page .explore-btn:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(139, 92, 246, 0.45);
+}
+
+.bookings-page .explore-btn:active {
+  transform: translateY(0);
+}
