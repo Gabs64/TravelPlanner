@@ -163,29 +163,38 @@ const AISuggester = () => {
         if (!cleanQuery) return;
         
         let proximityParam = "";
-        let isPH = false;
         if (mapRef.current) {
           const center = mapRef.current.getCenter();
           proximityParam = `&proximity=${center.lng},${center.lat}`;
-          if (center.lng >= 114.0 && center.lng <= 127.0 && center.lat >= 4.0 && center.lat <= 22.0) {
-            isPH = true;
-          }
         }
 
         let countryParam = "";
         const queryLower = cleanQuery.toLowerCase();
-        if (
-          isPH ||
-          queryLower.includes("philippines") ||
-          queryLower.includes("boracay") ||
-          queryLower.includes("palawan") ||
-          queryLower.includes("siargao") ||
-          queryLower.includes("vigan") ||
-          queryLower.includes("bohol") ||
-          queryLower.includes("tagaytay")
-        ) {
+        
+        // Define explicit Philippine locations to restrict queries to PH when appropriate.
+        // We do NOT use map center proximity to lock the country, as this prevents
+        // international searches (e.g. Hawaii, Tokyo) once the map starts centered in the PH.
+        const phKeywords = [
+          "philippines",
+          "boracay",
+          "palawan",
+          "siargao",
+          "vigan",
+          "bohol",
+          "tagaytay",
+          "manila",
+          "cebu",
+          "baguio",
+          "el nido",
+          "puerto princesa",
+          "coron"
+        ];
+        
+        const hasPhKeyword = phKeywords.some(keyword => queryLower.includes(keyword));
+        if (hasPhKeyword) {
           countryParam = "&country=ph";
         }
+
 
         const res = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}`
