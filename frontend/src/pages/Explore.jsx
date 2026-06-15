@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
+import { FaSearch, FaCompass } from "react-icons/fa";
 import "./Explore.css";
 
 const destinations = [
@@ -89,9 +90,14 @@ const Explore = () => {
     <main className="explore-page">
       <div className="explore-content">
         <div className="page-header explore-header">
-          <div>
-            <h2>Explore Destinations</h2>
-            <p>Browse places you can add to your next travel plan.</p>
+          <div className="header-title-wrapper">
+            <div className="header-icon-badge">
+              <FaCompass />
+            </div>
+            <div>
+              <h2>Explore Destinations</h2>
+              <p>Browse places you can add to your next travel plan.</p>
+            </div>
           </div>
 
           <div className="explore-count">
@@ -101,12 +107,15 @@ const Explore = () => {
         </div>
 
         <div className="explore-toolbar">
-          <input
-            type="text"
-            placeholder="Search destinations..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <div className="search-input-wrapper">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search destinations..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
 
           <div className="category-filter">
             {categories.map((category) => (
@@ -138,22 +147,21 @@ const Explore = () => {
                   key={place.name}
                   style={isLastClicked ? { viewTransitionName: "dest-card" } : {}}
                 >
-                  <img
-                    src={place.img}
-                    alt={place.name}
-                    style={isLastClicked ? { viewTransitionName: "dest-image" } : {}}
-                  />
+                  <div className="card-image-wrapper">
+                    <img
+                      src={place.img}
+                      alt={place.name}
+                      style={isLastClicked ? { viewTransitionName: "dest-image" } : {}}
+                    />
+                    <span className="card-badge">{place.category}</span>
+                  </div>
 
                   <div className="explore-card-body">
-                    <div className="card-title-row">
-                      <h3>{place.name}</h3>
-                      <span>{place.category}</span>
-                    </div>
-
+                    <h3>{place.name}</h3>
                     <p>{place.desc}</p>
 
                     <button
-                      className="button-ripple"
+                      className="button-ripple primary-btn"
                       onClick={(e) => {
                         sessionStorage.setItem("lastClickedId", cardId);
                         sessionStorage.setItem("lastClickedSlug", slug);
@@ -162,7 +170,7 @@ const Explore = () => {
                         navigateWithTransition(navigate, `/destination/${slug}`, card, img);
                       }}
                     >
-                      View Trips
+                      Plan Trip
                     </button>
                   </div>
                 </div>
