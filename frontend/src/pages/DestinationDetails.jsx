@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { flushSync } from "react-dom";
 import {
   FaArrowLeft,
   FaRoute,
@@ -463,12 +464,25 @@ const DestinationDetails = () => {
         className="destination-hero" 
         style={{ 
           backgroundImage: `url(${getUnsplashImage(destination.imageKeyword || destination.name)})`,
-          viewTransitionName: `dest-image-${slug}`
+          viewTransitionName: "dest-image"
         }}
       >
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <button className="back-btn-premium button-ripple" onClick={() => navigate("/home")}>
+          <button 
+            className="back-btn-premium button-ripple" 
+            onClick={() => {
+              if (document.startViewTransition) {
+                document.startViewTransition(() => {
+                  flushSync(() => {
+                    navigate("/home");
+                  });
+                });
+              } else {
+                navigate("/home");
+              }
+            }}
+          >
             <FaArrowLeft /> Dashboard
           </button>
           <span className="destination-category">{getCategoryBadge(destination.name)}</span>
@@ -482,7 +496,7 @@ const DestinationDetails = () => {
           {/* Left Panel: Plan & Prep */}
           <div
             className="destination-panel"
-            style={{ viewTransitionName: `dest-card-${slug}` }}
+            style={{ viewTransitionName: "dest-card" }}
           >
             <div className="panel-section-header">
               <FaRoute className="panel-icon" />

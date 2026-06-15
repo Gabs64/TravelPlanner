@@ -40,13 +40,26 @@ const categories = ["All", "Island", "Surf", "Heritage", "Nature", "Relax"];
 
 const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
 
-const navigateWithTransition = (navigate, path) => {
+const navigateWithTransition = (navigate, path, cardElement, imgElement) => {
+  // Clear any existing transition names on the page to prevent duplicate collisions
+  document.querySelectorAll("*").forEach((el) => {
+    if (el.style.viewTransitionName) {
+      el.style.viewTransitionName = "";
+    }
+  });
+
+  if (cardElement && imgElement) {
+    cardElement.style.viewTransitionName = "dest-card";
+    imgElement.style.viewTransitionName = "dest-image";
+  }
   if (document.startViewTransition) {
-    document.startViewTransition(() => {
+    const transition = document.startViewTransition(() => {
       flushSync(() => {
         navigate(path);
       });
     });
+    transition.ready.catch(() => {});
+    transition.finished.catch(() => {});
   } else {
     navigate(path);
   }
@@ -55,6 +68,7 @@ const navigateWithTransition = (navigate, path) => {
 
 const Explore = () => {
   const navigate = useNavigate();
+  const lastClickedId = sessionStorage.getItem("lastClickedId");
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -115,17 +129,19 @@ const Explore = () => {
           <div className="explore-grid">
             {filteredDestinations.map((place) => {
               const slug = slugify(place.name);
+              const cardId = `explore-${slug}`;
+              const isLastClicked = cardId === lastClickedId;
 
               return (
                 <div
                   className="explore-card"
                   key={place.name}
-                  style={{ viewTransitionName: `dest-card-${slug}` }}
+                  style={isLastClicked ? { viewTransitionName: "dest-card" } : {}}
                 >
                   <img
                     src={place.img}
                     alt={place.name}
-                    style={{ viewTransitionName: `dest-image-${slug}` }}
+                    style={isLastClicked ? { viewTransitionName: "dest-image" } : {}}
                   />
 
                   <div className="explore-card-body">
@@ -138,9 +154,13 @@ const Explore = () => {
 
                     <button
                       className="button-ripple"
-                      onClick={() =>
-                        navigateWithTransition(navigate, `/destination/${slug}`)
-                      }
+                      onClick={(e) => {
+                        sessionStorage.setItem("lastClickedId", cardId);
+                        sessionStorage.setItem("lastClickedSlug", slug);
+                        const card = e.currentTarget.closest(".explore-card");
+                        const img = card ? card.querySelector("img") : null;
+                        navigateWithTransition(navigate, `/destination/${slug}`, card, img);
+                      }}
                     >
                       View Trips
                     </button>

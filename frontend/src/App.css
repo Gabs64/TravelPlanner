@@ -130,6 +130,66 @@ button:hover {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Custom View Transition morph/zoom for Plan Trip */
+::view-transition-group(dest-image) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-group(dest-card) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(dest-image) {
+  animation: fadeOutToBack 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(dest-image) {
+  animation: fadeInZoom 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+::view-transition-old(dest-card) {
+  animation: fadeOutToBack 0.2s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(dest-card) {
+  animation: slideUpFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeInZoom {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes fadeOutToBack {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .main-content {
     margin-left: 0;

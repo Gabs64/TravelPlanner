@@ -96,13 +96,26 @@ const getUnsplashImage = (keyword) => {
   return fallbacks[charSum % fallbacks.length];
 };
 
-const navigateWithTransition = (navigate, path) => {
+const navigateWithTransition = (navigate, path, cardElement, imgElement) => {
+  // Clear any existing transition names on the page to prevent duplicate collisions
+  document.querySelectorAll("*").forEach((el) => {
+    if (el.style.viewTransitionName) {
+      el.style.viewTransitionName = "";
+    }
+  });
+
+  if (cardElement && imgElement) {
+    cardElement.style.viewTransitionName = "dest-card";
+    imgElement.style.viewTransitionName = "dest-image";
+  }
   if (document.startViewTransition) {
-    document.startViewTransition(() => {
+    const transition = document.startViewTransition(() => {
       flushSync(() => {
         navigate(path);
       });
     });
+    transition.ready.catch(() => {});
+    transition.finished.catch(() => {});
   } else {
     navigate(path);
   }
@@ -110,6 +123,7 @@ const navigateWithTransition = (navigate, path) => {
 
 const Home = () => {
   const navigate = useNavigate();
+  const lastClickedId = sessionStorage.getItem("lastClickedId");
 
   const [stats, setStats] = useState({
     tripsPlanned: 0,
@@ -326,18 +340,20 @@ const Home = () => {
               {filteredStaticDestinations.map((dest) => {
                 const slug = slugify(dest.name);
                 const category = getCategoryBadge(dest.name);
+                const cardId = `popular-${slug}`;
+                const isLastClicked = cardId === lastClickedId;
 
                 return (
                   <div
                     className="destination-card-premium"
                     key={dest.name}
-                    style={{ viewTransitionName: `dest-card-${slug}` }}
+                    style={isLastClicked ? { viewTransitionName: "dest-card" } : {}}
                   >
                     <div className="card-image-wrapper">
                       <img
                         src={dest.img}
                         alt={dest.name}
-                        style={{ viewTransitionName: `dest-image-${slug}` }}
+                        style={isLastClicked ? { viewTransitionName: "dest-image" } : {}}
                       />
                       <span className="card-badge">{category}</span>
                     </div>
@@ -346,9 +362,13 @@ const Home = () => {
                       <p>{dest.desc}</p>
                       <button
                         className="button-ripple"
-                        onClick={() =>
-                          navigateWithTransition(navigate, `/destination/${slug}`)
-                        }
+                        onClick={(e) => {
+                          sessionStorage.setItem("lastClickedId", cardId);
+                          sessionStorage.setItem("lastClickedSlug", slug);
+                          const card = e.currentTarget.closest(".destination-card-premium");
+                          const img = card ? card.querySelector(".card-image-wrapper img") : null;
+                          navigateWithTransition(navigate, `/destination/${slug}`, card, img);
+                        }}
                       >
                         Plan Trip
                       </button>
@@ -414,18 +434,20 @@ const Home = () => {
                 const slug = slugify(dest.name);
                 const img = getUnsplashImage(dest.imageKeyword || dest.name);
                 const category = getCategoryBadge(dest.name);
+                const cardId = `ai-${slug}`;
+                const isLastClicked = cardId === lastClickedId;
 
                 return (
                   <div
                     className="destination-card-premium ai-card-glowing"
                     key={dest.name}
-                    style={{ viewTransitionName: `dest-card-${slug}-ai` }}
+                    style={isLastClicked ? { viewTransitionName: "dest-card" } : {}}
                   >
                     <div className="card-image-wrapper">
                       <img
                         src={img}
                         alt={dest.name}
-                        style={{ viewTransitionName: `dest-image-${slug}-ai` }}
+                        style={isLastClicked ? { viewTransitionName: "dest-image" } : {}}
                       />
                       <span className="card-badge">{category}</span>
                       <span className="ai-label-pill">AI Suggested</span>
@@ -435,9 +457,13 @@ const Home = () => {
                       <p>{dest.desc}</p>
                       <button
                         className="button-ripple"
-                        onClick={() =>
-                          navigateWithTransition(navigate, `/destination/${slug}`)
-                        }
+                        onClick={(e) => {
+                          sessionStorage.setItem("lastClickedId", cardId);
+                          sessionStorage.setItem("lastClickedSlug", slug);
+                          const card = e.currentTarget.closest(".destination-card-premium");
+                          const img = card ? card.querySelector(".card-image-wrapper img") : null;
+                          navigateWithTransition(navigate, `/destination/${slug}`, card, img);
+                        }}
                       >
                         Plan Trip
                       </button>
