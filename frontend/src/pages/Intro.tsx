@@ -6,11 +6,17 @@ function Intro() {
 
   return (
     <div className="intro-page-container">
+      <div className="intro-blob blob-1"></div>
+      <div className="intro-blob blob-2"></div>
+      <div className="intro-blob blob-3"></div>
+
       <div className="intro-glass-panel">
-        <img className="intro-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
+        <div className="intro-logo-wrapper">
+          <img className="intro-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
+        </div>
 
         <div className="intro-content">
-          <h1>Plan Smarter. Travel Better.</h1>
+          <h1>Plan Smarter. <br />Travel Better.</h1>
 
           <p>
             TravelPlanner helps you organize destinations, bookings, and trip details
@@ -18,7 +24,7 @@ function Intro() {
             the final itinerary.
           </p>
 
-          <button className="join-now-btn" onClick={() => navigate("/login")}>
+          <button className="join-now-btn button-ripple" onClick={() => navigate("/login")}>
             Join Now
           </button>
         </div>
@@ -28,3 +34,4 @@ function Intro() {
 }
 
 export default Intro;
+

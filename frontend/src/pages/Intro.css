@@ -1,117 +1,217 @@
+/* Intro.css */
+
 * {
   box-sizing: border-box;
 }
 
 .intro-page-container {
+  position: relative;
   min-height: 100dvh;
   width: 100%;
   display: grid;
   place-items: center;
   padding: 24px;
   margin: 0;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(102, 126, 234, 0.22), transparent 32%),
-    radial-gradient(circle at 82% 72%, rgba(118, 75, 162, 0.22), transparent 34%),
-    linear-gradient(135deg, #eef4ff 0%, #f8fbff 45%, #eee9ff 100%);
+  overflow: hidden;
+  background: linear-gradient(135deg, #080c16 0%, #0f172a 50%, #1e1b4b 100%);
+  color: #f8fafc;
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Background Glowing Blobs */
+.intro-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  z-index: 0;
+  opacity: 0.45;
+  pointer-events: none;
+  animation: blobPulse 12s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+  top: 10%;
+  left: 10%;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, transparent 70%);
+  animation-duration: 10s;
+}
+
+.blob-2 {
+  bottom: 10%;
+  right: 10%;
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+  animation-duration: 14s;
+  animation-delay: 2s;
+}
+
+.blob-3 {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%);
+  animation-duration: 12s;
+  animation-delay: 4s;
+}
+
+@keyframes blobPulse {
+  0% {
+    transform: scale(1) translate(0px, 0px);
+  }
+  50% {
+    transform: scale(1.15) translate(30px, -40px);
+  }
+  100% {
+    transform: scale(0.9) translate(-20px, 30px);
+  }
+}
+
+/* Glassmorphism Panel */
 .intro-glass-panel {
-  width: min(920px, 100%);
-  min-height: min(620px, calc(100dvh - 48px));
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  padding: 56px 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px;
+  background: rgba(15, 23, 42, 0.35);
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 34px;
-  padding: 52px 34px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 28px;
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.62),
-    rgba(255, 255, 255, 0.28)
-  );
-  box-shadow:
-    0 30px 80px rgba(64, 82, 145, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(22px) saturate(145%);
-  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  text-align: center;
+  gap: 32px;
+  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Float Logo */
+.intro-logo-wrapper {
+  animation: introFloat 6s ease-in-out infinite;
 }
 
 .intro-logo {
-  width: min(230px, 64vw);
+  width: min(200px, 60vw);
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 18px 24px rgba(64, 82, 145, 0.18));
+  filter: drop-shadow(0 12px 24px rgba(99, 102, 241, 0.2));
 }
 
-.intro-content {
-  max-width: 640px;
-  text-align: center;
+@keyframes introFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
+/* Tagline Headings */
 .intro-content h1 {
   margin: 0;
-  color: #151b2d;
-  font-size: clamp(2.4rem, 7vw, 4.8rem);
-  font-weight: 800;
-  line-height: 1.02;
+  font-size: clamp(2.4rem, 6.5vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 20%, #a5b4fc 60%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.15s;
 }
 
+/* Paragraph Description */
 .intro-content p {
-  margin: 22px auto 0;
-  max-width: 560px;
-  color: #4d5875;
-  font-size: 1.08rem;
-  line-height: 1.75;
+  margin: 20px auto 0;
+  max-width: 520px;
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.7;
   font-weight: 500;
+  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.3s;
 }
 
+/* Button CTA styled as gradient pill */
 .join-now-btn {
-  margin-top: 34px;
-  min-width: 178px;
-  min-height: 54px;
-  border: 0;
-  border-radius: 18px;
+  margin-top: 36px;
+  min-width: 190px;
+  height: 52px;
+  border: none;
+  border-radius: 50px;
   color: #ffffff;
-  background: linear-gradient(135deg, #3564f4, #7a3ff2);
-  box-shadow:
-    0 16px 32px rgba(72, 92, 235, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
-  font-size: 1rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+  background-size: 200% auto;
+  box-shadow: 
+    0 10px 25px rgba(139, 92, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  font-size: 1.05rem;
   font-weight: 800;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: introFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.45s;
 }
 
 .join-now-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 20px 42px rgba(72, 92, 235, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.32);
+  background-position: right center;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 15px 35px rgba(139, 92, 246, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .join-now-btn:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.99);
 }
 
+/* Entrance transitions */
+@keyframes introFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Mobile responsive styles */
 @media (max-width: 640px) {
   .intro-page-container {
-    padding: 18px;
+    padding: 16px;
   }
 
   .intro-glass-panel {
-    min-height: calc(100dvh - 36px);
-    padding: 42px 22px;
+    padding: 40px 24px;
     border-radius: 24px;
+    gap: 28px;
+  }
+
+  .intro-content h1 {
+    font-size: clamp(2rem, 9vw, 2.6rem);
   }
 
   .intro-content p {
-    font-size: 0.98rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-top: 16px;
   }
 
   .join-now-btn {
     width: 100%;
-    max-width: 260px;
+    margin-top: 28px;
   }
 }
