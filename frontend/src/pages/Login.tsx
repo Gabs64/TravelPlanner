@@ -160,8 +160,14 @@ function Login() {
 
   return (
     <div className="login-page-container">
+      <div className="login-blob blob-1"></div>
+      <div className="login-blob blob-2"></div>
+      <div className="login-blob blob-3"></div>
+
       <div className="login-shell">
-        <img className="login-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
+        <div className="login-logo-wrapper">
+          <img className="login-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
+        </div>
 
         <div className="auth-card">
           <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
