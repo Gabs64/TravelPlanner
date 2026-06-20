@@ -172,8 +172,32 @@ const AISuggester = () => {
         const coordinates = [];
         const geocodedList = [];
 
+        const phKeywords = [
+          "philippines",
+          "boracay",
+          "palawan",
+          "siargao",
+          "vigan",
+          "bohol",
+          "tagaytay",
+          "manila",
+          "cebu",
+          "baguio",
+          "el nido",
+          "puerto princesa",
+          "coron"
+        ];
+        const isPhTarget = placesToMap.some((q) =>
+          phKeywords.some((keyword) => q.toLowerCase().includes(keyword))
+        );
+
         const promises = placesToMap.map(async (query) => {
-          let optimizedQuery = optimizeSuggesterQuery(query);
+          // Clean the query from parentheses and extra symbols (e.g. Kawasan Falls (Badian) -> Kawasan Falls Badian)
+          let cleanedQuery = query.replace(/\(([^)]+)\)/g, " $1 ");
+          cleanedQuery = cleanedQuery.replace(/[()]/g, " ");
+          cleanedQuery = cleanedQuery.replace(/\s+/g, " ").trim();
+
+          let optimizedQuery = optimizeSuggesterQuery(cleanedQuery);
           const cleanQuery = optimizedQuery.replace(/[:.,;]+$/, "").trim();
           if (!cleanQuery) return null;
 
@@ -184,24 +208,7 @@ const AISuggester = () => {
           }
 
           let countryParam = "";
-          const queryLower = cleanQuery.toLowerCase();
-          const phKeywords = [
-            "philippines",
-            "boracay",
-            "palawan",
-            "siargao",
-            "vigan",
-            "bohol",
-            "tagaytay",
-            "manila",
-            "cebu",
-            "baguio",
-            "el nido",
-            "puerto princesa",
-            "coron"
-          ];
-          const hasPhKeyword = phKeywords.some(keyword => queryLower.includes(keyword));
-          if (hasPhKeyword) {
+          if (isPhTarget) {
             countryParam = "&country=ph";
           }
 
@@ -365,14 +372,34 @@ const AISuggester = () => {
       const matches = [...aiResponseText.matchAll(mapRegex)];
       const locations = matches.map((m) => m[1].trim());
 
-      if (locations.length > 0) {
-        setPlacesToMap(locations);
+      // Strip the MAP tags from the response text
+      aiResponseText = aiResponseText.replace(mapRegex, "").trim();
+      // Clean up formatting leftover like trailing/double commas
+      aiResponseText = aiResponseText.replace(/,\s*,\s*/g, ", ").trim();
+      aiResponseText = aiResponseText.replace(/,\s*$/g, "").trim();
+
+      // Extract all bolded place recommendations directly from the text to map them!
+      const boldRegex = /\*\*([^*]+)\*\*/g;
+      const boldMatches = [...aiResponseText.matchAll(boldRegex)];
+      const excludeKeywords = [
+        "recommend", "suggest", "spot", "food", "activit", "note", "attention", "warning", "tip", "important", "caution"
+      ];
+      
+      const boldLocations = boldMatches
+        .map((m) => m[1].trim())
+        .filter((term) => {
+          const isExcluded = excludeKeywords.some((keyword) => term.toLowerCase().includes(keyword));
+          return !isExcluded && term.length > 0 && term.length < 60;
+        })
+        .map((term) => term.replace(/:$/, "").trim())
+        .filter((term) => term.length > 0);
+
+      // Prefer bolded locations from the text, fallback to MAP tags if none bolded
+      const finalLocations = boldLocations.length > 0 ? boldLocations : locations;
+
+      if (finalLocations.length > 0) {
+        setPlacesToMap(finalLocations);
         setMapUpdated(true);
-        // Strip the MAP tags from the response text
-        aiResponseText = aiResponseText.replace(mapRegex, "").trim();
-        // Clean up formatting leftover like trailing/double commas
-        aiResponseText = aiResponseText.replace(/,\s*,\s*/g, ", ").trim();
-        aiResponseText = aiResponseText.replace(/,\s*$/g, "").trim();
       }
 
       setMessages((prev) => [...prev, { role: "model", text: aiResponseText }]);
