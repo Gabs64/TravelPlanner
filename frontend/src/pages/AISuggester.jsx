@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./AISuggester.css";
@@ -102,6 +103,7 @@ const detectDestination = (text) => {
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
 const AISuggester = () => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([
     {
       role: "model",
@@ -497,6 +499,21 @@ const AISuggester = () => {
         </div>
 
 
+
+        {destinationContext && (
+          <div className="destination-apply-banner">
+            <div className="banner-text">
+              <span>📍 Currently Planning: <strong>{destinationContext}</strong></span>
+              <p>Ready to lock in your dates, check off your list, and book this trip?</p>
+            </div>
+            <button
+              className="apply-banner-btn button-ripple"
+              onClick={() => navigate(`/destination/${destinationContext.toLowerCase().replace(/\s+/g, "-")}`)}
+            >
+              ✨ Apply to Destination Details
+            </button>
+          </div>
+        )}
 
         {/* Mobile View Tab Controls */}
         <div className="mobile-tabs-header">

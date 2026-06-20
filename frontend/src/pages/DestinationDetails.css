@@ -611,7 +611,6 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  overflow: hidden;
 }
 
 .fact-details span {
@@ -623,12 +622,11 @@
 }
 
 .fact-details strong {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   color: var(--text-primary);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
 /* Suggested Activities Card */
