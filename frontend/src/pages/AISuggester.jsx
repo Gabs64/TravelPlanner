@@ -96,17 +96,22 @@ const AISuggester = () => {
   ]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [mapQuery, setMapQuery] = useState("Philippines");
+  const [placesToMap, setPlacesToMap] = useState(["Philippines"]);
   const [activeTab, setActiveTab] = useState("chat");
   const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
+  const markersRef = useRef([]);
+  const geocodedPlacesRef = useRef([]);
 
-  // Clean up map on unmount
+  // Clean up map and markers on unmount
   useEffect(() => {
     return () => {
+      if (markersRef.current) {
+        markersRef.current.forEach((marker) => marker.remove());
+        markersRef.current = [];
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -156,68 +161,113 @@ const AISuggester = () => {
       return cleaned;
     };
 
-    const geocodeLocation = async () => {
+    const geocodeLocations = async () => {
       try {
-        let optimizedQuery = optimizeSuggesterQuery(mapQuery);
-        const cleanQuery = optimizedQuery.replace(/[:.,;]+$/, "").trim();
-        if (!cleanQuery) return;
-        
-        let proximityParam = "";
-        if (mapRef.current) {
-          const center = mapRef.current.getCenter();
-          proximityParam = `&proximity=${center.lng},${center.lat}`;
-        }
+        if (!placesToMap || placesToMap.length === 0) return;
 
-        let countryParam = "";
-        const queryLower = cleanQuery.toLowerCase();
-        
-        // Define explicit Philippine locations to restrict queries to PH when appropriate.
-        // We do NOT use map center proximity to lock the country, as this prevents
-        // international searches (e.g. Hawaii, Tokyo) once the map starts centered in the PH.
-        const phKeywords = [
-          "philippines",
-          "boracay",
-          "palawan",
-          "siargao",
-          "vigan",
-          "bohol",
-          "tagaytay",
-          "manila",
-          "cebu",
-          "baguio",
-          "el nido",
-          "puerto princesa",
-          "coron"
-        ];
-        
-        const hasPhKeyword = phKeywords.some(keyword => queryLower.includes(keyword));
-        if (hasPhKeyword) {
-          countryParam = "&country=ph";
-        }
+        // Clear existing markers
+        markersRef.current.forEach((marker) => marker.remove());
+        markersRef.current = [];
 
+        const coordinates = [];
+        const geocodedList = [];
 
-        const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}`
-        );
-        const data = await res.json();
-        
-        if (data.features && data.features.length > 0) {
-          const [lng, lat] = data.features[0].center;
+        const promises = placesToMap.map(async (query) => {
+          let optimizedQuery = optimizeSuggesterQuery(query);
+          const cleanQuery = optimizedQuery.replace(/[:.,;]+$/, "").trim();
+          if (!cleanQuery) return null;
+
+          let proximityParam = "";
+          if (mapRef.current) {
+            const center = mapRef.current.getCenter();
+            proximityParam = `&proximity=${center.lng},${center.lat}`;
+          }
+
+          let countryParam = "";
+          const queryLower = cleanQuery.toLowerCase();
+          const phKeywords = [
+            "philippines",
+            "boracay",
+            "palawan",
+            "siargao",
+            "vigan",
+            "bohol",
+            "tagaytay",
+            "manila",
+            "cebu",
+            "baguio",
+            "el nido",
+            "puerto princesa",
+            "coron"
+          ];
+          const hasPhKeyword = phKeywords.some(keyword => queryLower.includes(keyword));
+          if (hasPhKeyword) {
+            countryParam = "&country=ph";
+          }
+
+          const res = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(cleanQuery)}.json?access_token=${MAPBOX_TOKEN}${proximityParam}${countryParam}`
+          );
+          const data = await res.json();
           
-          // Move map camera smoothly
-          mapRef.current.flyTo({
-            center: [lng, lat],
-            zoom: 12,
-            essential: true
+          if (data.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].center;
+            const displayName = data.features[0].text || cleanQuery;
+            return {
+              query,
+              name: displayName,
+              lng,
+              lat
+            };
+          }
+          return null;
+        });
+
+        const results = await Promise.all(promises);
+        const validResults = results.filter((r) => r !== null);
+
+        if (validResults.length > 0) {
+          validResults.forEach((res) => {
+            // Create a custom element for the marker to show a beautiful label & pin
+            const el = document.createElement("div");
+            el.className = "custom-marker-wrapper";
+
+            const labelEl = document.createElement("div");
+            labelEl.className = "custom-marker-label";
+            labelEl.textContent = res.name;
+            el.appendChild(labelEl);
+
+            const pinEl = document.createElement("div");
+            pinEl.className = "custom-marker-pin";
+            el.appendChild(pinEl);
+
+            // Add marker to map
+            const marker = new window.mapboxgl.Marker({ element: el })
+              .setLngLat([res.lng, res.lat])
+              .addTo(mapRef.current);
+
+            markersRef.current.push(marker);
+            coordinates.push([res.lng, res.lat]);
+            geocodedList.push(res);
           });
 
-          // Update marker position
-          if (markerRef.current) {
-            markerRef.current.setLngLat([lng, lat]);
+          geocodedPlacesRef.current = geocodedList;
+
+          // Adjust viewport
+          if (coordinates.length === 1) {
+            mapRef.current.flyTo({
+              center: coordinates[0],
+              zoom: 12,
+              essential: true
+            });
           } else {
-            markerRef.current = new window.mapboxgl.Marker({ color: "#ef4444" })
-              .setLngLat([lng, lat])
-              .addTo(mapRef.current);
+            const bounds = new window.mapboxgl.LngLatBounds();
+            coordinates.forEach((coord) => bounds.extend(coord));
+            mapRef.current.fitBounds(bounds, {
+              padding: 60,
+              maxZoom: 14,
+              duration: 1200
+            });
           }
         }
       } catch (err) {
@@ -225,13 +275,39 @@ const AISuggester = () => {
       }
     };
 
-    if (mapQuery) {
-      geocodeLocation();
-    }
-  }, [mapQuery]);
+    geocodeLocations();
+  }, [placesToMap]);
 
   const handlePlaceClick = (placeName) => {
-    setMapQuery(placeName);
+    // Try to find if this place is already geocoded on the map
+    const found = geocodedPlacesRef.current.find(
+      (p) =>
+        p.name.toLowerCase().includes(placeName.toLowerCase()) ||
+        placeName.toLowerCase().includes(p.name.toLowerCase()) ||
+        p.query.toLowerCase().includes(placeName.toLowerCase())
+    );
+
+    if (found) {
+      mapRef.current.flyTo({
+        center: [found.lng, found.lat],
+        zoom: 14,
+        essential: true
+      });
+      // Highlight the label element
+      const markers = document.getElementsByClassName("custom-marker-wrapper");
+      for (let i = 0; i < markers.length; i++) {
+        const markerEl = markers[i];
+        const labelEl = markerEl.querySelector(".custom-marker-label");
+        if (labelEl && labelEl.textContent.toLowerCase() === found.name.toLowerCase()) {
+          labelEl.classList.add("highlighted");
+          setTimeout(() => {
+            labelEl.classList.remove("highlighted");
+          }, 3000);
+        }
+      }
+    } else {
+      setPlacesToMap([placeName]);
+    }
     setMapUpdated(true);
     setActiveTab("map");
   };
@@ -284,15 +360,19 @@ const AISuggester = () => {
 
       let aiResponseText = data.message || "";
 
-      // Parse and extract MAP command: [MAP: location]
-      const mapRegex = /\[MAP:\s*([^\]]+)\]/i;
-      const match = aiResponseText.match(mapRegex);
-      if (match) {
-        const location = match[1].trim();
-        setMapQuery(location);
+      // Parse and extract all MAP tags: [MAP: location]
+      const mapRegex = /\[MAP:\s*([^\]]+)\]/gi;
+      const matches = [...aiResponseText.matchAll(mapRegex)];
+      const locations = matches.map((m) => m[1].trim());
+
+      if (locations.length > 0) {
+        setPlacesToMap(locations);
         setMapUpdated(true);
-        // Strip the [MAP: ...] tag from the response text
+        // Strip the MAP tags from the response text
         aiResponseText = aiResponseText.replace(mapRegex, "").trim();
+        // Clean up formatting leftover like trailing/double commas
+        aiResponseText = aiResponseText.replace(/,\s*,\s*/g, ", ").trim();
+        aiResponseText = aiResponseText.replace(/,\s*$/g, "").trim();
       }
 
       setMessages((prev) => [...prev, { role: "model", text: aiResponseText }]);
@@ -431,7 +511,10 @@ const AISuggester = () => {
               <h4>
                 <FaMapMarkerAlt /> Interactive Navigation
               </h4>
-              <span className="location-focus">Focus: <strong>{mapQuery}</strong></span>
+              <span className="location-focus">
+                {placesToMap.length > 1 ? "Locations Pinned: " : "Focus: "}
+                <strong>{placesToMap.join(", ")}</strong>
+              </span>
             </div>
             <div className="mapbox-map-container" ref={mapContainerRef}>
               {!MAPBOX_TOKEN && (

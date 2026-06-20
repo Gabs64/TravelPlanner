@@ -501,3 +501,75 @@
 :root.dark-mode .mapbox-missing-token-overlay code {
   background: rgba(255, 255, 255, 0.1);
 }
+
+/* Custom Mapbox Markers */
+.custom-marker-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.custom-marker-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.custom-marker-wrapper:hover .custom-marker-pin {
+  background: #2563eb;
+  transform: scale(1.15);
+}
+
+.custom-marker-label {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 5px 9px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  margin-bottom: 6px;
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
+}
+
+.custom-marker-wrapper:hover .custom-marker-label {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+  z-index: 20;
+}
+
+/* Highlighted state for direct link clicks */
+.custom-marker-label.highlighted {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  transform: scale(1.1) translateY(-3px);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.6);
+  animation: marker-pulse 1s infinite alternate;
+  z-index: 25;
+}
+
+@keyframes marker-pulse {
+  0% {
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+  }
+}
+
