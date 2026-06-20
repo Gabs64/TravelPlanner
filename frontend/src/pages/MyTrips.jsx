@@ -43,8 +43,72 @@ const MyTrips = () => {
   const [aiSuggestions, setAiSuggestions] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [tripToDelete, setTripToDelete] = useState(null);
+  const [shareModalOpen, setShareModalOpen] = useState(null);
+
+  // Tab & Budget states
+  const [activeModalTab, setActiveModalTab] = useState("itinerary");
+  const [expenses, setExpenses] = useState([]);
+  const [tripBudget, setTripBudget] = useState(10000);
+  const [expenseDesc, setExpenseDesc] = useState("");
+  const [expenseAmount, setExpenseAmount] = useState("");
+  const [expenseCategory, setExpenseCategory] = useState("Food");
 
   const isCompletedTrip = selectedTrip?.status?.toLowerCase() === "completed";
+
+  // Sync expenses and budget from localStorage on selected trip change
+  useEffect(() => {
+    if (selectedTrip) {
+      const savedExpenses = localStorage.getItem(`expenses_${selectedTrip.id}`);
+      if (savedExpenses) {
+        setExpenses(JSON.parse(savedExpenses));
+      } else {
+        setExpenses([]);
+      }
+
+      const savedBudget = localStorage.getItem(`budget_${selectedTrip.id}`);
+      if (savedBudget) {
+        setTripBudget(parseFloat(savedBudget));
+      } else {
+        setTripBudget(10000); // default fallback
+      }
+    }
+  }, [selectedTrip]);
+
+  const saveExpenses = (newExpenses) => {
+    if (!selectedTrip) return;
+    setExpenses(newExpenses);
+    localStorage.setItem(`expenses_${selectedTrip.id}`, JSON.stringify(newExpenses));
+  };
+
+  const saveBudget = (newBudget) => {
+    if (!selectedTrip) return;
+    setTripBudget(newBudget);
+    localStorage.setItem(`budget_${selectedTrip.id}`, newBudget.toString());
+  };
+
+  const handleAddExpense = (e) => {
+    e.preventDefault();
+    if (!expenseDesc.trim() || !expenseAmount) return;
+    const amount = parseFloat(expenseAmount);
+    if (isNaN(amount) || amount <= 0) return;
+
+    const newExpense = {
+      id: Date.now(),
+      desc: expenseDesc.trim(),
+      amount,
+      category: expenseCategory,
+    };
+
+    const newExpenses = [...expenses, newExpense];
+    saveExpenses(newExpenses);
+    setExpenseDesc("");
+    setExpenseAmount("");
+  };
+
+  const handleDeleteExpense = (id) => {
+    const newExpenses = expenses.filter((exp) => exp.id !== id);
+    saveExpenses(newExpenses);
+  };
 
   const handleDragStart = (e, index) => {
     if (isCompletedTrip) return;
@@ -199,6 +263,7 @@ const MyTrips = () => {
     setConfirmSaveOpen(false);
     setSaveSuccessOpen(false);
     setAiSuggestions(null);
+    setActiveModalTab("itinerary");
   };
 
   const generateAIItinerary = async () => {
@@ -316,11 +381,14 @@ const MyTrips = () => {
     }
   };
 
-
   const closeSuccessMessage = () => {
     setSaveSuccessOpen(false);
     closeModal();
   };
+
+  const totalSpent = expenses.reduce((acc, curr) => acc + curr.amount, 0);
+  const remainingBalance = tripBudget - totalSpent;
+  const spentPercentage = tripBudget > 0 ? Math.min((totalSpent / tripBudget) * 100, 100) : 0;
 
   return (
     <main className="trips-page">
@@ -379,107 +447,318 @@ const MyTrips = () => {
                 <p>{selectedTrip.date}</p>
               </div>
 
-              <button className="modal-close-btn" onClick={closeModal}>
-                ×
+              <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                <button
+                  className="print-btn button-ripple"
+                  onClick={() => window.print()}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
+                    padding: "6px 12px",
+                    borderRadius: "10px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                  }}
+                  title="Print this itinerary"
+                >
+                  🖨️ Print
+                </button>
+                <button
+                  className="share-btn button-ripple"
+                  onClick={() => setShareModalOpen(selectedTrip.id)}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.1)",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
+                    padding: "6px 12px",
+                    borderRadius: "10px",
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                  }}
+                  title="Share this trip publicly"
+                >
+                  🔗 Share
+                </button>
+                <button className="modal-close-btn" onClick={closeModal}>
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="modal-tabs" style={{ display: "flex", gap: "10px", margin: "12px 0 20px", borderBottom: "1px solid var(--border-color)", paddingBottom: "10px" }}>
+              <button
+                className={`modal-tab-toggle ${activeModalTab === "itinerary" ? "active" : ""}`}
+                onClick={() => setActiveModalTab("itinerary")}
+                style={{
+                  background: activeModalTab === "itinerary" ? "var(--gradient-primary)" : "transparent",
+                  color: activeModalTab === "itinerary" ? "#ffffff" : "var(--text-secondary)",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "10px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  cursor: "pointer"
+                }}
+              >
+                📅 Schedule
+              </button>
+              <button
+                className={`modal-tab-toggle ${activeModalTab === "budget" ? "active" : ""}`}
+                onClick={() => setActiveModalTab("budget")}
+                style={{
+                  background: activeModalTab === "budget" ? "var(--gradient-primary)" : "transparent",
+                  color: activeModalTab === "budget" ? "#ffffff" : "var(--text-secondary)",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: "10px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  cursor: "pointer"
+                }}
+              >
+                💵 Expenses
               </button>
             </div>
 
             {isCompletedTrip && (
               <div className="locked-itinerary-banner">
-                This trip is completed. The itinerary is now read-only.
+                This trip is completed. The details are now read-only.
               </div>
             )}
 
-            <div className="itinerary-list">
-              {selectedTrip.itinerary.map((item, index) => (
-                <div
-                  className={`itinerary-item ${draggedIndex === index ? "dragging" : ""}`}
-                  key={`${item.id}-${index}`}
-                  draggable={!isCompletedTrip}
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onDragEnd={handleDragEnd}
-                >
-                  {!isCompletedTrip && (
-                    <div className="drag-handle" title="Drag to reorder">
-                      ⋮⋮
-                    </div>
-                  )}
-                  <div className="itinerary-order">{index + 1}</div>
+            {activeModalTab === "itinerary" && (
+              <>
+                <div className="itinerary-list">
+                  {selectedTrip.itinerary.map((item, index) => (
+                    <div
+                      className={`itinerary-item ${draggedIndex === index ? "dragging" : ""}`}
+                      key={`${item.id}-${index}`}
+                      draggable={!isCompletedTrip}
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      {!isCompletedTrip && (
+                        <div className="drag-handle" title="Drag to reorder">
+                          ⋮⋮
+                        </div>
+                      )}
+                      <div className="itinerary-order">{index + 1}</div>
 
-                  <div className="itinerary-info">
-                    <span>{calculateItemDate(selectedTrip.startDate, index)} {item.time ? `(${item.time})` : ""}</span>
-                    <strong>{item.title}</strong>
+                      <div className="itinerary-info">
+                        <span>{calculateItemDate(selectedTrip.startDate, index)} {item.time ? `(${item.time})` : ""}</span>
+                        <strong>{item.title}</strong>
+                      </div>
+
+                      {!isCompletedTrip && (
+                        <div className="itinerary-controls">
+                          <button
+                            onClick={() => moveItineraryItem(index, -1)}
+                            disabled={index === 0}
+                          >
+                            Up
+                          </button>
+                          <button
+                            onClick={() => moveItineraryItem(index, 1)}
+                            disabled={index === selectedTrip.itinerary.length - 1}
+                          >
+                            Down
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {!isCompletedTrip && (
+                  <div className="ai-modal-section" style={{ marginTop: "20px", padding: "16px", border: "1px dashed var(--border-color)", borderRadius: "14px", background: "rgba(255,255,255,0.02)" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                      <h4 style={{ margin: 0, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>🤖 AI Itinerary Suggester</h4>
+                      <button
+                        className="button-ripple"
+                        onClick={generateAIItinerary}
+                        disabled={generatingAI}
+                        style={{ padding: "6px 12px", borderRadius: "10px", border: "none", background: "var(--gradient-primary)", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                      >
+                        {generatingAI ? "Generating..." : "Generate AI Suggestions"}
+                      </button>
+                    </div>
+
+                    {aiSuggestions && (
+                      <div className="ai-preview-container" style={{ marginTop: "14px" }}>
+                        <p style={{ margin: "0 0 8px", fontSize: "12.5px", color: "var(--text-secondary)", fontWeight: "600" }}>Preview Suggested Activities:</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", background: "var(--bg-input)", border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", marginBottom: "12px" }}>
+                          {aiSuggestions.map((item, index) => (
+                            <div key={index} style={{ fontSize: "13px", lineHeight: "1.4" }}>
+                              <strong>{item.time}:</strong> {item.title}
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ display: "flex", gap: "8px" }}>
+                          <button
+                            className="button-ripple"
+                            onClick={applyAIItinerary}
+                            style={{ padding: "6px 12px", borderRadius: "8px", border: "none", background: "#10b981", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                          >
+                            Apply to Trip
+                          </button>
+                          <button
+                            className="button-ripple"
+                            onClick={() => setAiSuggestions(null)}
+                            style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "transparent", color: "var(--text-primary)", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
+                          >
+                            Discard
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
+              </>
+            )}
 
-                  {!isCompletedTrip && (
-                    <div className="itinerary-controls">
-                      <button
-                        onClick={() => moveItineraryItem(index, -1)}
-                        disabled={index === 0}
-                      >
-                        Up
-                      </button>
-                      <button
-                        onClick={() => moveItineraryItem(index, 1)}
-                        disabled={index === selectedTrip.itinerary.length - 1}
-                      >
-                        Down
-                      </button>
+            {activeModalTab === "budget" && (
+              <div className="budget-panel-content">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px", marginBottom: "18px" }}>
+                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-color)", padding: "12px", borderRadius: "14px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: "700" }}>Total Budget</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "800", color: "var(--text-primary)" }}>PHP</span>
+                      <input
+                        type="number"
+                        disabled={isCompletedTrip}
+                        value={tripBudget}
+                        onChange={(e) => saveBudget(Math.max(0, parseFloat(e.target.value) || 0))}
+                        style={{
+                          width: "100%",
+                          background: "transparent",
+                          border: "none",
+                          borderBottom: "1px dashed var(--border-color)",
+                          color: "var(--text-primary)",
+                          fontWeight: "800",
+                          fontSize: "15px",
+                          padding: "2px 0",
+                          outline: "none"
+                        }}
+                      />
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {!isCompletedTrip && (
-              <div className="ai-modal-section" style={{ marginTop: "20px", padding: "16px", border: "1px dashed var(--border-color)", borderRadius: "14px", background: "rgba(255,255,255,0.02)" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-                  <h4 style={{ margin: 0, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>🤖 AI Itinerary Suggester</h4>
-                  <button
-                    className="button-ripple"
-                    onClick={generateAIItinerary}
-                    disabled={generatingAI}
-                    style={{ padding: "6px 12px", borderRadius: "10px", border: "none", background: "var(--gradient-primary)", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
-                  >
-                    {generatingAI ? "Generating..." : "Generate AI Suggestions"}
-                  </button>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-color)", padding: "12px", borderRadius: "14px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: "700" }}>Total Spent</span>
+                    <div style={{ fontSize: "15px", fontWeight: "800", marginTop: "4px", color: totalSpent > tripBudget ? "#ef4444" : "var(--text-primary)" }}>
+                      PHP {totalSpent.toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-color)", padding: "12px", borderRadius: "14px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: "700" }}>Remaining</span>
+                    <div style={{ fontSize: "15px", fontWeight: "800", marginTop: "4px", color: remainingBalance < 0 ? "#ef4444" : "#10b981" }}>
+                      PHP {remainingBalance.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
 
-                {aiSuggestions && (
-                  <div className="ai-preview-container" style={{ marginTop: "14px" }}>
-                    <p style={{ margin: "0 0 8px", fontSize: "12.5px", color: "var(--text-secondary)", fontWeight: "600" }}>Preview Suggested Activities:</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", background: "var(--bg-input)", border: "1px solid var(--border-color)", padding: "10px", borderRadius: "8px", marginBottom: "12px" }}>
-                      {aiSuggestions.map((item, index) => (
-                        <div key={index} style={{ fontSize: "13px", lineHeight: "1.4" }}>
-                          <strong>{item.time}:</strong> {item.title}
+                <div style={{ marginBottom: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "4px", fontWeight: "700" }}>
+                    <span style={{ color: "var(--text-secondary)" }}>Budget Utilization</span>
+                    <span style={{ color: totalSpent > tripBudget ? "#ef4444" : "var(--text-primary)" }}>{spentPercentage.toFixed(1)}%</span>
+                  </div>
+                  <div style={{ height: "8px", background: "var(--bg-input)", borderRadius: "4px", overflow: "hidden", border: "1px solid var(--border-color)" }}>
+                    <div
+                      style={{
+                        width: `${spentPercentage}%`,
+                        height: "100%",
+                        background: totalSpent > tripBudget ? "linear-gradient(90deg, #f59e0b, #ef4444)" : "linear-gradient(90deg, #10b981, #3b82f6)",
+                        transition: "width 0.3s ease"
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                {!isCompletedTrip && (
+                  <form onSubmit={handleAddExpense} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr auto", gap: "8px", marginBottom: "18px", alignItems: "end" }}>
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Expense Item"
+                        value={expenseDesc}
+                        onChange={(e) => setExpenseDesc(e.target.value)}
+                        required
+                        style={{ width: "100%", boxSizing: "border-box", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "8px 10px", borderRadius: "10px", fontSize: "12.5px" }}
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="number"
+                        placeholder="PHP"
+                        value={expenseAmount}
+                        onChange={(e) => setExpenseAmount(e.target.value)}
+                        required
+                        min="0.01"
+                        step="any"
+                        style={{ width: "100%", boxSizing: "border-box", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "8px 10px", borderRadius: "10px", fontSize: "12.5px" }}
+                      />
+                    </div>
+                    <div>
+                      <select
+                        value={expenseCategory}
+                        onChange={(e) => setExpenseCategory(e.target.value)}
+                        style={{ width: "100%", boxSizing: "border-box", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "7px 10px", borderRadius: "10px", fontSize: "12.5px", height: "34px" }}
+                      >
+                        <option value="Food">🍔 Food</option>
+                        <option value="Lodging">🏨 Lodging</option>
+                        <option value="Transport">🚗 Transport</option>
+                        <option value="Activities">🎟️ Activities</option>
+                        <option value="Shopping">🛍️ Shopping</option>
+                        <option value="Others">📦 Others</option>
+                      </select>
+                    </div>
+                    <button
+                      type="submit"
+                      className="button-ripple"
+                      style={{ background: "var(--gradient-primary)", color: "#fff", border: "none", padding: "0 14px", borderRadius: "10px", fontWeight: "700", cursor: "pointer", height: "34px", fontSize: "12.5px" }}
+                    >
+                      Add
+                    </button>
+                  </form>
+                )}
+
+                <div style={{ border: "1px solid var(--border-color)", borderRadius: "14px", padding: "12px", background: "rgba(255,255,255,0.01)" }}>
+                  <h4 style={{ margin: "0 0 10px", fontSize: "13px", fontWeight: "700" }}>Logged Expenses ({expenses.length})</h4>
+                  {expenses.length === 0 ? (
+                    <div style={{ fontSize: "12.5px", color: "var(--text-secondary)", textAlign: "center", padding: "20px 0" }}>No expenses logged yet.</div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", maxHeight: "200px", overflowY: "auto" }}>
+                      {expenses.map((exp) => (
+                        <div key={exp.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "var(--bg-input)", border: "1px solid var(--border-color)", borderRadius: "10px" }}>
+                          <div>
+                            <strong style={{ fontSize: "13px", color: "var(--text-primary)" }}>{exp.desc}</strong>
+                            <span style={{ fontSize: "10.5px", color: "var(--text-secondary)", display: "block", marginTop: "1px" }}>{exp.category}</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <strong style={{ fontSize: "13px", color: "var(--text-primary)" }}>PHP {exp.amount.toLocaleString()}</strong>
+                            {!isCompletedTrip && (
+                              <button
+                                onClick={() => handleDeleteExpense(exp.id)}
+                                style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "12px", padding: 0 }}
+                              >
+                                🗑️
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      <button
-                        className="button-ripple"
-                        onClick={applyAIItinerary}
-                        style={{ padding: "6px 12px", borderRadius: "8px", border: "none", background: "#10b981", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
-                      >
-                        Apply to Trip
-                      </button>
-                      <button
-                        className="button-ripple"
-                        onClick={() => setAiSuggestions(null)}
-                        style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "transparent", color: "var(--text-primary)", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}
-                      >
-                        Discard
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
 
             <div className="trip-modal-actions" style={{ marginTop: "24px", display: "flex", gap: "10px" }}>
-              {!isCompletedTrip && (
+              {activeModalTab === "itinerary" && !isCompletedTrip && (
                 <>
                   <button
                     className="complete-btn button-ripple"
@@ -500,7 +779,6 @@ const MyTrips = () => {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
@@ -563,6 +841,46 @@ const MyTrips = () => {
               </button>
               <button className="cancel-delete-btn button-ripple" onClick={() => setTripToDelete(null)}>
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {shareModalOpen && (
+        <div className="delete-modal-overlay" onClick={() => setShareModalOpen(null)}>
+          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Share Your Trip 🌍</h3>
+            <p>Anyone with this link can view your itinerary and map in read-only mode.</p>
+            <input
+              type="text"
+              readOnly
+              value={`${window.location.origin}/trip/share/${shareModalOpen}`}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid var(--border-color)",
+                background: "var(--bg-input)",
+                color: "var(--text-primary)",
+                fontSize: "13px",
+                marginBottom: "16px",
+                textAlign: "center"
+              }}
+              onClick={(e) => e.target.select()}
+            />
+            <div className="delete-modal-actions">
+              <button
+                className="confirm-delete-btn button-ripple"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/trip/share/${shareModalOpen}`);
+                  alert("Link copied to clipboard!");
+                }}
+              >
+                📋 Copy Link
+              </button>
+              <button className="cancel-delete-btn button-ripple" onClick={() => setShareModalOpen(null)}>
+                Close
               </button>
             </div>
           </div>

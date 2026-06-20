@@ -1,0 +1,306 @@
+.shared-trip-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.12), transparent 40%),
+    linear-gradient(135deg, #eef5ff 0%, #f8fbff 48%, #eef2ff 100%);
+}
+
+:root.dark-mode .shared-trip-container {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.15), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.15), transparent 40%),
+    linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0b0f19 100%);
+}
+
+.shared-trip-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+:root.dark-mode .shared-trip-header {
+  background: rgba(17, 24, 39, 0.4);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 800;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  cursor: pointer;
+}
+
+.logo-icon {
+  font-size: 22px;
+  color: #2563eb;
+  -webkit-text-fill-color: initial;
+}
+
+.cta-btn {
+  background: var(--gradient-primary);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.cta-btn:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+}
+
+.shared-trip-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  padding: 24px 32px 32px;
+  box-sizing: border-box;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.shared-left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.trip-summary-card {
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.04);
+}
+
+.shared-badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #2563eb;
+  background: rgba(37, 99, 235, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+:root.dark-mode .shared-badge {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.15);
+}
+
+.trip-summary-card h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.trip-dates {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.shared-itinerary-list {
+  padding: 24px;
+  border-radius: 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.04);
+  flex: 1;
+}
+
+.shared-itinerary-list h4 {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.shared-itinerary-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  margin-bottom: 10px;
+}
+
+.shared-order-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.shared-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shared-item-details span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.shared-item-details strong {
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+
+.shared-right-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.04);
+  overflow: hidden;
+  height: calc(100vh - 120px);
+  min-height: 480px;
+}
+
+.shared-map-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.shared-map-header svg {
+  color: #ef4444;
+}
+
+.shared-map-header h4 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.shared-map-container {
+  flex: 1;
+  position: relative;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+/* Loading & Error Status Panels */
+.shared-trip-loading,
+.shared-trip-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.shared-trip-loading p {
+  margin-top: 16px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.shared-trip-error h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ef4444;
+  margin: 0 0 10px;
+}
+
+.shared-trip-error p {
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.shared-trip-error button {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Overrides */
+@media (max-width: 900px) {
+  .shared-trip-header {
+    padding: 16px 20px;
+  }
+  .shared-trip-content {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+  .shared-right-panel {
+    height: 380px;
+    min-height: 0;
+  }
+}

@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
 import AISuggester from "./pages/AISuggester";
+import SharedTrip from "./pages/SharedTrip";
 import "./App.css";
 
 // Initialize dark mode on startup - check localStorage as fallback, but exclude auth pages
@@ -31,13 +32,12 @@ initDarkMode();
 
 function AnimatedRoutes() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
+  const isFullWidthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/intro" || location.pathname.startsWith("/trip/share/");
 
   return (
-    <div className={isLoginPage ? "main-content auth-layout" : "main-content"}>
+    <div className={isFullWidthPage ? "main-content auth-layout" : "main-content"}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Intro />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<Home />} />
         <Route path="/destination/:slug" element={<DestinationDetails />} />
@@ -47,7 +47,7 @@ function AnimatedRoutes() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/ai-suggester" element={<AISuggester />} />
-        
+        <Route path="/trip/share/:tripId" element={<SharedTrip />} />
       </Routes>
     </div>
   );
@@ -55,11 +55,11 @@ function AnimatedRoutes() {
 
 function Layout() {
   const location = useLocation();
-  const isLoginPage = location.pathname === "/" || location.pathname === "/login";
+  const hideSidebar = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/intro" || location.pathname.startsWith("/trip/share/");
 
   return (
     <>
-      {!isLoginPage && <Sidebar />}
+      {!hideSidebar && <Sidebar />}
       <AnimatedRoutes />
     </>
   );

@@ -130,6 +130,10 @@ const AISuggester = () => {
         markersRef.current = [];
       }
       if (mapRef.current) {
+        try {
+          if (mapRef.current.getLayer("route")) mapRef.current.removeLayer("route");
+          if (mapRef.current.getSource("route")) mapRef.current.removeSource("route");
+        } catch (e) {}
         mapRef.current.remove();
         mapRef.current = null;
       }
@@ -152,6 +156,87 @@ const AISuggester = () => {
       // Add standard navigation controls
       mapRef.current.addControl(new window.mapboxgl.NavigationControl(), "top-right");
     }
+
+    const removeRoute = () => {
+      const map = mapRef.current;
+      if (!map) return;
+      try {
+        if (map.getLayer("route")) map.removeLayer("route");
+        if (map.getSource("route")) map.removeSource("route");
+      } catch (e) {
+        console.error("Error removing route layer:", e);
+      }
+    };
+
+    const drawRoute = async (coords) => {
+      if (!coords || coords.length < 2) {
+        removeRoute();
+        return;
+      }
+      const map = mapRef.current;
+      if (!map) return;
+
+      const coordsStr = coords.map((c) => `${c[0]},${c[1]}`).join(";");
+      let geojson = null;
+      try {
+        const res = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsStr}?geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`
+        );
+        const data = await res.json();
+        if (data.code === "Ok" && data.routes && data.routes.length > 0) {
+          geojson = {
+            type: "Feature",
+            properties: {},
+            geometry: data.routes[0].geometry,
+          };
+        }
+      } catch (err) {
+        console.error("Directions API failed, falling back to straight lines:", err);
+      }
+
+      if (!geojson) {
+        geojson = {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: coords,
+          },
+        };
+      }
+
+      const updateMapSource = () => {
+        if (!map.getStyle()) return;
+        if (map.getSource("route")) {
+          map.getSource("route").setData(geojson);
+        } else {
+          map.addSource("route", {
+            type: "geojson",
+            data: geojson,
+          });
+          map.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            layout: {
+              "line-join": "round",
+              "line-cap": "round",
+            },
+            paint: {
+              "line-color": "#3b82f6",
+              "line-width": 5,
+              "line-opacity": 0.8,
+            },
+          });
+        }
+      };
+
+      if (map.isStyleLoaded()) {
+        updateMapSource();
+      } else {
+        map.once("style.load", updateMapSource);
+      }
+    };
 
     const optimizeSuggesterQuery = (query) => {
       const replacements = [
@@ -291,6 +376,7 @@ const AISuggester = () => {
               zoom: 12,
               essential: true
             });
+            removeRoute();
           } else {
             const bounds = new window.mapboxgl.LngLatBounds();
             coordinates.forEach((coord) => bounds.extend(coord));
@@ -299,7 +385,10 @@ const AISuggester = () => {
               maxZoom: 14,
               duration: 1200
             });
+            drawRoute(coordinates);
           }
+        } else {
+          removeRoute();
         }
       } catch (err) {
         console.error("Geocoding failed:", err);

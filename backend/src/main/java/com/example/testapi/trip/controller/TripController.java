@@ -92,4 +92,14 @@ public class TripController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @GetMapping("/public/{tripId}")
+    public ResponseEntity<?> getPublicTrip(@PathVariable String tripId) {
+        try {
+            TripResponse trip = service.getTrip(tripId);
+            return ResponseEntity.ok(trip);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(ex.getMessage()));
+        }
+    }
 }

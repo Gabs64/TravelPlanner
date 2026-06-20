@@ -127,6 +127,12 @@ public class TripService {
         tripRepository.deleteById(tripId);
     }
 
+    public TripResponse getTrip(String tripId) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Trip not found"));
+        return toResponse(trip);
+    }
+
     private List<ItineraryItem> parseItinerary(String json) {
         if (json == null || json.isBlank()) {
             return List.of();

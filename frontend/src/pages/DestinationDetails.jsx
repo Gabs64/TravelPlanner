@@ -153,6 +153,109 @@ const getUnsplashImage = (keyword) => {
   return fallbacks[charSum % fallbacks.length];
 };
 
+const weatherForecastData = {
+  cebu: {
+    temp: "31°C",
+    condition: "Sunny & Humid",
+    icon: "☀️",
+    forecast: [
+      { day: "Day 1", temp: "31°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "30°C", condition: "Partly Cloudy", icon: "⛅" },
+      { day: "Day 3", temp: "32°C", condition: "Sunny", icon: "☀️" }
+    ],
+    packing: ["Swimwear", "Sunscreen (SPF 50+)", "Light linen clothes", "Sandals / Aqua shoes", "Sunglasses"]
+  },
+  boracay: {
+    temp: "32°C",
+    condition: "Tropical Sunny",
+    icon: "🏝️",
+    forecast: [
+      { day: "Day 1", temp: "32°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "32°C", condition: "Breezy", icon: "🍃" },
+      { day: "Day 3", temp: "31°C", condition: "Light Shower", icon: "🌦️" }
+    ],
+    packing: ["Swimwear", "Beach towel", "Sunscreen", "Flip flops", "Sunglasses & Hat"]
+  },
+  baguio: {
+    temp: "17°C",
+    condition: "Cool & Misty",
+    icon: "🌫️",
+    forecast: [
+      { day: "Day 1", temp: "18°C", condition: "Foggy", icon: "🌫️" },
+      { day: "Day 2", temp: "16°C", condition: "Cloudy & Cold", icon: "☁️" },
+      { day: "Day 3", temp: "17°C", condition: "Misty Rain", icon: "🌧️" }
+    ],
+    packing: ["Sweater / Jacket", "Long pants", "Umbrella", "Comfortable sneakers", "Lip balm"]
+  },
+  palawan: {
+    temp: "30°C",
+    condition: "Sunny & Breezy",
+    icon: "☀️",
+    forecast: [
+      { day: "Day 1", temp: "30°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "31°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 3", temp: "29°C", condition: "Partly Cloudy", icon: "⛅" }
+    ],
+    packing: ["Dry bag", "Insect repellent", "Swimwear", "Aqua shoes", "Sunscreen"]
+  },
+  siargao: {
+    temp: "29°C",
+    condition: "Surf Breezy",
+    icon: "🌊",
+    forecast: [
+      { day: "Day 1", temp: "29°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "29°C", condition: "Breezy", icon: "🍃" },
+      { day: "Day 3", temp: "28°C", condition: "Partly Cloudy", icon: "⛅" }
+    ],
+    packing: ["Rash guard / Surfwear", "Board shorts", "Sunblock", "Waterproof pouch", "Surf wax"]
+  },
+  vigan: {
+    temp: "33°C",
+    condition: "Hot & Sunny",
+    icon: "☀️",
+    forecast: [
+      { day: "Day 1", temp: "33°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "34°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 3", temp: "32°C", condition: "Partly Cloudy", icon: "⛅" }
+    ],
+    packing: ["Breathable clothes", "Walking shoes", "Umbrella / Hat", "Water bottle", "Sunglasses"]
+  },
+  bohol: {
+    temp: "30°C",
+    condition: "Sunny & Warm",
+    icon: "☀️",
+    forecast: [
+      { day: "Day 1", temp: "30°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 2", temp: "31°C", condition: "Sunny", icon: "☀️" },
+      { day: "Day 3", temp: "29°C", condition: "Partly Cloudy", icon: "⛅" }
+    ],
+    packing: ["Comfortable sneakers", "Insect repellent", "Camera", "Light shirts", "Waterproof bag"]
+  },
+  tagaytay: {
+    temp: "22°C",
+    condition: "Pleasant & Breezy",
+    icon: "🍃",
+    forecast: [
+      { day: "Day 1", temp: "23°C", condition: "Partly Cloudy", icon: "⛅" },
+      { day: "Day 2", temp: "22°C", condition: "Breezy", icon: "🍃" },
+      { day: "Day 3", temp: "21°C", condition: "Overcast", icon: "☁️" }
+    ],
+    packing: ["Light jacket / Cardigan", "Walking shoes", "Sunglasses", "Camera", "Lip balm"]
+  }
+};
+
+const defaultWeatherData = {
+  temp: "28°C",
+  condition: "Warm & Breezy",
+  icon: "⛅",
+  forecast: [
+    { day: "Day 1", temp: "28°C", condition: "Partly Cloudy", icon: "⛅" },
+    { day: "Day 2", temp: "29°C", condition: "Sunny", icon: "☀️" },
+    { day: "Day 3", temp: "28°C", condition: "Light Shower", icon: "🌦️" }
+  ],
+  packing: ["Comfortable shoes", "Sunscreen", "Water bottle", "Camera", "Light clothes"]
+};
+
 const DestinationDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -171,6 +274,7 @@ const DestinationDetails = () => {
     transport: false,
     budget: false,
   });
+  const [packedState, setPackedState] = useState({});
 
   const staticDest = destinationData[slug];
   const [destination, setDestination] = useState(staticDest || null);
@@ -608,6 +712,95 @@ const DestinationDetails = () => {
                 </label>
               </div>
             </div>
+
+            {/* Weather Widget */}
+            {(() => {
+              const weatherInfo = weatherForecastData[slug] || defaultWeatherData;
+              const packedCount = weatherInfo.packing.filter(item => packedState[item]).length;
+              return (
+                <>
+                  <div className="weather-widget-card" style={{ marginTop: "20px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", borderRadius: "20px", padding: "18px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                      <h4 style={{ margin: 0, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)" }}>
+                        <span>{weatherInfo.icon}</span> Local Weather Forecast
+                      </h4>
+                      <span style={{ fontSize: "12px", background: "rgba(37,99,235,0.1)", color: "#3b82f6", padding: "3px 8px", borderRadius: "12px", fontWeight: "700" }}>
+                        {weatherInfo.condition}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "16px" }}>
+                      <span style={{ fontSize: "38px" }}>{weatherInfo.icon}</span>
+                      <div>
+                        <div style={{ fontSize: "28px", fontWeight: "800", color: "var(--text-primary)" }}>{weatherInfo.temp}</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Currently in {destination.name}</div>
+                      </div>
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "8px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
+                      {weatherInfo.forecast.map((fc, idx) => (
+                        <div key={idx} style={{ textAlign: "center", background: "var(--bg-input)", padding: "8px", borderRadius: "10px", border: "1px solid var(--border-color)" }}>
+                          <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontWeight: "700" }}>{fc.day}</div>
+                          <div style={{ fontSize: "18px", margin: "4px 0" }}>{fc.icon}</div>
+                          <div style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-primary)" }}>{fc.temp}</div>
+                          <div style={{ fontSize: "9px", color: "var(--text-secondary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{fc.condition}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Packing Assistant Checklist */}
+                  <div className="packing-assistant-card" style={{ marginTop: "20px", background: "var(--bg-secondary)", border: "1px solid var(--border-color)", borderRadius: "20px", padding: "18px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                      <h4 style={{ margin: 0, fontSize: "14px", display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)" }}>
+                        🎒 Weather Packing Tips
+                      </h4>
+                      <span style={{ fontSize: "12.5px", color: "var(--text-secondary)", fontWeight: "700" }}>
+                        {packedCount}/{weatherInfo.packing.length} packed
+                      </span>
+                    </div>
+                    <div style={{ height: "6px", background: "var(--bg-input)", borderRadius: "3px", overflow: "hidden", marginBottom: "14px", border: "1px solid var(--border-color)" }}>
+                      <div style={{ width: `${(packedCount / weatherInfo.packing.length) * 100}%`, height: "100%", background: "linear-gradient(90deg, #3b82f6, #10b981)", transition: "width 0.3s ease" }}></div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                      {weatherInfo.packing.map((item, idx) => (
+                        <label key={idx} className="checkbox-item" style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", cursor: "pointer" }}>
+                          <input
+                            type="checkbox"
+                            checked={!!packedState[item]}
+                            onChange={() => setPackedState(prev => ({ ...prev, [item]: !prev[item] }))}
+                            style={{ display: "none" }}
+                          />
+                          <span className="checkbox-custom" style={{
+                            width: "16px",
+                            height: "16px",
+                            border: "2px solid var(--border-color)",
+                            borderRadius: "4px",
+                            display: "inline-block",
+                            position: "relative",
+                            background: packedState[item] ? "#10b981" : "transparent",
+                            borderColor: packedState[item] ? "#10b981" : "var(--border-color)",
+                            transition: "all 0.2s"
+                          }}>
+                            {packedState[item] && <span style={{
+                              position: "absolute",
+                              top: "1px",
+                              left: "4px",
+                              width: "4px",
+                              height: "8px",
+                              border: "solid white",
+                              borderWidth: "0 2px 2px 0",
+                              transform: "rotate(45deg)"
+                            }}></span>}
+                          </span>
+                          <span style={{ textDecoration: packedState[item] ? "line-through" : "none", color: packedState[item] ? "var(--text-secondary)" : "var(--text-primary)", fontWeight: "600" }}>
+                            {item}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           {/* Right Panel: Map, Facts, & Activities */}
