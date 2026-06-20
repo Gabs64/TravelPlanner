@@ -305,7 +305,8 @@ const AISuggester = () => {
     };
 
     geocodeLocations();
-  }, [placesToMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placesToMap, destinationContext]);
 
   const handlePlaceClick = (placeName) => {
     // Try to find if this place is already geocoded on the map
