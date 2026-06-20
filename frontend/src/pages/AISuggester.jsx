@@ -85,6 +85,20 @@ const parseMessageText = (text, onPlaceClick) => {
   });
 };
 
+const detectDestination = (text) => {
+  const destinations = [
+    "boracay", "baguio", "cebu", "palawan", "siargao", "vigan", "bohol", "tagaytay",
+    "tokyo", "kyoto", "rome", "bali", "paris", "manila", "el nido", "puerto princesa", "coron"
+  ];
+  const lower = text.toLowerCase();
+  for (const dest of destinations) {
+    if (lower.includes(dest)) {
+      return dest.charAt(0).toUpperCase() + dest.slice(1);
+    }
+  }
+  return "";
+};
+
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
 const AISuggester = () => {
@@ -97,6 +111,7 @@ const AISuggester = () => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [placesToMap, setPlacesToMap] = useState(["Philippines"]);
+  const [destinationContext, setDestinationContext] = useState("");
   const [activeTab, setActiveTab] = useState("chat");
   const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
@@ -187,8 +202,9 @@ const AISuggester = () => {
           "puerto princesa",
           "coron"
         ];
-        const isPhTarget = placesToMap.some((q) =>
-          phKeywords.some((keyword) => q.toLowerCase().includes(keyword))
+        const isPhTarget = phKeywords.some((keyword) => 
+          destinationContext.toLowerCase().includes(keyword) ||
+          placesToMap.some((q) => q.toLowerCase().includes(keyword))
         );
 
         const promises = placesToMap.map(async (query) => {
@@ -197,7 +213,13 @@ const AISuggester = () => {
           cleanedQuery = cleanedQuery.replace(/[()]/g, " ");
           cleanedQuery = cleanedQuery.replace(/\s+/g, " ").trim();
 
-          let optimizedQuery = optimizeSuggesterQuery(cleanedQuery);
+          // Append destination context to help geocoding find the accurate region (e.g. Kawasan Falls Badian Cebu)
+          let queryWithContext = cleanedQuery;
+          if (destinationContext && !cleanedQuery.toLowerCase().includes(destinationContext.toLowerCase())) {
+            queryWithContext = `${cleanedQuery} ${destinationContext}`;
+          }
+
+          let optimizedQuery = optimizeSuggesterQuery(queryWithContext);
           const cleanQuery = optimizedQuery.replace(/[:.,;]+$/, "").trim();
           if (!cleanQuery) return null;
 
@@ -378,6 +400,13 @@ const AISuggester = () => {
       aiResponseText = aiResponseText.replace(/,\s*,\s*/g, ", ").trim();
       aiResponseText = aiResponseText.replace(/,\s*$/g, "").trim();
 
+      // Detect destination context from the latest user message or AI response
+      const combinedText = text + " " + aiResponseText;
+      const detected = detectDestination(combinedText);
+      if (detected) {
+        setDestinationContext(detected);
+      }
+
       // Extract all bolded place recommendations directly from the text to map them!
       const boldRegex = /\*\*([^*]+)\*\*/g;
       const boldMatches = [...aiResponseText.matchAll(boldRegex)];
@@ -385,14 +414,30 @@ const AISuggester = () => {
         "recommend", "suggest", "spot", "food", "activit", "note", "attention", "warning", "tip", "important", "caution"
       ];
       
-      const boldLocations = boldMatches
-        .map((m) => m[1].trim())
-        .filter((term) => {
-          const isExcluded = excludeKeywords.some((keyword) => term.toLowerCase().includes(keyword));
-          return !isExcluded && term.length > 0 && term.length < 60;
-        })
-        .map((term) => term.replace(/:$/, "").trim())
-        .filter((term) => term.length > 0);
+      const boldLocations = [];
+      boldMatches.forEach((m) => {
+        const term = m[1].trim();
+        const isExcluded = excludeKeywords.some((keyword) => term.toLowerCase().includes(keyword));
+        if (!isExcluded && term.length > 0 && term.length < 60) {
+          const cleanTerm = term.replace(/:$/, "").trim();
+          if (cleanTerm) {
+            // Split combined locations containing " & " or " and "
+            if (cleanTerm.includes(" & ")) {
+              cleanTerm.split(" & ").forEach((p) => {
+                const trimmed = p.trim();
+                if (trimmed) boldLocations.push(trimmed);
+              });
+            } else if (cleanTerm.toLowerCase().includes(" and ")) {
+              cleanTerm.split(/\s+and\s+/i).forEach((p) => {
+                const trimmed = p.trim();
+                if (trimmed) boldLocations.push(trimmed);
+              });
+            } else {
+              boldLocations.push(cleanTerm);
+            }
+          }
+        }
+      });
 
       // Prefer bolded locations from the text, fallback to MAP tags if none bolded
       const finalLocations = boldLocations.length > 0 ? boldLocations : locations;
