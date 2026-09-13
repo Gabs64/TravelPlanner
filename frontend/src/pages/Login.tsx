@@ -231,7 +231,9 @@ function Login() {
 
   const handleGmailLogin = () => {
     clearMessages();
-    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const googleClientId =
+      process.env.REACT_APP_GOOGLE_CLIENT_ID ||
+      "841648047617-eidvkbrkhl6rb3elmasifmildppju7u.apps.googleusercontent.com";
 
     if (googleClientId && googleClientId.trim() !== "") {
       const width = 500;
@@ -240,8 +242,12 @@ function Login() {
       const top = window.screenY + (window.outerHeight - height) / 2;
 
       window.open(
-        `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(googleClientId)}&redirect_uri=${encodeURIComponent(window.location.origin + '/login')}&response_type=token&scope=email%20profile`,
-        'GoogleSignIn',
+        `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+          googleClientId
+        )}&redirect_uri=${encodeURIComponent(
+          window.location.origin + "/login"
+        )}&response_type=token&scope=email%20profile`,
+        "GoogleSignIn",
         `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`
       );
     } else {
