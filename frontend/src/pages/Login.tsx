@@ -66,7 +66,7 @@ function Login() {
 
         setTimeout(() => {
           navigate("/home");
-        }, 1200);
+        }, 200);
       } else {
         setError(data.message || "Login failed");
         setLoading(false);
