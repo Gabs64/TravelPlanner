@@ -4,7 +4,7 @@ import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./AISuggester.css";
 
-const parseMessageText = (text, onPlaceClick) => {
+const parseMessageText = (text, onPlaceClick, messageObj) => {
   if (!text) return "";
   const lines = text.split("\n");
   
@@ -46,8 +46,8 @@ const parseMessageText = (text, onPlaceClick) => {
           <strong
             key={match.index}
             className="place-link"
-            onClick={() => onPlaceClick(placeName)}
-            title={`Click to view ${placeName} on map`}
+            onClick={() => onPlaceClick(placeName, messageObj)}
+            title={`Click to view ${placeName} & coordinates on map`}
           >
             {placeName}
           </strong>
@@ -108,12 +108,15 @@ const AISuggester = () => {
     {
       role: "model",
       text: "Hello! I am your AI Travel Agent Suggester. Ask me to suggest hotels, attractions, or food spots. As I make recommendations, I will automatically update the interactive map on the right!\n\nWhere would you like to travel today?",
+      locations: ["Philippines"],
+      destinationContext: "Philippines"
     },
   ]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [placesToMap, setPlacesToMap] = useState(["Philippines"]);
   const [destinationContext, setDestinationContext] = useState("");
+  const [focusedPlaceInfo, setFocusedPlaceInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("chat");
   const [mapUpdated, setMapUpdated] = useState(false);
   const messagesEndRef = useRef(null);
@@ -428,10 +431,35 @@ const AISuggester = () => {
             pinEl.className = "custom-marker-pin";
             el.appendChild(pinEl);
 
-            // Add marker to map
+            // Create styled Mapbox Popup displaying Place Name & Coordinates
+            const popupNode = document.createElement("div");
+            popupNode.className = "mapbox-popup-card";
+            popupNode.innerHTML = `
+              <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; margin-bottom: 4px;">📍 ${res.name}</div>
+              <div style="font-size: 11.5px; color: #475569; font-weight: 600;">
+                <div><strong>Latitude:</strong> ${res.lat.toFixed(4)}° N</div>
+                <div><strong>Longitude:</strong> ${res.lng.toFixed(4)}° E</div>
+              </div>
+            `;
+            const popup = new window.mapboxgl.Popup({ offset: 25, closeButton: true }).setDOMContent(popupNode);
+
+            // Add marker to map with popup
             const marker = new window.mapboxgl.Marker({ element: el })
               .setLngLat([res.lng, res.lat])
+              .setPopup(popup)
               .addTo(mapRef.current);
+
+            marker.placeData = res;
+            marker.popupInstance = popup;
+
+            // When marker element is clicked directly on map, set focused info
+            el.addEventListener("click", () => {
+              setFocusedPlaceInfo({
+                name: res.name,
+                lat: res.lat,
+                lng: res.lng
+              });
+            });
 
             markersRef.current.push(marker);
             coordinates.push([res.lng, res.lat]);
@@ -470,8 +498,35 @@ const AISuggester = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placesToMap, destinationContext]);
 
-  const handlePlaceClick = (placeName) => {
-    // Try to find if this place is already geocoded on the map
+  const handlePlaceClick = (placeName, msg) => {
+    // If a message object was passed and it has locations, check if map needs to switch to this prompt's locations
+    if (msg && msg.locations && msg.locations.length > 0) {
+      const isSamePrompt = JSON.stringify(placesToMap) === JSON.stringify(msg.locations);
+      if (!isSamePrompt) {
+        if (msg.destinationContext) {
+          setDestinationContext(msg.destinationContext);
+        }
+        setPlacesToMap(msg.locations);
+        setMapUpdated(true);
+        setActiveTab("map");
+
+        // Wait brief moment for geocodeLocations effect to finish plotting pins, then focus place
+        setTimeout(() => {
+          focusPlaceOnMap(placeName);
+        }, 450);
+        return;
+      }
+    }
+
+    focusPlaceOnMap(placeName);
+    setMapUpdated(true);
+    setActiveTab("map");
+  };
+
+  const focusPlaceOnMap = (placeName) => {
+    if (!mapRef.current) return;
+
+    // Search geocoded list for matching place name
     const found = geocodedPlacesRef.current.find(
       (p) =>
         p.name.toLowerCase().includes(placeName.toLowerCase()) ||
@@ -485,6 +540,16 @@ const AISuggester = () => {
         zoom: 14,
         essential: true
       });
+
+      // Open Mapbox Popup for this marker
+      markersRef.current.forEach((marker) => {
+        if (marker.placeData && marker.placeData.name.toLowerCase().includes(found.name.toLowerCase())) {
+          if (marker.getPopup() && !marker.getPopup().isOpen()) {
+            marker.togglePopup();
+          }
+        }
+      });
+
       // Highlight the label element
       const markers = document.getElementsByClassName("custom-marker-wrapper");
       for (let i = 0; i < markers.length; i++) {
@@ -494,14 +559,35 @@ const AISuggester = () => {
           labelEl.classList.add("highlighted");
           setTimeout(() => {
             labelEl.classList.remove("highlighted");
-          }, 3000);
+          }, 3500);
         }
       }
+
+      setFocusedPlaceInfo({
+        name: found.name,
+        lat: found.lat,
+        lng: found.lng
+      });
     } else {
-      setPlacesToMap([placeName]);
+      // If user clicked city name (e.g. "Cebu" or "Boracay"), zoom to fit all pins in itinerary
+      if (geocodedPlacesRef.current.length > 0) {
+        const bounds = new window.mapboxgl.LngLatBounds();
+        geocodedPlacesRef.current.forEach((p) => bounds.extend([p.lng, p.lat]));
+        mapRef.current.fitBounds(bounds, {
+          padding: 60,
+          maxZoom: 14,
+          duration: 1200
+        });
+
+        setFocusedPlaceInfo({
+          name: `${destinationContext || placeName} Itinerary`,
+          lat: geocodedPlacesRef.current[0].lat,
+          lng: geocodedPlacesRef.current[0].lng
+        });
+      } else {
+        setPlacesToMap([placeName]);
+      }
     }
-    setMapUpdated(true);
-    setActiveTab("map");
   };
 
   const scrollToBottom = () => {
@@ -610,7 +696,12 @@ const AISuggester = () => {
         setMapUpdated(true);
       }
 
-      setMessages((prev) => [...prev, { role: "model", text: aiResponseText }]);
+      setMessages((prev) => [...prev, {
+        role: "model",
+        text: aiResponseText,
+        locations: finalLocations,
+        destinationContext: detected
+      }]);
     } catch (err) {
       console.error(err);
       setMessages((prev) => [
@@ -643,8 +734,6 @@ const AISuggester = () => {
     }
   };
 
-
-
   return (
     <main className="ai-suggester-page">
       <div className="ai-suggester-content">
@@ -657,8 +746,6 @@ const AISuggester = () => {
           </div>
           <p>Interact with our smart agent to plan details, find local spots, and map destinations.</p>
         </div>
-
-
 
         {destinationContext && (
           <div className="destination-apply-banner">
@@ -703,7 +790,7 @@ const AISuggester = () => {
                   </div>
                   <div className="message-bubble">
                     <div className="message-text-content">
-                      {parseMessageText(msg.text, msg.role === "model" ? handlePlaceClick : null)}
+                      {parseMessageText(msg.text, msg.role === "model" ? (placeName) => handlePlaceClick(placeName, msg) : null, msg)}
                     </div>
                   </div>
                 </div>
@@ -763,9 +850,21 @@ const AISuggester = () => {
               </h4>
               <span className="location-focus">
                 {placesToMap.length > 1 ? "Locations Pinned: " : "Focus: "}
-                <strong>{placesToMap.join(", ")}</strong>
+                <strong>{destinationContext || placesToMap.join(", ")}</strong>
               </span>
             </div>
+
+            {focusedPlaceInfo && (
+              <div className="focused-coords-bar">
+                <span>📍 <strong>{focusedPlaceInfo.name}</strong></span>
+                {focusedPlaceInfo.lat !== undefined && focusedPlaceInfo.lng !== undefined && (
+                  <span className="coords-tag">
+                    {focusedPlaceInfo.lat.toFixed(4)}° N, {focusedPlaceInfo.lng.toFixed(4)}° E
+                  </span>
+                )}
+              </div>
+            )}
+
             <div className="mapbox-map-container" ref={mapContainerRef}>
               {!MAPBOX_TOKEN && (
                 <div className="mapbox-missing-token-overlay">
