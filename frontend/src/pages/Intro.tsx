@@ -1,16 +1,25 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Intro.css";
 
 function Intro() {
   const navigate = useNavigate();
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
+  const handleJoinNow = () => {
+    setIsFadingOut(true);
+    setTimeout(() => {
+      navigate("/login");
+    }, 300);
+  };
 
   return (
-    <div className="intro-page-container">
+    <div className={`intro-page-container ${isFadingOut ? "container-fade-out" : ""}`}>
       <div className="intro-blob blob-1"></div>
       <div className="intro-blob blob-2"></div>
       <div className="intro-blob blob-3"></div>
 
-      <div className="intro-glass-panel">
+      <div className={`intro-glass-panel ${isFadingOut ? "panel-fade-out" : ""}`}>
         <div className="intro-logo-wrapper">
           <img className="intro-logo" src="/TPLogo.png" alt="TravelPlanner logo" />
         </div>
@@ -24,7 +33,11 @@ function Intro() {
             the final itinerary.
           </p>
 
-          <button className="join-now-btn button-ripple" onClick={() => navigate("/login")}>
+          <button
+            className="join-now-btn button-ripple"
+            onClick={handleJoinNow}
+            disabled={isFadingOut}
+          >
             Join Now
           </button>
         </div>
@@ -34,4 +47,3 @@ function Intro() {
 }
 
 export default Intro;
-

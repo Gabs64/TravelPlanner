@@ -190,6 +190,29 @@
   }
 }
 
+/* Exit transitions */
+.panel-fade-out {
+  animation: introFadeOutDown 0.32s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+}
+
+.container-fade-out {
+  opacity: 0.8;
+  transition: opacity 0.32s ease-out;
+}
+
+@keyframes introFadeOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+    filter: blur(8px);
+  }
+}
+
 /* Mobile responsive styles */
 @media (max-width: 640px) {
   .intro-page-container {
