@@ -708,3 +708,174 @@ body,
   }
 }
 
+/* Google Sign-In Popup Modal Overlay */
+.google-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 12, 22, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: backdropFade 0.25s ease forwards;
+}
+
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.google-popup-card {
+  width: 90%;
+  max-width: 410px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 26px;
+  padding: 28px 24px;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(66, 133, 244, 0.2);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: popupScale 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes popupScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.google-popup-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.google-g-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.google-popup-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.google-popup-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.google-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.google-account-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.google-account-item:hover {
+  background: rgba(66, 133, 244, 0.12);
+  border-color: rgba(66, 133, 244, 0.4);
+  transform: translateY(-1px);
+}
+
+.account-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ea4335, #fbbc05, #34a853, #4285f4);
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.account-avatar-circle.avatar-blue {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+.account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.account-email {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-badge {
+  font-size: 11px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.account-sub {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.google-custom-account-box {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.google-custom-input {
+  height: 40px;
+  font-size: 13px;
+  flex: 1;
+}
+
+.custom-google-btn {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.google-popup-footer {
+  text-align: center;
+  font-size: 11.5px;
+  color: #64748b;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 14px;
+}
+

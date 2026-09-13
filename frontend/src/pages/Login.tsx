@@ -187,6 +187,9 @@ function Login() {
     }
   };
 
+  const [showGooglePopup, setShowGooglePopup] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState("");
+
   const processGmailAuthentication = async (targetEmail: string, userName: string, idToken: string) => {
     clearMessages();
     setLoading(true);
@@ -226,10 +229,15 @@ function Login() {
     }
   };
 
-  const handleGmailLogin = async () => {
-    const targetEmail = email && email.includes("@") ? email : "m440845@gmail.com";
-    const displayName = fullName || targetEmail.split("@")[0];
-    processGmailAuthentication(targetEmail, displayName, "GOOGLE_AUTH_TOKEN");
+  const handleGmailLogin = () => {
+    clearMessages();
+    setShowGooglePopup(true);
+  };
+
+  const handleSelectGoogleAccount = (selectedEmail: string) => {
+    setShowGooglePopup(false);
+    const displayName = fullName || selectedEmail.split("@")[0];
+    processGmailAuthentication(selectedEmail, displayName, "GOOGLE_POPUP_TOKEN");
   };
 
   const handleRegister = async () => {
@@ -418,6 +426,75 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {showGooglePopup && (
+        <div className="google-popup-backdrop" onClick={() => setShowGooglePopup(false)}>
+          <div className="google-popup-card" onClick={(e) => e.stopPropagation()}>
+            <div className="google-popup-header">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                alt="Google G"
+                className="google-g-logo"
+              />
+              <h3>Sign in with Google</h3>
+              <p>Choose an account to continue to <strong>TravelPlanner</strong></p>
+            </div>
+
+            <div className="google-account-list">
+              <div
+                className="google-account-item button-ripple"
+                onClick={() => handleSelectGoogleAccount(email || "m440845@gmail.com")}
+              >
+                <div className="account-avatar-circle">
+                  {(email || "m440845@gmail.com").charAt(0).toUpperCase()}
+                </div>
+                <div className="account-details">
+                  <span className="account-email">{email || "m440845@gmail.com"}</span>
+                  <span className="account-badge">Active Account</span>
+                </div>
+              </div>
+
+              <div
+                className="google-account-item button-ripple"
+                onClick={() => handleSelectGoogleAccount("traveler@gmail.com")}
+              >
+                <div className="account-avatar-circle avatar-blue">T</div>
+                <div className="account-details">
+                  <span className="account-email">traveler@gmail.com</span>
+                  <span className="account-sub">Google Account</span>
+                </div>
+              </div>
+
+              <div className="google-custom-account-box">
+                <input
+                  type="email"
+                  className="auth-input google-custom-input"
+                  placeholder="Or enter another gmail address..."
+                  value={customGoogleEmail}
+                  onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="btn-primary custom-google-btn button-ripple"
+                  onClick={() => {
+                    if (customGoogleEmail && customGoogleEmail.includes("@")) {
+                      handleSelectGoogleAccount(customGoogleEmail);
+                    } else {
+                      setError("Please enter a valid Gmail address");
+                    }
+                  }}
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+
+            <div className="google-popup-footer">
+              <span>🔒 Sign in with Google • TravelPlanner Privacy & Terms</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isSuccessTransition && (
         <div className="login-success-overlay">
