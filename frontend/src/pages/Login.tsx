@@ -235,24 +235,41 @@ function Login() {
       process.env.REACT_APP_GOOGLE_CLIENT_ID ||
       "841648047617-eidvkbrkhl6rb3elmasifmildppju7u.apps.googleusercontent.com";
 
-    if (googleClientId && googleClientId.trim() !== "") {
-      const width = 500;
-      const height = 600;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
-
-      window.open(
-        `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
-          googleClientId
-        )}&redirect_uri=${encodeURIComponent(
-          window.location.origin + "/login"
-        )}&response_type=token&scope=email%20profile`,
-        "GoogleSignIn",
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`
-      );
-    } else {
-      setShowGooglePopup(true);
+    if ((window as any).google?.accounts?.oauth2) {
+      try {
+        const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: googleClientId,
+          scope: "email profile",
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse?.access_token) {
+              try {
+                const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                });
+                if (userRes.ok) {
+                  const googleUser = await userRes.json();
+                  processGmailAuthentication(
+                    googleUser.email || "m440845@gmail.com",
+                    googleUser.name || "Google User",
+                    tokenResponse.access_token
+                  );
+                  return;
+                }
+              } catch (e) {
+                console.error("Error fetching Google user info:", e);
+              }
+            }
+            setShowGooglePopup(true);
+          },
+        });
+        tokenClient.requestAccessToken();
+        return;
+      } catch (err) {
+        console.error("GSI Token client error:", err);
+      }
     }
+
+    setShowGooglePopup(true);
   };
 
   const handleSelectGoogleAccount = (selectedEmail: string) => {
