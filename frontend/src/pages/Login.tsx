@@ -231,11 +231,14 @@ function Login() {
 
   const handleGmailLogin = () => {
     clearMessages();
-    const googleClientId =
+    const googleClientId = (
       process.env.REACT_APP_GOOGLE_CLIENT_ID ||
-      "841648047617-eidvkbrkhl6rb3elmasifmildppju7u.apps.googleusercontent.com";
+      "841648047617-eidvkbrkhl6rb3elmasifmildppju7u.apps.googleusercontent.com"
+    ).trim();
 
-    if ((window as any).google?.accounts?.oauth2) {
+    console.log("[Google Auth] Using Client ID:", googleClientId);
+
+    if ((window as any).google?.accounts?.oauth2 && googleClientId) {
       try {
         const tokenClient = (window as any).google.accounts.oauth2.initTokenClient({
           client_id: googleClientId,
