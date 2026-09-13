@@ -217,6 +217,7 @@ function Login() {
 
     const timer = setTimeout(initializeGoogleSignIn, 500);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogin]);
 
   const handleGoogleCredentialResponse = (response: any) => {
