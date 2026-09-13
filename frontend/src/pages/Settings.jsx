@@ -411,16 +411,18 @@ const Settings = () => {
           <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Delete your account?</h3>
             <p>
-              This action is permanent. Your profile will be removed from the database.
-              Enter your password to confirm.
+              This action is permanent. Your profile and travel data will be removed from the database.
+              {localStorage.getItem("gmailSynced") !== "true" && " Enter your password to confirm."}
             </p>
 
-            <input
-              type="password"
-              placeholder="Enter password"
-              value={deletePassword}
-              onChange={(e) => setDeletePassword(e.target.value)}
-            />
+            {localStorage.getItem("gmailSynced") !== "true" && (
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+              />
+            )}
 
             {deleteError && <div className="delete-error">{deleteError}</div>}
 

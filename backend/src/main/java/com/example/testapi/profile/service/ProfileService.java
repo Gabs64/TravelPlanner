@@ -112,14 +112,18 @@ public class ProfileService {
     public MessageResponse deleteAccount(String id, DeleteAccountRequest req) {
         UserProfile user = getUserEntity(id);
 
-        if (req.getPassword() == null || req.getPassword().isBlank()) {
-            throw new RuntimeException("Password is required");
-        }
+        boolean isGoogleUser = "GMAIL_OAUTH_VERIFIED".equals(user.getPasswordHash());
 
-        String enteredHash = Integer.toString(req.getPassword().hashCode());
+        if (!isGoogleUser) {
+            if (req.getPassword() == null || req.getPassword().isBlank()) {
+                throw new RuntimeException("Password is required to confirm account deletion");
+            }
 
-        if (!enteredHash.equals(user.getPasswordHash())) {
-            throw new RuntimeException("Incorrect password");
+            String enteredHash = Integer.toString(req.getPassword().hashCode());
+
+            if (!enteredHash.equals(user.getPasswordHash())) {
+                throw new RuntimeException("Incorrect password");
+            }
         }
 
         repo.delete(user);
