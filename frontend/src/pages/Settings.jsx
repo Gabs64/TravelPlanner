@@ -191,7 +191,12 @@ const Settings = () => {
   const handleDeleteAccount = async () => {
     setDeleteError("");
 
-    if (!deletePassword.trim()) {
+    const isGoogleUser = 
+      localStorage.getItem("gmailSynced") === "true" || 
+      (localStorage.getItem("token") && localStorage.getItem("token").startsWith("GMAIL_")) ||
+      (localStorage.getItem("userEmail") && localStorage.getItem("userEmail").includes("@gmail.com"));
+
+    if (!isGoogleUser && !deletePassword.trim()) {
       setDeleteError("Please enter your password to confirm account deletion.");
       return;
     }
@@ -209,7 +214,7 @@ const Settings = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          password: deletePassword,
+          password: isGoogleUser ? "GMAIL_OAUTH_VERIFIED" : deletePassword,
         }),
       });
 
@@ -412,10 +417,10 @@ const Settings = () => {
             <h3>Delete your account?</h3>
             <p>
               This action is permanent. Your profile and travel data will be removed from the database.
-              {localStorage.getItem("gmailSynced") !== "true" && " Enter your password to confirm."}
+              {!(localStorage.getItem("gmailSynced") === "true" || (localStorage.getItem("token") && localStorage.getItem("token").startsWith("GMAIL_")) || (localStorage.getItem("userEmail") && localStorage.getItem("userEmail").includes("@gmail.com"))) && " Enter your password to confirm."}
             </p>
 
-            {localStorage.getItem("gmailSynced") !== "true" && (
+            {!(localStorage.getItem("gmailSynced") === "true" || (localStorage.getItem("token") && localStorage.getItem("token").startsWith("GMAIL_")) || (localStorage.getItem("userEmail") && localStorage.getItem("userEmail").includes("@gmail.com"))) && (
               <input
                 type="password"
                 placeholder="Enter password"
