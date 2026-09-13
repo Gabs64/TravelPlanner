@@ -48,6 +48,10 @@ body.dark-mode-body {
     linear-gradient(135deg, #0f172a 0%, #1e293b 48%, #0f172a 100%);
 }
 
+body.auth-body {
+  background: linear-gradient(135deg, #080c16 0%, #0f172a 50%, #1e1b4b 100%) !important;
+}
+
 .main-content {
   margin-left: 220px;
   min-height: 100vh;
@@ -58,6 +62,7 @@ body.dark-mode-body {
 .main-content.auth-layout {
   margin-left: 0;
   padding: 0;
+  background: linear-gradient(135deg, #080c16 0%, #0f172a 50%, #1e1b4b 100%);
 }
 
 /* Global button animations */

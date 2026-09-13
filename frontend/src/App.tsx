@@ -48,12 +48,19 @@ function Layout() {
       const isAuthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/intro";
       const isDark = localStorage.getItem("darkMode") === "true";
 
-      if (!isAuthPage && isDark) {
-        document.documentElement.classList.add("dark-mode");
-        document.body.classList.add("dark-mode-body");
-      } else {
+      if (isAuthPage) {
+        document.body.classList.add("auth-body");
         document.documentElement.classList.remove("dark-mode");
         document.body.classList.remove("dark-mode-body");
+      } else {
+        document.body.classList.remove("auth-body");
+        if (isDark) {
+          document.documentElement.classList.add("dark-mode");
+          document.body.classList.add("dark-mode-body");
+        } else {
+          document.documentElement.classList.remove("dark-mode");
+          document.body.classList.remove("dark-mode-body");
+        }
       }
     };
 
