@@ -283,7 +283,26 @@ body,
   transform: translateY(0);
 }
 
+.google-auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.google-btn-slot {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-btn-slot iframe {
+  margin: 0 auto !important;
+}
+
 .btn-gmail {
+  width: 100%;
   height: 46px;
   border-radius: 14px;
   font-size: 14px;

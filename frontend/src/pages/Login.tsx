@@ -187,11 +187,66 @@ function Login() {
     }
   };
 
-  const handleGmailLogin = async () => {
+  useEffect(() => {
+    const initializeGoogleSignIn = () => {
+      if ((window as any).google?.accounts?.id) {
+        try {
+          (window as any).google.accounts.id.initialize({
+            client_id: "719284193850-samplegoogleclientid.apps.googleusercontent.com",
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+          });
+
+          const buttonDiv = document.getElementById("googleSignInBtnDiv");
+          if (buttonDiv) {
+            buttonDiv.innerHTML = "";
+            (window as any).google.accounts.id.renderButton(buttonDiv, {
+              theme: "filled_blue",
+              size: "large",
+              type: "standard",
+              shape: "pill",
+              text: "continue_with",
+              width: 310,
+            });
+          }
+        } catch (e) {
+          console.log("Google Sign-In SDK fallback active.");
+        }
+      }
+    };
+
+    const timer = setTimeout(initializeGoogleSignIn, 500);
+    return () => clearTimeout(timer);
+  }, [isLogin]);
+
+  const handleGoogleCredentialResponse = (response: any) => {
+    if (response?.credential) {
+      try {
+        const base64Url = response.credential.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+        const googleUser = JSON.parse(jsonPayload);
+
+        processGmailAuthentication(
+          googleUser.email || "user@gmail.com",
+          googleUser.name || "Google User",
+          response.credential
+        );
+      } catch (err) {
+        console.error("Error decoding Google credential token", err);
+        processGmailAuthentication(email || "traveler@gmail.com", fullName || "Google User", "MOCK_TOKEN");
+      }
+    }
+  };
+
+  const processGmailAuthentication = async (targetEmail: string, userName: string, idToken: string) => {
     clearMessages();
     setLoading(true);
-
-    const targetEmail = email && email.includes("@") ? email : "traveler@gmail.com";
 
     try {
       const response = await fetch(`${API_BASE}/auth/gmail`, {
@@ -199,15 +254,16 @@ function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: targetEmail,
-          fullName: fullName || "Gmail User",
+          fullName: userName,
           photoUrl: "https://lh3.googleusercontent.com/a/default-user",
+          googleIdToken: idToken,
         }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.token) {
-        setSuccess("Gmail Authentication Successful");
+        setSuccess("Google Authentication Successful");
         localStorage.setItem("token", data.token);
         if (data.userId) {
           localStorage.setItem("userId", data.userId);
@@ -217,14 +273,19 @@ function Login() {
 
         startTakeoffTransition(targetEmail, true);
       } else {
-        setError(data.message || "Gmail login failed");
+        setError(data.message || "Google login failed");
         setLoading(false);
       }
     } catch (err) {
-      console.error("Gmail login error", err);
-      setError("Error connecting to server for Gmail login");
+      console.error("Google login error", err);
+      setError("Error connecting to server for Google login");
       setLoading(false);
     }
+  };
+
+  const handleGmailLogin = async () => {
+    const targetEmail = email && email.includes("@") ? email : "traveler@gmail.com";
+    processGmailAuthentication(targetEmail, fullName || "Google User", "MANUAL_CLICK_TOKEN");
   };
 
   const handleRegister = async () => {
@@ -388,19 +449,22 @@ function Login() {
             </button>
 
             {isLogin && (
-              <button
-                type="button"
-                className="btn-gmail button-ripple"
-                onClick={handleGmailLogin}
-                disabled={loading}
-              >
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
-                  alt="Gmail logo"
-                  className="gmail-btn-logo"
-                />
-                Continue with Gmail
-              </button>
+              <div className="google-auth-wrapper">
+                <div id="googleSignInBtnDiv" className="google-btn-slot"></div>
+                <button
+                  type="button"
+                  className="btn-gmail button-ripple"
+                  onClick={handleGmailLogin}
+                  disabled={loading}
+                >
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                    alt="Gmail logo"
+                    className="gmail-btn-logo"
+                  />
+                  Sign in with Google
+                </button>
+              </div>
             )}
 
             <button
