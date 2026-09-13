@@ -14,21 +14,7 @@ import AISuggester from "./pages/AISuggester";
 import SharedTrip from "./pages/SharedTrip";
 import "./App.css";
 
-// Initialize dark mode on startup - check localStorage as fallback, but exclude auth pages
-const initDarkMode = () => {
-  const currentPath = window.location.pathname;
-  const isAuthPage = currentPath === "/" || currentPath === "/login" || currentPath === "/intro";
 
-  if (!isAuthPage) {
-    const isDarkMode = localStorage.getItem("darkMode") === "true";
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark-mode");
-      document.body.classList.add("dark-mode-body");
-    }
-  }
-};
-
-initDarkMode();
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -56,6 +42,28 @@ function AnimatedRoutes() {
 function Layout() {
   const location = useLocation();
   const hideSidebar = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/intro" || location.pathname.startsWith("/trip/share/");
+
+  React.useEffect(() => {
+    const applyDarkMode = () => {
+      const isAuthPage = location.pathname === "/" || location.pathname === "/login" || location.pathname === "/intro";
+      const isDark = localStorage.getItem("darkMode") === "true";
+
+      if (!isAuthPage && isDark) {
+        document.documentElement.classList.add("dark-mode");
+        document.body.classList.add("dark-mode-body");
+      } else {
+        document.documentElement.classList.remove("dark-mode");
+        document.body.classList.remove("dark-mode-body");
+      }
+    };
+
+    applyDarkMode();
+
+    window.addEventListener("darkModeChanged", applyDarkMode);
+    return () => {
+      window.removeEventListener("darkModeChanged", applyDarkMode);
+    };
+  }, [location.pathname]);
 
   return (
     <>

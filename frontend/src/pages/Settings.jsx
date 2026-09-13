@@ -102,6 +102,8 @@ const Settings = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
 
+    localStorage.setItem("darkMode", newDarkMode.toString());
+
     if (newDarkMode) {
       document.documentElement.classList.add("dark-mode");
       document.body.classList.add("dark-mode-body");
@@ -109,6 +111,8 @@ const Settings = () => {
       document.documentElement.classList.remove("dark-mode");
       document.body.classList.remove("dark-mode-body");
     }
+
+    window.dispatchEvent(new Event("darkModeChanged"));
 
     await saveSettings({
       darkMode: newDarkMode,
@@ -157,6 +161,10 @@ const Settings = () => {
   const confirmLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
+    localStorage.removeItem("darkMode");
+    document.documentElement.classList.remove("dark-mode");
+    document.body.classList.remove("dark-mode-body");
+    window.dispatchEvent(new Event("darkModeChanged"));
     setLogoutModalOpen(false);
     navigate("/");
   };

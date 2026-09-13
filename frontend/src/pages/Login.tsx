@@ -62,6 +62,33 @@ function Login() {
 
         if (data.userId) {
           localStorage.setItem("userId", data.userId);
+
+          // Sync user settings (darkMode, etc.) from backend profile immediately
+          try {
+            const profileRes = await fetch(`${API_BASE}/profile/${data.userId}`, {
+              headers: { Authorization: `Bearer ${data.token}` },
+            });
+            if (profileRes.ok) {
+              const profile = await profileRes.json();
+              const settings = profile.settings || {};
+              const isDark = Boolean(settings.darkMode);
+              localStorage.setItem("darkMode", isDark.toString());
+              localStorage.setItem("notifications", (settings.notifications ?? true).toString());
+              localStorage.setItem("language", settings.language || "en");
+              localStorage.setItem("privacy", settings.privacy || "public");
+
+              if (isDark) {
+                document.documentElement.classList.add("dark-mode");
+                document.body.classList.add("dark-mode-body");
+              } else {
+                document.documentElement.classList.remove("dark-mode");
+                document.body.classList.remove("dark-mode-body");
+              }
+              window.dispatchEvent(new Event("darkModeChanged"));
+            }
+          } catch (profileErr) {
+            console.error("Error syncing profile settings on login:", profileErr);
+          }
         }
 
         setTimeout(() => {
