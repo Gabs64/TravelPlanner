@@ -231,7 +231,22 @@ function Login() {
 
   const handleGmailLogin = () => {
     clearMessages();
-    setShowGooglePopup(true);
+    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+    if (googleClientId && googleClientId.trim() !== "") {
+      const width = 500;
+      const height = 600;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+
+      window.open(
+        `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(googleClientId)}&redirect_uri=${encodeURIComponent(window.location.origin + '/login')}&response_type=token&scope=email%20profile`,
+        'GoogleSignIn',
+        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes`
+      );
+    } else {
+      setShowGooglePopup(true);
+    }
   };
 
   const handleSelectGoogleAccount = (selectedEmail: string) => {
