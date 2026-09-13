@@ -299,7 +299,7 @@ const AISuggester = () => {
 
           // 1. Clean formatting tags, prefixes, and colon suffixes
           let cleanedQuery = query.replace(/^\[MAP:\s*/i, "").replace(/\]$/, "").trim();
-          cleanedQuery = cleanedQuery.replace(/^(day\s*\d+|morning|afternoon|evening|night|spot\s*\d+|\d+[\.\)])\s*[:\-]?\s*/i, "");
+          cleanedQuery = cleanedQuery.replace(/^(day\s*\d+|morning|afternoon|evening|night|spot\s*\d+|\d+[.)])\s*[:-]?\s*/i, "");
           if (cleanedQuery.includes(":")) {
             cleanedQuery = cleanedQuery.split(":")[0].trim();
           }
