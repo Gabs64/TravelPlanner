@@ -9,6 +9,8 @@ import {
   FaSignOutAlt,
   FaTrashAlt,
   FaCog,
+  FaUserFriends,
+  FaLock
 } from "react-icons/fa";
 import "./Settings.css";
 import API_BASE from "../apiConfig";
@@ -21,18 +23,18 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const languageOptions = [
-    { value: "en", label: "English", icon: "🇺🇸" },
-    { value: "es", label: "Español (Spanish)", icon: "🇪🇸" },
-    { value: "fr", label: "Français (French)", icon: "🇫🇷" },
-    { value: "de", label: "Deutsch (German)", icon: "🇩🇪" },
-    { value: "ja", label: "日本語 (Japanese)", icon: "🇯🇵" },
-    { value: "ph", label: "Filipino (Tagalog)", icon: "🇵🇭" },
+    { value: "en", label: "English", icon: <img src="https://flagcdn.com/w40/us.png" alt="US" className="flag-icon-img" /> },
+    { value: "es", label: "Español (Spanish)", icon: <img src="https://flagcdn.com/w40/es.png" alt="ES" className="flag-icon-img" /> },
+    { value: "fr", label: "Français (French)", icon: <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="flag-icon-img" /> },
+    { value: "de", label: "Deutsch (German)", icon: <img src="https://flagcdn.com/w40/de.png" alt="DE" className="flag-icon-img" /> },
+    { value: "ja", label: "日本語 (Japanese)", icon: <img src="https://flagcdn.com/w40/jp.png" alt="JP" className="flag-icon-img" /> },
+    { value: "ph", label: "Filipino (Tagalog)", icon: <img src="https://flagcdn.com/w40/ph.png" alt="PH" className="flag-icon-img" /> },
   ];
 
   const privacyOptions = [
-    { value: "public", label: t("settings_public", "Public - Everyone can see"), icon: "🌐" },
-    { value: "friends", label: t("settings_friends", "Friends Only"), icon: "👥" },
-    { value: "private", label: t("settings_private", "Private - Only me"), icon: "🔒" },
+    { value: "public", label: t("settings_public", "Public - Everyone can see"), icon: <FaGlobe style={{ color: "#3b82f6" }} /> },
+    { value: "friends", label: t("settings_friends", "Friends Only"), icon: <FaUserFriends style={{ color: "#10b981" }} /> },
+    { value: "private", label: t("settings_private", "Private - Only me"), icon: <FaLock style={{ color: "#f59e0b" }} /> },
   ];
   const [notifications, setNotifications] = useState(true);
   const [privacy, setPrivacy] = useState("public");

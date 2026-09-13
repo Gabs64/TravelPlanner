@@ -306,6 +306,47 @@
   margin: 0;
 }
 
+.ai-section {
+  position: relative;
+  z-index: 10;
+}
+
+.ai-section:has(.custom-select-container.open) {
+  z-index: 100 !important;
+}
+
+.ai-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.ai-section-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+}
+
+.ai-section-header p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.ai-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.country-custom-select {
+  width: 200px;
+}
+
 .destinations-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

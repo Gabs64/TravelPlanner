@@ -6,6 +6,11 @@
   width: 260px;
   user-select: none;
   font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  z-index: 1;
+}
+
+.custom-select-container.open {
+  z-index: 9999 !important;
 }
 
 .custom-select-trigger {
@@ -40,6 +45,17 @@
   box-shadow: 
     0 0 0 4px rgba(59, 130, 246, 0.18),
     0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+.flag-icon-img {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .selected-content {
@@ -82,7 +98,7 @@
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 999999 !important;
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 18px;

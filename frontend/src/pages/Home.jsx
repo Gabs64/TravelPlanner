@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import { useLanguage } from "../context/LanguageContext";
+import CustomSelect from "../components/CustomSelect";
 import "./Home.css";
 
 const destinations = [
@@ -30,6 +31,16 @@ const destinations = [
     desc: "Urban and island adventure",
     img: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=400&q=80",
   },
+];
+
+const COUNTRY_OPTIONS = [
+  { value: "Philippines", label: "Philippines", icon: <img src="https://flagcdn.com/w40/ph.png" alt="PH" className="flag-icon-img" /> },
+  { value: "Japan", label: "Japan", icon: <img src="https://flagcdn.com/w40/jp.png" alt="JP" className="flag-icon-img" /> },
+  { value: "Italy", label: "Italy", icon: <img src="https://flagcdn.com/w40/it.png" alt="IT" className="flag-icon-img" /> },
+  { value: "Indonesia", label: "Indonesia", icon: <img src="https://flagcdn.com/w40/id.png" alt="ID" className="flag-icon-img" /> },
+  { value: "France", label: "France", icon: <img src="https://flagcdn.com/w40/fr.png" alt="FR" className="flag-icon-img" /> },
+  { value: "Switzerland", label: "Switzerland", icon: <img src="https://flagcdn.com/w40/ch.png" alt="CH" className="flag-icon-img" /> },
+  { value: "USA", label: "USA", icon: <img src="https://flagcdn.com/w40/us.png" alt="US" className="flag-icon-img" /> },
 ];
 
 const slugify = (text) => text.toLowerCase().replace(/\s+/g, "-");
@@ -405,23 +416,15 @@ const Home = () => {
               <p>Personalized recommendations curated dynamically</p>
             </div>
             <div className="ai-controls">
-              <select
-                className="country-select"
+              <CustomSelect
+                className="country-custom-select"
+                options={COUNTRY_OPTIONS}
                 value={selectedCountry}
                 onChange={(e) => {
                   setSelectedCountry(e.target.value);
                   setRecentDestinations([]);
                 }}
-                disabled={aiLoading}
-              >
-                <option value="Philippines">Philippines 🇵🇭</option>
-                <option value="Japan">Japan 🇯🇵</option>
-                <option value="Italy">Italy 🇮🇹</option>
-                <option value="Indonesia">Indonesia 🇮🇩</option>
-                <option value="France">France 🇫🇷</option>
-                <option value="Switzerland">Switzerland 🇨🇭</option>
-                <option value="USA">USA 🇺🇸</option>
-              </select>
+              />
               <button 
                 className="refresh-ai-btn button-ripple" 
                 onClick={() => fetchAiDestinations(recentDestinations, selectedCountry)} 
