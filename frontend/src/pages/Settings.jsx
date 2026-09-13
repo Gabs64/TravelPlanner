@@ -13,11 +13,27 @@ import {
 import "./Settings.css";
 import API_BASE from "../apiConfig";
 import { useLanguage } from "../context/LanguageContext";
+import CustomSelect from "../components/CustomSelect";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { language, setLanguage: setGlobalLanguage, t } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
+
+  const languageOptions = [
+    { value: "en", label: "English", icon: "🇺🇸" },
+    { value: "es", label: "Español (Spanish)", icon: "🇪🇸" },
+    { value: "fr", label: "Français (French)", icon: "🇫🇷" },
+    { value: "de", label: "Deutsch (German)", icon: "🇩🇪" },
+    { value: "ja", label: "日本語 (Japanese)", icon: "🇯🇵" },
+    { value: "ph", label: "Filipino (Tagalog)", icon: "🇵🇭" },
+  ];
+
+  const privacyOptions = [
+    { value: "public", label: t("settings_public", "Public - Everyone can see"), icon: "🌐" },
+    { value: "friends", label: t("settings_friends", "Friends Only"), icon: "👥" },
+    { value: "private", label: t("settings_private", "Private - Only me"), icon: "🔒" },
+  ];
   const [notifications, setNotifications] = useState(true);
   const [privacy, setPrivacy] = useState("public");
   const [loading, setLoading] = useState(true);
@@ -289,14 +305,11 @@ const Settings = () => {
                   <span className="item-title">{t("settings_language", "Language")}</span>
                   <span className="item-description">{t("settings_language_desc", "Choose your preferred language")}</span>
                 </div>
-                <select value={language} onChange={handleLanguageChange} className="select-input">
-                  <option value="en">English</option>
-                  <option value="es">Español (Spanish)</option>
-                  <option value="fr">Français (French)</option>
-                  <option value="de">Deutsch (German)</option>
-                  <option value="ja">日本語 (Japanese)</option>
-                  <option value="ph">Filipino (Tagalog)</option>
-                </select>
+                <CustomSelect
+                  value={language}
+                  onChange={handleLanguageChange}
+                  options={languageOptions}
+                />
               </div>
             </section>
 
@@ -311,11 +324,11 @@ const Settings = () => {
                   <span className="item-title">{t("settings_profile_visibility", "Profile Visibility")}</span>
                   <span className="item-description">{t("settings_profile_visibility_desc", "Control who can see your trips and profile")}</span>
                 </div>
-                <select value={privacy} onChange={handlePrivacyChange} className="select-input">
-                  <option value="public">{t("settings_public", "Public - Everyone can see")}</option>
-                  <option value="friends">{t("settings_friends", "Friends Only")}</option>
-                  <option value="private">{t("settings_private", "Private - Only me")}</option>
-                </select>
+                <CustomSelect
+                  value={privacy}
+                  onChange={handlePrivacyChange}
+                  options={privacyOptions}
+                />
               </div>
             </section>
 

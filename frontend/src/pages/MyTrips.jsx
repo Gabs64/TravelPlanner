@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE from "../apiConfig";
 import { useLanguage } from "../context/LanguageContext";
+import CustomSelect from "../components/CustomSelect";
 import "./MyTrips.css";
+
+const expenseCategoryOptions = [
+  { value: "Food", label: "Food", icon: "🍔" },
+  { value: "Lodging", label: "Lodging", icon: "🏨" },
+  { value: "Transport", label: "Transport", icon: "🚗" },
+  { value: "Activities", label: "Activities", icon: "🎟️" },
+  { value: "Shopping", label: "Shopping", icon: "🛍️" },
+  { value: "Others", label: "Others", icon: "📦" },
+];
 
 const createDefaultItinerary = (destinationName) => [
   { id: 1, time: "Day 1", title: `Arrive in ${destinationName} and check in` },
@@ -707,18 +717,11 @@ const MyTrips = () => {
                       />
                     </div>
                     <div>
-                      <select
+                      <CustomSelect
                         value={expenseCategory}
                         onChange={(e) => setExpenseCategory(e.target.value)}
-                        style={{ width: "100%", boxSizing: "border-box", background: "var(--bg-input)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "7px 10px", borderRadius: "10px", fontSize: "12.5px", height: "34px" }}
-                      >
-                        <option value="Food">🍔 Food</option>
-                        <option value="Lodging">🏨 Lodging</option>
-                        <option value="Transport">🚗 Transport</option>
-                        <option value="Activities">🎟️ Activities</option>
-                        <option value="Shopping">🛍️ Shopping</option>
-                        <option value="Others">📦 Others</option>
-                      </select>
+                        options={expenseCategoryOptions}
+                      />
                     </div>
                     <button
                       type="submit"
