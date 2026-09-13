@@ -63,7 +63,7 @@ function Login() {
         if (data.userId) {
           localStorage.setItem("userId", data.userId);
 
-          // Sync user settings (darkMode, etc.) from backend profile immediately
+          // Await user profile settings sync so dark mode is set BEFORE navigating
           try {
             const profileRes = await fetch(`${API_BASE}/profile/${data.userId}`, {
               headers: { Authorization: `Bearer ${data.token}` },
@@ -72,6 +72,7 @@ function Login() {
               const profile = await profileRes.json();
               const settings = profile.settings || {};
               const isDark = Boolean(settings.darkMode);
+
               localStorage.setItem("darkMode", isDark.toString());
               localStorage.setItem("notifications", (settings.notifications ?? true).toString());
               localStorage.setItem("language", settings.language || "en");
@@ -91,9 +92,7 @@ function Login() {
           }
         }
 
-        setTimeout(() => {
-          navigate("/home");
-        }, 200);
+        navigate("/home");
       } else {
         setError(data.message || "Login failed");
         setLoading(false);

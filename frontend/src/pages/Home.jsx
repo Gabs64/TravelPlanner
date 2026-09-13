@@ -212,6 +212,20 @@ const Home = () => {
           const data = await res.json();
           const name = data.nickname || data.fullName || "";
           setUserName(name);
+
+          // Sync dark mode setting from account profile
+          if (data.settings && data.settings.darkMode !== undefined) {
+            const isDark = Boolean(data.settings.darkMode);
+            localStorage.setItem("darkMode", isDark.toString());
+            if (isDark) {
+              document.documentElement.classList.add("dark-mode");
+              document.body.classList.add("dark-mode-body");
+            } else {
+              document.documentElement.classList.remove("dark-mode");
+              document.body.classList.remove("dark-mode-body");
+            }
+            window.dispatchEvent(new Event("darkModeChanged"));
+          }
         }
       } catch (err) {
         console.error("Error fetching user profile:", err);
