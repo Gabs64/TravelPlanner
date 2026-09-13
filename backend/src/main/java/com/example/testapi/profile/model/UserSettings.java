@@ -1,9 +1,18 @@
 package com.example.testapi.profile.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserSettings {
+    @JsonProperty("darkMode")
     private boolean darkMode;
+
+    @JsonProperty("notifications")
     private boolean notifications;
+
+    @JsonProperty("language")
     private String language;
+
+    @JsonProperty("privacy")
     private String privacy;
 
     public UserSettings() {}
