@@ -6,11 +6,11 @@
   width: 260px;
   user-select: none;
   font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  z-index: 1;
+  z-index: 10;
 }
 
 .custom-select-container.open {
-  z-index: 9999 !important;
+  z-index: 999999 !important;
 }
 
 .custom-select-trigger {
@@ -110,7 +110,7 @@
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   padding: 8px;
   box-sizing: border-box;
-  animation: dropdownSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: dropdownSlideIn 0.14s cubic-bezier(0, 0, 0.2, 1) forwards;
   max-height: 280px;
   overflow-y: auto;
 }
@@ -125,12 +125,12 @@
 
 @keyframes dropdownSlideIn {
   from {
-    opacity: 0;
-    transform: translateY(-8px) scale(0.97);
+    opacity: 0.6;
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
