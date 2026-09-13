@@ -291,14 +291,52 @@ const AISuggester = () => {
         ];
         const isPhTarget = phKeywords.some((keyword) => 
           destinationContext.toLowerCase().includes(keyword) ||
-          placesToMap.some((q) => q.toLowerCase().includes(keyword))
+          placesToMap.some((q) => typeof q === "string" && q.toLowerCase().includes(keyword))
         );
 
-        const promises = placesToMap.map(async (query) => {
-          if (!query || typeof query !== "string") return null;
+        const promises = placesToMap.map(async (queryItem) => {
+          if (!queryItem) return null;
+
+          let rawQuery = "";
+          let explicitLat = null;
+          let explicitLng = null;
+
+          if (typeof queryItem === "object" && queryItem !== null) {
+            rawQuery = queryItem.name || queryItem.query || "";
+            if (queryItem.lat !== undefined && queryItem.lng !== undefined) {
+              explicitLat = parseFloat(queryItem.lat);
+              explicitLng = parseFloat(queryItem.lng);
+            }
+          } else if (typeof queryItem === "string") {
+            // Check for explicit coordinates format: "Place Name | lat, lng" or "Place Name | lng, lat"
+            if (queryItem.includes("|")) {
+              const parts = queryItem.split("|");
+              rawQuery = parts[0].trim();
+              const coordParts = parts[1].trim().split(",");
+              if (coordParts.length === 2) {
+                const c1 = parseFloat(coordParts[0].trim());
+                const c2 = parseFloat(coordParts[1].trim());
+                if (!isNaN(c1) && !isNaN(c2)) {
+                  // Determine lat vs lng
+                  if (Math.abs(c1) <= 90 && Math.abs(c2) <= 180 && Math.abs(c2) > 90) {
+                    explicitLat = c1;
+                    explicitLng = c2;
+                  } else if (Math.abs(c2) <= 90 && Math.abs(c1) <= 180 && Math.abs(c1) > 90) {
+                    explicitLat = c2;
+                    explicitLng = c1;
+                  } else {
+                    explicitLat = c1;
+                    explicitLng = c2;
+                  }
+                }
+              }
+            } else {
+              rawQuery = queryItem;
+            }
+          }
 
           // 1. Clean formatting tags, prefixes, and colon suffixes
-          let cleanedQuery = query.replace(/^\[MAP:\s*/i, "").replace(/\]$/, "").trim();
+          let cleanedQuery = rawQuery.replace(/^\[MAP:\s*/i, "").replace(/\]$/, "").trim();
           cleanedQuery = cleanedQuery.replace(/^(day\s*\d+|morning|afternoon|evening|night|spot\s*\d+|\d+[.)])\s*[:-]?\s*/i, "");
           if (cleanedQuery.includes(":")) {
             cleanedQuery = cleanedQuery.split(":")[0].trim();
@@ -311,10 +349,20 @@ const AISuggester = () => {
           const ignoreHeadings = ["recommended spots", "suggested food", "overview", "highlights", "activities", "note", "tip"];
           if (ignoreHeadings.includes(cleanedQuery.toLowerCase())) return null;
 
+          // If explicit coordinates were provided, bypass network geocoding!
+          if (explicitLat !== null && explicitLng !== null && !isNaN(explicitLat) && !isNaN(explicitLng)) {
+            return {
+              query: rawQuery,
+              name: cleanedQuery || rawQuery,
+              lng: explicitLng,
+              lat: explicitLat
+            };
+          }
+
           // 2. Append destination context if missing
           let queryWithContext = cleanedQuery;
           if (destinationContext && !cleanedQuery.toLowerCase().includes(destinationContext.toLowerCase())) {
-            queryWithContext = `${cleanedQuery} ${destinationContext}`;
+            queryWithContext = `${cleanedQuery}, ${destinationContext}`;
           }
 
           let optimizedQuery = optimizeSuggesterQuery(queryWithContext);
@@ -341,7 +389,7 @@ const AISuggester = () => {
             const [lng, lat] = data.features[0].center;
             const displayName = data.features[0].text || cleanedQuery;
             return {
-              query,
+              query: rawQuery,
               name: displayName,
               lng,
               lat
@@ -353,7 +401,7 @@ const AISuggester = () => {
         const results = await Promise.all(promises);
         let validResults = results.filter((r) => r !== null);
 
-        // Filter out extreme geographical outliers (> 5 degrees lat/lng away from median)
+        // Filter out extreme geographical outliers (> 4.0 degrees lat/lng away from median)
         if (validResults.length > 2) {
           const lats = validResults.map(r => r.lat).sort((a, b) => a - b);
           const lngs = validResults.map(r => r.lng).sort((a, b) => a - b);
@@ -480,7 +528,6 @@ const AISuggester = () => {
     try {
       const token = localStorage.getItem("token");
 
-
       // Build chat history in ChatMessage format
       const history = messages.map((m) => ({
         role: m.role,
@@ -504,7 +551,7 @@ const AISuggester = () => {
 
       let aiResponseText = data.message || "";
 
-      // Parse and extract all MAP tags: [MAP: location]
+      // Parse and extract all MAP tags: [MAP: location | lat, lng] or [MAP: location]
       const mapRegex = /\[MAP:\s*([^\]]+)\]/gi;
       const matches = [...aiResponseText.matchAll(mapRegex)];
       const locations = matches.map((m) => m[1].trim());
@@ -526,7 +573,8 @@ const AISuggester = () => {
       const boldRegex = /\*\*([^*]+)\*\*/g;
       const boldMatches = [...aiResponseText.matchAll(boldRegex)];
       const excludeKeywords = [
-        "recommend", "suggest", "spot", "food", "activit", "note", "attention", "warning", "tip", "important", "caution"
+        "recommend", "suggest", "spot", "food", "activit", "note", "attention", "warning", "tip", "important", "caution",
+        "boracay", "baguio", "cebu", "palawan", "siargao", "vigan", "bohol", "tagaytay", "tokyo", "kyoto", "rome", "bali", "paris", "philippines", "manila"
       ];
       
       const boldLocations = [];

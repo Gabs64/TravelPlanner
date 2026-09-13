@@ -49,9 +49,10 @@ public class AIService {
         siParts.add(objectMapper.createObjectNode().put("text", 
             "You are the Travel Planner AI Suggester, an interactive travel expert AI agent. " +
             "Your role is to help users plan trips, recommend popular spots, and suggest itineraries. " +
-            "If you recommend specific places (restaurants, hotels, attractions, or cities) that should be shown on the map, " +
-            "you MUST append a map tag for EACH place at the end of your response in the format: [MAP: Location 1], [MAP: Location 2], [MAP: Location 3] etc. " +
-            "(e.g. '[MAP: White Beach Boracay], [MAP: Puka Shell Beach Boracay]'). Always include as many MAP tags as there are suggested places in your text. " +
+            "If you recommend specific places (restaurants, hotels, attractions, or landmarks) that should be shown on the map, " +
+            "you MUST append a map tag for EACH place at the end of your response in the format: [MAP: Place Name | latitude, longitude] " +
+            "(e.g. '[MAP: Temple of Leah | 10.3697, 123.8718]', '[MAP: Sirao Flower Garden | 10.4042, 123.8696]', '[MAP: White Beach Boracay | 11.9585, 121.9254]'). " +
+            "Always include exact, accurate latitude and longitude coordinates for as many MAP tags as there are suggested places in your text. " +
             "Use bullet points and bold formatting for readability."));
         systemInstruction.set("parts", siParts);
         requestBody.set("systemInstruction", systemInstruction);
@@ -197,7 +198,7 @@ public class AIService {
                     "- **Puka Shell Beach:** A rustic beach with coarser shell-rich sands.\n" +
                     "- **Diniwid Beach:** A cozy cove ideal for relaxing cocktails.\n\n" +
                     "**Suggested Food:** Try the famous mango shakes at Jonah's Fruit Shake or calamares at Coco Mama!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Boracay], [MAP: White Beach Boracay], [MAP: Puka Shell Beach Boracay], [MAP: Diniwid Beach Boracay]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: White Beach Boracay | 11.9585, 121.9254], [MAP: Puka Shell Beach Boracay | 11.9961, 121.9161], [MAP: Diniwid Beach Boracay | 11.9740, 121.9168]";
         } else if (msg.contains("baguio")) {
             return "🌲 **Baguio City** (the Summer Capital of the Philippines) offers cool weather, pine trees, and fresh mountain breezes.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -205,7 +206,7 @@ public class AIService {
                     "- **Mines View Park:** For panoramic views of Benguet gold mines.\n" +
                     "- **Camp John Hay:** Pine forests, hiking trails, and cozy cafes.\n\n" +
                     "**Suggested Activities:** Visit the Baguio Night Market for cheap thrift finds (ukay-ukay) and delicious street foods!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Burnham Park Baguio], [MAP: Mines View Park Baguio], [MAP: Camp John Hay Baguio]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Burnham Park Baguio | 16.4116, 120.5932], [MAP: Mines View Park Baguio | 16.4234, 120.6276], [MAP: Camp John Hay Baguio | 16.3989, 120.6156]";
         } else if (msg.contains("cebu")) {
             return "🏙️ **Cebu** combines a bustling metropolis with pristine white-sand beaches, waterfalls, and rich heritage sites.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -213,28 +214,28 @@ public class AIService {
                     "- **Sirao Flower Garden:** The 'Little Amsterdam' of Cebu.\n" +
                     "- **Basilica del Sto. Niño:** The oldest Catholic church in the country.\n\n" +
                     "**Suggested Activities:** Go on a food crawl to try authentic Cebu Lechon (roast pig) at House of Lechon!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Temple of Leah Cebu], [MAP: Sirao Flower Garden Cebu], [MAP: Basilica del Sto. Niño Cebu], [MAP: House of Lechon Cebu]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Temple of Leah | 10.3697, 123.8718], [MAP: Sirao Flower Garden | 10.4042, 123.8696], [MAP: Basilica del Sto. Niño | 10.2942, 123.9021], [MAP: House of Lechon | 10.3168, 123.9060]";
         } else if (msg.contains("palawan")) {
             return "🌊 **Palawan** is hailed as one of the most beautiful islands in the world, featuring towering limestone cliffs and crystal-clear lagoons.\n\n" +
                     "**Recommended Spots:**\n" +
                     "- **El Nido Big Lagoon:** Perfect for kayaking through turquoise waters.\n" +
                     "- **Puerto Princesa Underground River:** A UNESCO World Heritage site.\n" +
                     "- **Coron Kayangan Lake:** The cleanest lake in Asia.\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: El Nido Big Lagoon], [MAP: Puerto Princesa Underground River], [MAP: Coron Kayangan Lake]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: El Nido Big Lagoon | 11.1540, 119.4054], [MAP: Puerto Princesa Underground River | 10.1970, 118.9266], [MAP: Coron Kayangan Lake | 11.9566, 120.2267]";
         } else if (msg.contains("siargao")) {
             return "🏄‍♂️ **Siargao** is the Surfing Capital of the Philippines, featuring a laid-back, palm-fringed island vibe.\n\n" +
                     "**Recommended Spots:**\n" +
                     "- **Cloud 9 Boardwalk:** Watch surfers tackle the famous surf break.\n" +
                     "- **Sugba Lagoon:** Swim, dive, and paddle in a secluded lagoon.\n" +
                     "- **Maasin River Palm Tree Swing:** The iconic bent coconut tree rope swing.\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Cloud 9 Siargao], [MAP: Sugba Lagoon Siargao], [MAP: Maasin River]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Cloud 9 Siargao | 9.8130, 126.1633], [MAP: Sugba Lagoon Siargao | 9.8660, 125.9863], [MAP: Maasin River | 9.8786, 126.0717]";
         } else if (msg.contains("vigan")) {
             return "🏛️ **Vigan City** is famous for its well-preserved Spanish-colonial streets, heritage sites, and cobblestone pathways.\n\n" +
                     "**Recommended Spots:**\n" +
                     "- **Calle Crisologo:** Walk down the historic street lined with colonial-era houses.\n" +
                     "- **Syquia Mansion:** Museum highlighting historic presidential relics.\n" +
                     "- **Bantay Bell Tower:** Scenic view of the surrounding town.\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Calle Crisologo Vigan], [MAP: Syquia Mansion Vigan], [MAP: Bantay Bell Tower Vigan]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Calle Crisologo Vigan | 17.5714, 120.3888], [MAP: Syquia Mansion Vigan | 17.5702, 120.3881], [MAP: Bantay Bell Tower Vigan | 17.5807, 120.3924]";
         } else if (msg.contains("bohol")) {
             return "🍫 **Bohol** offers beautiful beaches in Panglao, standard countryside landscapes, and unique biodiversity.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -242,14 +243,14 @@ public class AIService {
                     "- **Tarsier Sanctuary:** Meet the world's smallest primates in their natural habitat.\n" +
                     "- **Loboc River Cruise:** Enjoy lunch on a floating restaurant.\n" +
                     "- **Panglao Island Beach:** Explore the caves and white beaches.\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Chocolate Hills Bohol], [MAP: Tarsier Sanctuary Bohol], [MAP: Loboc River Cruise Bohol], [MAP: Panglao Island]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Chocolate Hills Bohol | 9.9167, 124.1667], [MAP: Tarsier Sanctuary Bohol | 9.6922, 124.0094], [MAP: Loboc River Cruise Bohol | 9.6385, 124.0322], [MAP: Panglao Island | 9.5786, 123.7744]";
         } else if (msg.contains("tagaytay")) {
             return "🌋 **Tagaytay** is a popular weekend retreat near Manila, offering cool weather and stunning views of Taal Volcano and Lake.\n\n" +
                     "**Recommended Spots:**\n" +
                     "- **Taal Lake Outlook:** Cozy restaurants offering bulalo with a view.\n" +
                     "- **Picnic Grove:** Great for family ziplines and picnics.\n" +
                     "- **Sky Ranch:** A theme park with a giant ferris wheel overlooking the ridge.\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Taal Lake Tagaytay], [MAP: Picnic Grove Tagaytay], [MAP: Sky Ranch Tagaytay]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Taal Lake Tagaytay | 14.0102, 120.9976], [MAP: Picnic Grove Tagaytay | 14.1310, 120.9782], [MAP: Sky Ranch Tagaytay | 14.0957, 120.9361]";
         } else if (msg.contains("tokyo")) {
             return "🗼 **Tokyo** is a dazzling metropolis combining futuristic skyscrapers, historic temples, and vibrant street life.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -257,7 +258,7 @@ public class AIService {
                     "- **Shibuya Crossing:** The world's busiest pedestrian crossing.\n" +
                     "- **Meiji Jingu Shrine:** A peaceful shrine situated in a lush forest park.\n\n" +
                     "**Suggested Food:** Try fresh sushi at Tsukiji Outer Market or ramen in Shinjuku!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Sensoji Temple Tokyo], [MAP: Shibuya Crossing Tokyo], [MAP: Meiji Jingu Shrine Tokyo]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Sensoji Temple Tokyo | 35.7148, 139.7967], [MAP: Shibuya Crossing Tokyo | 35.6595, 139.7004], [MAP: Meiji Jingu Shrine Tokyo | 35.6764, 139.6993]";
         } else if (msg.contains("kyoto")) {
             return "⛩️ **Kyoto** is the cultural heart of Japan, famous for thousands of classical temples, gardens, and traditional wooden houses.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -265,7 +266,7 @@ public class AIService {
                     "- **Kinkaku-ji (Golden Pavilion):** A stunning Zen temple covered in gold leaf.\n" +
                     "- **Arashiyama Bamboo Grove:** Walk through towering green bamboo stalks.\n\n" +
                     "**Suggested Activities:** Stroll through Gion district for a chance to spot geishas!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Fushimi Inari Shrine Kyoto], [MAP: Kinkaku-ji Kyoto], [MAP: Arashiyama Bamboo Grove Kyoto]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Fushimi Inari Shrine Kyoto | 34.9671, 135.7727], [MAP: Kinkaku-ji Kyoto | 35.0394, 135.7292], [MAP: Arashiyama Bamboo Grove Kyoto | 35.0166, 135.6713]";
         } else if (msg.contains("rome")) {
             return "🏛️ **Rome** is a city of historic ruins, monumental art, and vibrant street life.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -273,7 +274,7 @@ public class AIService {
                     "- **Trevi Fountain:** Throw a coin in to guarantee a return trip to Rome.\n" +
                     "- **Vatican Museums & St. Peter's:** Home to the Sistine Chapel and classic Renaissance art.\n\n" +
                     "**Suggested Food:** Try authentic Carbonara or cacio e pepe at a Trastevere tavern!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Colosseum Rome], [MAP: Trevi Fountain Rome], [MAP: St. Peter's Basilica Rome]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Colosseum Rome | 41.8902, 12.4922], [MAP: Trevi Fountain Rome | 41.9009, 12.4833], [MAP: St. Peter's Basilica Rome | 41.9022, 12.4539]";
         } else if (msg.contains("bali")) {
             return "🏝️ **Bali** is Indonesia's holiday island, known for its forested volcanic mountains, beaches, and coral reefs.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -281,7 +282,7 @@ public class AIService {
                     "- **Tanah Lot Temple:** A majestic Hindu temple perched on an offshore rock formation.\n" +
                     "- **Tegallalang Rice Terraces:** Stunning terraced slopes offering signature swings.\n\n" +
                     "**Suggested Activities:** Catch a sunset surfing session in Uluwatu or Seminyak!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Ubud Monkey Forest Bali], [MAP: Tanah Lot Temple Bali], [MAP: Tegallalang Rice Terraces Bali]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Ubud Monkey Forest Bali | -8.5194, 115.2606], [MAP: Tanah Lot Temple Bali | -8.6212, 115.0868], [MAP: Tegallalang Rice Terraces Bali | -8.4332, 115.2804]";
         } else if (msg.contains("paris")) {
             return "🗼 **Paris** is a global center for art, fashion, gastronomy, and culture.\n\n" +
                     "**Recommended Spots:**\n" +
@@ -289,14 +290,14 @@ public class AIService {
                     "- **Louvre Museum:** Home of the Mona Lisa and countless historic art treasures.\n" +
                     "- **Notre-Dame Cathedral:** A masterpiece of French Gothic architecture.\n\n" +
                     "**Suggested Food:** Enjoy fresh croissants at a Montmartre cafe or dine along the Seine!\n\n" +
-                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Eiffel Tower Paris], [MAP: Louvre Museum Paris], [MAP: Notre-Dame Cathedral Paris]";
+                    "*Note: Since no API key is configured, I am running in local Demo Mode.* [MAP: Eiffel Tower Paris | 48.8584, 2.2945], [MAP: Louvre Museum Paris | 48.8606, 2.3376], [MAP: Notre-Dame Cathedral Paris | 48.8530, 2.3499]";
         } else {
             return "✈️ **Hello! I am your AI Travel Agent Suggester.**\n\n" +
                     "I can recommend the best destinations, must-see sights, local dining, and organize travel itineraries for you. Ask me things like:\n" +
                     "- *'Suggest a relaxing beach trip to Boracay'*\n" +
                     "- *'Tell me about things to do in cool Baguio'*\n" +
                     "- *'Plan a food and heritage tour in Cebu'*\n\n" +
-                    "*Note: No Gemini API Key is configured yet, so I am running in Demo Mode. You can configure your actual API Key in the Settings page!* [MAP: Philippines]";
+                    "*Note: No Gemini API Key is configured yet, so I am running in Demo Mode. You can configure your actual API Key in the Settings page!* [MAP: Manila Philippines | 14.5995, 120.9842]";
         }
     }
 
