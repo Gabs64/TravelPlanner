@@ -1,18 +1,30 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  FaRobot,
-  FaMapMarkedAlt,
-  FaCloudSun,
-  FaRoute,
-  FaShieldAlt,
-  FaStar,
-  FaArrowRight,
-  FaCompass,
-  FaCheckCircle,
-  FaSignInAlt
+  FaRobot as FaRobotIcon,
+  FaMapMarkedAlt as FaMapMarkedAltIcon,
+  FaCloudSun as FaCloudSunIcon,
+  FaRoute as FaRouteIcon,
+  FaShieldAlt as FaShieldAltIcon,
+  FaStar as FaStarIcon,
+  FaArrowRight as FaArrowRightIcon,
+  FaCompass as FaCompassIcon,
+  FaCheckCircle as FaCheckCircleIcon,
+  FaSignInAlt as FaSignInAltIcon
 } from "react-icons/fa";
 import "./Intro.css";
+
+const FaRobot = FaRobotIcon as any;
+const FaMapMarkedAlt = FaMapMarkedAltIcon as any;
+const FaCloudSun = FaCloudSunIcon as any;
+const FaRoute = FaRouteIcon as any;
+const FaShieldAlt = FaShieldAltIcon as any;
+const FaStar = FaStarIcon as any;
+const FaArrowRight = FaArrowRightIcon as any;
+const FaCompass = FaCompassIcon as any;
+const FaCheckCircle = FaCheckCircleIcon as any;
+const FaSignInAlt = FaSignInAltIcon as any;
+
 
 const popularDestinations = [
   {
