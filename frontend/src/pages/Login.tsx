@@ -61,6 +61,7 @@ function Login() {
           })
           .catch((err) => {
             console.error("Error fetching Google user info from redirect hash:", err);
+          });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
