@@ -362,7 +362,10 @@ const DestinationDetails = () => {
         if (!cleanQuery) return;
         
         let proximityParam = "";
-        if (mapRef.current) {
+        if (primaryCoordsRef.current) {
+          const [pLng, pLat] = primaryCoordsRef.current;
+          proximityParam = `&proximity=${pLng},${pLat}`;
+        } else if (mapRef.current) {
           const center = mapRef.current.getCenter();
           proximityParam = `&proximity=${center.lng},${center.lat}`;
         }
