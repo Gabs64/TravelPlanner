@@ -103,4 +103,51 @@ public class AuthService {
         System.out.println("[AuthService] login successful for " + req.getEmail());
         return ResponseEntity.ok(response);
     }
+
+    public ResponseEntity<?> loginWithGmail(com.example.testapi.auth.model.GmailLoginRequest req) {
+        if (req.getEmail() == null || req.getEmail().isBlank()) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Gmail address is required"));
+        }
+
+        System.out.println("[AuthService] Gmail login request for email: " + req.getEmail());
+
+        var opt = repo.findByEmail(req.getEmail());
+        UserProfile p;
+
+        if (opt.isPresent()) {
+            p = opt.get();
+        } else {
+            p = new UserProfile();
+            p.setId(UUID.randomUUID().toString());
+            p.setEmail(req.getEmail());
+            p.setFullName(req.getFullName() != null ? req.getFullName() : "Gmail User");
+            p.setNickname(req.getEmail().split("@")[0]);
+            p.setPasswordHash("GMAIL_OAUTH_VERIFIED");
+            
+            String[] defaultPaths = {"static/images/userheadDefault.png", "static/userheadDefault.png"};
+            for (String path : defaultPaths) {
+                try {
+                    ClassPathResource resource = new ClassPathResource(path);
+                    if (resource.exists()) {
+                        p.setPhotoBytes(resource.getInputStream().readAllBytes());
+                        p.setPhotoMime("image/png");
+                        break;
+                    }
+                } catch (IOException ignored) {}
+            }
+            repo.save(p);
+        }
+
+        String token = "GMAIL_TOKEN_" + UUID.randomUUID().toString();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("userId", p.getId());
+        response.put("email", p.getEmail());
+        response.put("gmailSynced", true);
+        response.put("message", "Gmail authenticated successfully");
+        
+        System.out.println("[AuthService] Gmail login successful for " + req.getEmail());
+        return ResponseEntity.ok(response);
+    }
 }

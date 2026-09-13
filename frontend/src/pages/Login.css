@@ -283,6 +283,36 @@ body,
   transform: translateY(0);
 }
 
+.btn-gmail {
+  height: 46px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gmail:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(66, 133, 244, 0.5);
+  box-shadow: 0 8px 20px rgba(66, 133, 244, 0.2);
+  transform: translateY(-2px);
+}
+
+.gmail-btn-logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 .fade-in {
   animation: loginFadeIn 0.35s ease;
 }
@@ -542,7 +572,97 @@ body,
   line-height: 1.5;
 }
 
-/* Glowing Progress Line */
+/* Push Notifications Stack Overlay */
+.push-notifications-stack {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
+  width: calc(100% - 56px);
+  pointer-events: none;
+}
+
+.push-notification-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  box-shadow: 
+    0 16px 36px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  animation: toastSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.toast-icon-wrap {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.toast-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toast-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.toast-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.toast-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.toast-body {
+  font-size: 12.5px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
+.stage-message-text {
+  min-height: 40px;
+  transition: opacity 0.3s ease;
+}
+
+.progress-percentage-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-top: 8px;
+  letter-spacing: 0.05em;
+}
+
+/* Dynamic Progressive Glowing Loader Bar */
 .warp-loader-bar {
   width: 100%;
   height: 6px;
@@ -554,19 +674,18 @@ body,
 
 .warp-loader-fill {
   height: 100%;
-  width: 0%;
   background: linear-gradient(90deg, #10b981, #3b82f6, #ec4899);
   border-radius: 10px;
   box-shadow: 0 0 12px #10b981;
-  animation: loaderFill 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes loaderFill {
-  0% {
-    width: 0%;
-  }
-  100% {
-    width: 100%;
+@media (max-width: 480px) {
+  .push-notifications-stack {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
   }
 }
 

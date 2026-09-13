@@ -29,4 +29,9 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest req) {
         return service.login(req);
     }
+
+    @PostMapping("/gmail")
+    public ResponseEntity<?> gmailLogin(@RequestBody com.example.testapi.auth.model.GmailLoginRequest req) {
+        return service.loginWithGmail(req);
+    }
 }

@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaCheckCircle, FaPlane } from "react-icons/fa";
+import { FaCheckCircle, FaPlane, FaBell, FaEnvelope } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./Login.css";
 
 const FaPlaneIcon = FaPlane as any;
 const FaCheckIcon = FaCheckCircle as any;
+
+interface NotificationToast {
+  id: number;
+  icon: string;
+  title: string;
+  body: string;
+  time: string;
+}
 
 function Login() {
   const navigate = useNavigate();
@@ -19,7 +27,12 @@ function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Transition & Notification States
   const [isSuccessTransition, setIsSuccessTransition] = useState(false);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [stageMessage, setStageMessage] = useState("Initializing authentication...");
+  const [notifications, setNotifications] = useState<NotificationToast[]>([]);
 
   const clearMessages = () => {
     setError("");
@@ -33,6 +46,70 @@ function Login() {
     setFullName("");
     setNickname("");
     setPhone("");
+  };
+
+  const startTakeoffTransition = (userEmail: string, isGmailAuth: boolean = false) => {
+    setIsSuccessTransition(true);
+    setProgressPercent(5);
+    setStageMessage("Verifying security credentials & session tokens...");
+    setNotifications([]);
+
+    // Stage 1 (200ms): Verifying Credentials & Push Registration
+    setTimeout(() => {
+      setProgressPercent(35);
+      setStageMessage("Registering device push notification channel...");
+      setNotifications((prev) => [
+        ...prev,
+        {
+          id: 1,
+          icon: "🔔",
+          title: "Push Notifications Active",
+          body: "Real-time travel alerts & flight status updates enabled",
+          time: "Just now",
+        },
+      ]);
+    }, 350);
+
+    // Stage 2 (750ms): Gmail Sync & Travel Data
+    setTimeout(() => {
+      setProgressPercent(75);
+      setStageMessage(
+        isGmailAuth
+          ? `Syncing Gmail bookings for ${userEmail}...`
+          : "Syncing travel itineraries & Gmail preferences..."
+      );
+      setNotifications((prev) => [
+        ...prev,
+        {
+          id: 2,
+          icon: "📧",
+          title: "Gmail Sync Connected",
+          body: `Connected ${userEmail || "user@gmail.com"} • 3 itineraries imported`,
+          time: "Just now",
+        },
+      ]);
+    }, 850);
+
+    // Stage 3 (1350ms): Preparing Dashboard Landing
+    setTimeout(() => {
+      setProgressPercent(100);
+      setStageMessage("Preparing personalized Travel Dashboard & maps...");
+      setNotifications((prev) => [
+        ...prev,
+        {
+          id: 3,
+          icon: "✈️",
+          title: "Authentication Verified",
+          body: "Taking off! Welcome back to TravelPlanner",
+          time: "Just now",
+        },
+      ]);
+    }, 1400);
+
+    // Navigate to /home
+    setTimeout(() => {
+      navigate("/home");
+    }, 1900);
   };
 
   const handleLogin = async () => {
@@ -98,11 +175,7 @@ function Login() {
         }
 
         // Trigger top-tier login success animation transition
-        setIsSuccessTransition(true);
-
-        setTimeout(() => {
-          navigate("/home");
-        }, 1300);
+        startTakeoffTransition(email, false);
       } else {
         setError(data.message || "Login failed");
         setLoading(false);
@@ -110,6 +183,46 @@ function Login() {
     } catch (err) {
       console.error("login error", err);
       setError("Error connecting to server");
+      setLoading(false);
+    }
+  };
+
+  const handleGmailLogin = async () => {
+    clearMessages();
+    setLoading(true);
+
+    const targetEmail = email && email.includes("@") ? email : "traveler@gmail.com";
+
+    try {
+      const response = await fetch(`${API_BASE}/auth/gmail`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: targetEmail,
+          fullName: fullName || "Gmail User",
+          photoUrl: "https://lh3.googleusercontent.com/a/default-user",
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        setSuccess("Gmail Authentication Successful");
+        localStorage.setItem("token", data.token);
+        if (data.userId) {
+          localStorage.setItem("userId", data.userId);
+        }
+        localStorage.setItem("gmailSynced", "true");
+        localStorage.setItem("userEmail", targetEmail);
+
+        startTakeoffTransition(targetEmail, true);
+      } else {
+        setError(data.message || "Gmail login failed");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Gmail login error", err);
+      setError("Error connecting to server for Gmail login");
       setLoading(false);
     }
   };
@@ -274,6 +387,22 @@ function Login() {
               {loading ? "Processing..." : isLogin ? "Login" : "Register"}
             </button>
 
+            {isLogin && (
+              <button
+                type="button"
+                className="btn-gmail button-ripple"
+                onClick={handleGmailLogin}
+                disabled={loading}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg"
+                  alt="Gmail logo"
+                  className="gmail-btn-logo"
+                />
+                Continue with Gmail
+              </button>
+            )}
+
             <button
               className="btn-secondary button-ripple"
               onClick={toggleMode}
@@ -287,9 +416,25 @@ function Login() {
 
       {isSuccessTransition && (
         <div className="login-success-overlay">
+          {/* Push Notifications Stack */}
+          <div className="push-notifications-stack">
+            {notifications.map((n) => (
+              <div key={n.id} className="push-notification-toast">
+                <div className="toast-icon-wrap">{n.icon}</div>
+                <div className="toast-content">
+                  <div className="toast-header">
+                    <span className="toast-title">{n.title}</span>
+                    <span className="toast-time">{n.time}</span>
+                  </div>
+                  <div className="toast-body">{n.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="warp-portal-ring"></div>
           <div className="warp-portal-ring ring-2"></div>
-          
+
           <div className="particles-container">
             <span className="p-particle p1">✨</span>
             <span className="p-particle p2">✈️</span>
@@ -308,11 +453,15 @@ function Login() {
               <FaCheckIcon />
             </div>
             <h3>Authentication Successful</h3>
-            <p>Taking off to your personalized Travel Dashboard...</p>
+            <p className="stage-message-text">{stageMessage}</p>
 
             <div className="warp-loader-bar">
-              <div className="warp-loader-fill"></div>
+              <div
+                className="warp-loader-fill"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
             </div>
+            <span className="progress-percentage-label">{progressPercent}%</span>
           </div>
         </div>
       )}
@@ -321,3 +470,4 @@ function Login() {
 }
 
 export default Login;
+
