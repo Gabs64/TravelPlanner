@@ -27,7 +27,25 @@ public class AIService {
     private volatile boolean lastCallSuccessful = true;
     private volatile String lastErrorMessage = null;
 
+    private String resolveLanguageName(String lang) {
+        if (lang == null || lang.isBlank()) return "English";
+        switch (lang.toLowerCase().trim()) {
+            case "es": return "Spanish";
+            case "fr": return "French";
+            case "de": return "German";
+            case "ja": return "Japanese";
+            case "ph":
+            case "tl":
+            case "fil": return "Tagalog (Filipino)";
+            default: return "English";
+        }
+    }
+
     public String generateChatResponse(List<ChatMessage> history, String userMessage, String apiKey) throws Exception {
+        return generateChatResponse(history, userMessage, apiKey, "en");
+    }
+
+    public String generateChatResponse(List<ChatMessage> history, String userMessage, String apiKey, String lang) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -46,9 +64,11 @@ public class AIService {
         
         ObjectNode systemInstruction = objectMapper.createObjectNode();
         ArrayNode siParts = objectMapper.createArrayNode();
+        String targetLang = resolveLanguageName(lang);
         siParts.add(objectMapper.createObjectNode().put("text", 
             "You are the Travel Planner AI Suggester, an interactive travel expert AI agent. " +
             "Your role is to help users plan trips, recommend popular spots, and suggest itineraries. " +
+            "IMPORTANT: Respond in " + targetLang + " language. " +
             "If you recommend specific places (restaurants, hotels, attractions, or landmarks) that should be shown on the map, " +
             "you MUST append a map tag for EACH place at the end of your response in the format: [MAP: Place Name | latitude, longitude] " +
             "(e.g. '[MAP: Temple of Leah | 10.3697, 123.8718]', '[MAP: Sirao Flower Garden | 10.4042, 123.8696]', '[MAP: White Beach Boracay | 11.9585, 121.9254]'). " +
@@ -107,6 +127,10 @@ public class AIService {
     }
 
     public List<ItineraryItem> generateItinerary(String destination, String startDate, String endDate, String apiKey) throws Exception {
+        return generateItinerary(destination, startDate, endDate, apiKey, "en");
+    }
+
+    public List<ItineraryItem> generateItinerary(String destination, String startDate, String endDate, String apiKey, String lang) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -121,11 +145,13 @@ public class AIService {
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
 
+        String targetLang = resolveLanguageName(lang);
         String prompt = "Create a custom day-by-day travel itinerary for destination '" + destination + "' starting on " + startDate + " and ending on " + endDate + ".\n" +
+                "IMPORTANT: Write all titles, descriptions, and time frames in " + targetLang + " language.\n" +
                 "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. Return a raw JSON array.\n" +
                 "Each object in the array MUST have exactly these fields:\n" +
                 "1. \"id\": a unique sequential integer starting at 1.\n" +
-                "2. \"time\": a string indicating the time frame, e.g. \"Day 1\", \"Day 2\", etc.\n" +
+                "2. \"time\": a string indicating the time frame in " + targetLang + " (e.g. \"Day 1\", \"Dia 1\", \"Jour 1\", etc.).\n" +
                 "3. \"title\": a brief description of recommended activities for that day, including landmarks.\n" +
                 "Example response:\n" +
                 "[\n" +
@@ -437,6 +463,10 @@ public class AIService {
     }
 
     public String getPopularDestinations(String exclude, String country, String apiKey) throws Exception {
+        return getPopularDestinations(exclude, country, apiKey, "en");
+    }
+
+    public String getPopularDestinations(String exclude, String country, String apiKey, String lang) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -463,12 +493,14 @@ public class AIService {
         }
 
         String targetCountry = (country != null && !country.isBlank()) ? country : "Philippines";
+        String targetLang = resolveLanguageName(lang);
         String prompt = "Suggest exactly 3 popular travel destinations in " + targetCountry + ". " +
                 excludeInstructions +
+                "IMPORTANT: Write the destination descriptions ('desc') in " + targetLang + " language.\n" +
                 "You must return ONLY a valid JSON array of objects. Do NOT wrap it in ```json or ``` markdown blocks. " +
                 "Each object MUST have exactly these fields:\n" +
                 "1. \"name\": the name of the destination (e.g. \"Tokyo\", \"Siargao\").\n" +
-                "2. \"desc\": a short catchy description (e.g. \"Historic temples and traditional wooden houses\", \"World-class surfing and coconut forest\").\n" +
+                "2. \"desc\": a short catchy description in " + targetLang + ".\n" +
                 "3. \"imageKeyword\": a single word tag for image search (e.g. \"tokyo\", \"surf\", \"beach\", \"mountain\").\n";
 
         ObjectNode requestBody = objectMapper.createObjectNode();
@@ -512,6 +544,10 @@ public class AIService {
     }
 
     public String getDestinationDetails(String slug, String apiKey) throws Exception {
+        return getDestinationDetails(slug, apiKey, "en");
+    }
+
+    public String getDestinationDetails(String slug, String apiKey, String lang) throws Exception {
         String resolvedKey = apiKey;
         if (resolvedKey == null || resolvedKey.isBlank()) {
             resolvedKey = defaultApiKey;
@@ -526,16 +562,18 @@ public class AIService {
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + resolvedKey;
 
+        String targetLang = resolveLanguageName(lang);
         String prompt = "Create travel details for the destination slug '" + slug + "'.\n" +
+                "IMPORTANT: Write the description ('desc'), bestFor highlights, duration, and activity names in " + targetLang + " language.\n" +
                 "You must return ONLY a valid JSON object. Do NOT wrap it in ```json or ``` markdown blocks.\n" +
                 "The object MUST have exactly these fields:\n" +
                 "1. \"name\": Capitalized name (e.g. \"El Nido\").\n" +
-                "2. \"desc\": Description of the place.\n" +
-                "3. \"location\": Exact location string (e.g. \"El Nido, Palawan, Philippines\").\n" +
-                "4. \"bestFor\": Best activities/highlights (e.g. \"Lagoons, island hopping, snorkeling\").\n" +
-                "5. \"budget\": Estimated budget range in PHP (e.g. \"PHP 8,000 - PHP 15,000\").\n" +
-                "6. \"duration\": Recommended duration (e.g. \"3 - 5 days\").\n" +
-                "7. \"activities\": A JSON array of exactly 4 strings containing popular spots or activities (e.g. [\"Big Lagoon\", \"Nacpan Beach\", \"Small Lagoon\", \"Las Cabanas Beach\"]).\n";
+                "2. \"desc\": Description of the place in " + targetLang + ".\n" +
+                "3. \"location\": Location string (e.g. \"El Nido, Palawan, Philippines\").\n" +
+                "4. \"bestFor\": Best activities/highlights in " + targetLang + ".\n" +
+                "5. \"budget\": Estimated budget range (e.g. \"PHP 8,000 - PHP 15,000\").\n" +
+                "6. \"duration\": Recommended duration in " + targetLang + " (e.g. \"3 - 5 days\").\n" +
+                "7. \"activities\": A JSON array of exactly 4 strings containing popular spots or activities in " + targetLang + ".\n";
 
         ObjectNode requestBody = objectMapper.createObjectNode();
         ArrayNode contents = objectMapper.createArrayNode();

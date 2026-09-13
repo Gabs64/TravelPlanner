@@ -12,15 +12,15 @@ import {
 } from "react-icons/fa";
 import "./Settings.css";
 import API_BASE from "../apiConfig";
+import { useLanguage } from "../context/LanguageContext";
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { language, setLanguage: setGlobalLanguage, t } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
-  const [language, setLanguage] = useState("en");
   const [privacy, setPrivacy] = useState("public");
   const [loading, setLoading] = useState(true);
-
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -28,7 +28,6 @@ const Settings = () => {
   const [deleting, setDeleting] = useState(false);
 
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
-
 
   const loadSettings = useCallback(async () => {
     try {
@@ -53,7 +52,9 @@ const Settings = () => {
 
         setDarkMode(Boolean(settings.darkMode));
         setNotifications(settings.notifications ?? true);
-        setLanguage(settings.language || "en");
+        if (settings.language) {
+          setGlobalLanguage(settings.language);
+        }
         setPrivacy(settings.privacy || "public");
 
         localStorage.setItem("darkMode", Boolean(settings.darkMode).toString());
@@ -74,7 +75,7 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, setGlobalLanguage]);
 
   useEffect(() => {
     loadSettings();
@@ -136,7 +137,7 @@ const Settings = () => {
 
   const handleLanguageChange = async (e) => {
     const lang = e.target.value;
-    setLanguage(lang);
+    setGlobalLanguage(lang);
 
     await saveSettings({
       darkMode,
@@ -220,8 +221,8 @@ const Settings = () => {
               <FaCog />
             </div>
             <div>
-              <h2>Settings</h2>
-              <p>Manage your preferences and account settings.</p>
+              <h2>{t("settings_title", "Settings")}</h2>
+              <p>{t("settings_subtitle", "Manage your preferences and account settings.")}</p>
             </div>
           </div>
         </div>
@@ -229,21 +230,21 @@ const Settings = () => {
         {loading ? (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Loading settings...</p>
+            <p>{t("loading", "Loading settings...")}</p>
           </div>
         ) : (
           <div className="settings-container">
             <section className="settings-section">
               <div className="section-title">
                 <span className="section-icon">{darkMode ? <FaMoon /> : <FaSun />}</span>
-                <h3>Appearance</h3>
+                <h3>{t("settings_appearance", "Appearance")}</h3>
               </div>
 
               <div className="settings-item">
                 <div className="item-label">
-                  <span className="item-title">Dark Mode</span>
+                  <span className="item-title">{t("settings_dark_mode", "Dark Mode")}</span>
                   <span className="item-description">
-                    {darkMode ? "Enabled" : "Disabled"} - Switch to a darker theme
+                    {darkMode ? t("settings_enabled", "Enabled") : t("settings_disabled", "Disabled")} - {t("settings_dark_mode_desc", "Switch to a darker theme")}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -256,14 +257,14 @@ const Settings = () => {
             <section className="settings-section">
               <div className="section-title">
                 <span className="section-icon"><FaBell /></span>
-                <h3>Notifications</h3>
+                <h3>{t("settings_notifications", "Notifications")}</h3>
               </div>
 
               <div className="settings-item">
                 <div className="item-label">
-                  <span className="item-title">Push Notifications</span>
+                  <span className="item-title">{t("settings_push_notifications", "Push Notifications")}</span>
                   <span className="item-description">
-                    {notifications ? "Enabled" : "Disabled"} - Receive trip and booking updates
+                    {notifications ? t("settings_enabled", "Enabled") : t("settings_disabled", "Disabled")} - {t("settings_push_desc", "Receive trip and booking updates")}
                   </span>
                 </div>
                 <label className="toggle-switch">
@@ -280,13 +281,13 @@ const Settings = () => {
             <section className="settings-section">
               <div className="section-title">
                 <span className="section-icon"><FaGlobe /></span>
-                <h3>Language & Region</h3>
+                <h3>{t("settings_language_region", "Language & Region")}</h3>
               </div>
 
               <div className="settings-item">
                 <div className="item-label">
-                  <span className="item-title">Language</span>
-                  <span className="item-description">Choose your preferred language</span>
+                  <span className="item-title">{t("settings_language", "Language")}</span>
+                  <span className="item-description">{t("settings_language_desc", "Choose your preferred language")}</span>
                 </div>
                 <select value={language} onChange={handleLanguageChange} className="select-input">
                   <option value="en">English</option>
@@ -302,18 +303,18 @@ const Settings = () => {
             <section className="settings-section">
               <div className="section-title">
                 <span className="section-icon"><FaShieldAlt /></span>
-                <h3>Privacy & Security</h3>
+                <h3>{t("settings_privacy_security", "Privacy & Security")}</h3>
               </div>
 
               <div className="settings-item">
                 <div className="item-label">
-                  <span className="item-title">Profile Visibility</span>
-                  <span className="item-description">Control who can see your trips and profile</span>
+                  <span className="item-title">{t("settings_profile_visibility", "Profile Visibility")}</span>
+                  <span className="item-description">{t("settings_profile_visibility_desc", "Control who can see your trips and profile")}</span>
                 </div>
                 <select value={privacy} onChange={handlePrivacyChange} className="select-input">
-                  <option value="public">Public - Everyone can see</option>
-                  <option value="friends">Friends Only</option>
-                  <option value="private">Private - Only me</option>
+                  <option value="public">{t("settings_public", "Public - Everyone can see")}</option>
+                  <option value="friends">{t("settings_friends", "Friends Only")}</option>
+                  <option value="private">{t("settings_private", "Private - Only me")}</option>
                 </select>
               </div>
             </section>
@@ -321,14 +322,14 @@ const Settings = () => {
             <section className="settings-section danger-section">
               <div className="section-title">
                 <span className="section-icon danger-icon"><FaTrashAlt /></span>
-                <h3>Delete Account</h3>
+                <h3>{t("settings_delete_account", "Delete Account")}</h3>
               </div>
 
               <div className="settings-item">
                 <div className="item-label">
-                  <span className="item-title">Permanent Account Deletion</span>
+                  <span className="item-title">{t("settings_permanent_delete", "Permanent Account Deletion")}</span>
                   <span className="item-description">
-                    Delete your profile and saved account data from the database.
+                    {t("settings_permanent_delete_desc", "Delete your profile and saved account data from the database.")}
                   </span>
                 </div>
 
@@ -340,7 +341,7 @@ const Settings = () => {
                     setDeleteModalOpen(true);
                   }}
                 >
-                  Delete Account
+                  {t("settings_delete_account", "Delete Account")}
                 </button>
               </div>
             </section>
@@ -350,17 +351,17 @@ const Settings = () => {
                 onClick={() => setLogoutModalOpen(true)}
                 className="logout-btn button-ripple"
               >
-                <FaSignOutAlt /> Logout
+                <FaSignOutAlt /> {t("settings_logout", "Logout")}
               </button>
             </section>
 
             <section className="settings-section info-section">
               <div className="info-item">
-                <span className="info-label">App Version</span>
+                <span className="info-label">{t("settings_app_version", "App Version")}</span>
                 <span className="info-value">1.0.0</span>
               </div>
               <div className="info-item">
-                <span className="info-label">Last Updated</span>
+                <span className="info-label">{t("settings_last_updated", "Last Updated")}</span>
                 <span className="info-value">May 6, 2026</span>
               </div>
             </section>

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaCheckCircle, FaPlane } from "react-icons/fa";
 import API_BASE from "../apiConfig";
 import "./Login.css";
+
+const FaPlaneIcon = FaPlane as any;
+const FaCheckIcon = FaCheckCircle as any;
 
 function Login() {
   const navigate = useNavigate();
@@ -15,6 +19,7 @@ function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSuccessTransition, setIsSuccessTransition] = useState(false);
 
   const clearMessages = () => {
     setError("");
@@ -92,7 +97,12 @@ function Login() {
           }
         }
 
-        navigate("/home");
+        // Trigger top-tier login success animation transition
+        setIsSuccessTransition(true);
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 1300);
       } else {
         setError(data.message || "Login failed");
         setLoading(false);
@@ -274,6 +284,38 @@ function Login() {
           </div>
         </div>
       </div>
+
+      {isSuccessTransition && (
+        <div className="login-success-overlay">
+          <div className="warp-portal-ring"></div>
+          <div className="warp-portal-ring ring-2"></div>
+          
+          <div className="particles-container">
+            <span className="p-particle p1">✨</span>
+            <span className="p-particle p2">✈️</span>
+            <span className="p-particle p3">🌟</span>
+            <span className="p-particle p4">🏝️</span>
+            <span className="p-particle p5">✨</span>
+          </div>
+
+          <div className="flying-plane-wrapper">
+            <FaPlaneIcon className="warp-plane-icon" />
+            <div className="plane-jet-trail"></div>
+          </div>
+
+          <div className="success-content-card">
+            <div className="success-icon-badge">
+              <FaCheckIcon />
+            </div>
+            <h3>Authentication Successful</h3>
+            <p>Taking off to your personalized Travel Dashboard...</p>
+
+            <div className="warp-loader-bar">
+              <div className="warp-loader-fill"></div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

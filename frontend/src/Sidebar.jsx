@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FaHome, FaMapMarkedAlt, FaBook, FaPlane, FaCog, FaRobot } from "react-icons/fa";
 import API_BASE from "./apiConfig";
+import { useLanguage } from "./context/LanguageContext";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [user, setUser] = useState({
     nickname: "",
     photoUrl: "",
@@ -14,12 +16,12 @@ const Sidebar = () => {
   const [aiMode, setAiMode] = useState("live");
 
   const menuItems = [
-    { name: "Home", path: "/home", icon: <FaHome /> },
-    { name: "AI Suggester", path: "/ai-suggester", icon: <FaRobot /> },
-    { name: "Explore", path: "/explore", icon: <FaMapMarkedAlt /> },
-    { name: "Bookings", path: "/bookings", icon: <FaBook /> },
-    { name: "My Trips", path: "/mytrips", icon: <FaPlane /> },
-    { name: "Settings", path: "/settings", icon: <FaCog /> },
+    { key: "nav_home", name: "Home", path: "/home", icon: <FaHome /> },
+    { key: "nav_ai_suggester", name: "AI Suggester", path: "/ai-suggester", icon: <FaRobot /> },
+    { key: "nav_explore", name: "Explore", path: "/explore", icon: <FaMapMarkedAlt /> },
+    { key: "nav_bookings", name: "Bookings", path: "/bookings", icon: <FaBook /> },
+    { key: "nav_my_trips", name: "My Trips", path: "/mytrips", icon: <FaPlane /> },
+    { key: "nav_settings", name: "Settings", path: "/settings", icon: <FaCog /> },
   ];
 
   const fetchProfile = async () => {
@@ -97,7 +99,7 @@ const Sidebar = () => {
 
       <ul className="sidebar-menu">
         {menuItems.map((item) => (
-          <li key={item.name}>
+          <li key={item.key}>
             <NavLink
               to={item.path}
               className={({ isActive }) =>
@@ -105,7 +107,7 @@ const Sidebar = () => {
               }
             >
               <span className="menu-icon">{item.icon}</span>
-              <span className="menu-text">{item.name}</span>
+              <span className="menu-text">{t(item.key, item.name)}</span>
             </NavLink>
           </li>
         ))}
@@ -127,7 +129,7 @@ const Sidebar = () => {
           />
           <div className="profile-info">
             <span className="profile-name">{user.nickname || "User"}</span>
-            <span className="profile-subtext">View Profile</span>
+            <span className="profile-subtext">{t("nav_profile", "View Profile")}</span>
           </div>
         </div>
       </div>

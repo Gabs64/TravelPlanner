@@ -11,6 +11,7 @@ import {
   FaMapMarkedAlt
 } from "react-icons/fa";
 import API_BASE from "../apiConfig";
+import { useLanguage } from "../context/LanguageContext";
 import "./DestinationDetails.css";
 
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
@@ -259,6 +260,7 @@ const defaultWeatherData = {
 const DestinationDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const today = new Date().toISOString().slice(0, 10);
 
   const [startDate, setStartDate] = useState(today);
@@ -462,10 +464,11 @@ const DestinationDetails = () => {
       setErrorText("");
       const token = localStorage.getItem("token");
       try {
-        const res = await fetch(`${API_BASE}/ai/destination-details/${encodeURIComponent(slug)}`, {
+        const res = await fetch(`${API_BASE}/ai/destination-details/${encodeURIComponent(slug)}?lang=${encodeURIComponent(language)}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "Accept-Language": language,
           },
         });
         if (res.ok) {
@@ -483,7 +486,7 @@ const DestinationDetails = () => {
     };
 
     fetchDynamicDetails();
-  }, [slug, staticDest]);
+  }, [slug, staticDest, language]);
 
   if (loading) {
     return (

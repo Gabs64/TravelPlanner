@@ -30,12 +30,16 @@ public class AIController {
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<?> chat(@RequestBody AIChatRequest request) {
+    public ResponseEntity<?> chat(
+            @RequestBody AIChatRequest request,
+            @RequestHeader(value = "Accept-Language", required = false) String headerLang) {
         try {
+            String lang = (request.getLang() != null && !request.getLang().isBlank()) ? request.getLang() : headerLang;
             String response = aiService.generateChatResponse(
                     request.getHistory(),
                     request.getMessage(),
-                    request.getApiKey()
+                    request.getApiKey(),
+                    lang
             );
             return ResponseEntity.ok(new MessageResponse(response));
         } catch (Exception ex) {
@@ -46,13 +50,17 @@ public class AIController {
     }
 
     @PostMapping("/generate-itinerary")
-    public ResponseEntity<?> generateItinerary(@RequestBody AIItineraryRequest request) {
+    public ResponseEntity<?> generateItinerary(
+            @RequestBody AIItineraryRequest request,
+            @RequestHeader(value = "Accept-Language", required = false) String headerLang) {
         try {
+            String lang = (request.getLang() != null && !request.getLang().isBlank()) ? request.getLang() : headerLang;
             List<ItineraryItem> itinerary = aiService.generateItinerary(
                     request.getDestination(),
                     request.getStartDate(),
                     request.getEndDate(),
-                    request.getApiKey()
+                    request.getApiKey(),
+                    lang
             );
             return ResponseEntity.ok(itinerary);
         } catch (Exception ex) {
@@ -66,11 +74,14 @@ public class AIController {
     public ResponseEntity<?> getPopularDestinations(
             @RequestParam(value = "exclude", required = false) String exclude,
             @RequestParam(value = "country", required = false, defaultValue = "Philippines") String country,
+            @RequestParam(value = "lang", required = false) String paramLang,
+            @RequestHeader(value = "Accept-Language", required = false) String headerLang,
             @RequestHeader(value = "X-Api-Key", required = false) String headerApiKey,
             @RequestParam(value = "apiKey", required = false) String paramApiKey) {
         try {
             String apiKey = (headerApiKey != null && !headerApiKey.isBlank()) ? headerApiKey : paramApiKey;
-            String result = aiService.getPopularDestinations(exclude, country, apiKey);
+            String lang = (paramLang != null && !paramLang.isBlank()) ? paramLang : headerLang;
+            String result = aiService.getPopularDestinations(exclude, country, apiKey, lang);
             return ResponseEntity.ok(result);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -82,11 +93,14 @@ public class AIController {
     @GetMapping(value = "/destination-details/{slug}", produces = "application/json")
     public ResponseEntity<?> getDestinationDetails(
             @PathVariable("slug") String slug,
+            @RequestParam(value = "lang", required = false) String paramLang,
+            @RequestHeader(value = "Accept-Language", required = false) String headerLang,
             @RequestHeader(value = "X-Api-Key", required = false) String headerApiKey,
             @RequestParam(value = "apiKey", required = false) String paramApiKey) {
         try {
             String apiKey = (headerApiKey != null && !headerApiKey.isBlank()) ? headerApiKey : paramApiKey;
-            String result = aiService.getDestinationDetails(slug, apiKey);
+            String lang = (paramLang != null && !paramLang.isBlank()) ? paramLang : headerLang;
+            String result = aiService.getDestinationDetails(slug, apiKey, lang);
             return ResponseEntity.ok(result);
         } catch (Exception ex) {
             ex.printStackTrace();

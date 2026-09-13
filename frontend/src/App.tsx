@@ -12,9 +12,8 @@ import Intro from "./pages/Intro";
 import DestinationDetails from "./pages/DestinationDetails";
 import AISuggester from "./pages/AISuggester";
 import SharedTrip from "./pages/SharedTrip";
+import { LanguageProvider } from "./context/LanguageContext";
 import "./App.css";
-
-
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -82,9 +81,11 @@ function Layout() {
 
 function App() {
   return (
-    <Router>
-      <Layout />
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <Layout />
+      </Router>
+    </LanguageProvider>
   );
 }
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE from "../apiConfig";
+import { useLanguage } from "../context/LanguageContext";
 import "./MyTrips.css";
 
 const createDefaultItinerary = (destinationName) => [
@@ -31,6 +32,7 @@ const calculateItemDate = (startDateStr, index) => {
 
 const MyTrips = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
 
   const [trips, setTrips] = useState([]);
   const [selectedTrip, setSelectedTrip] = useState(null);
@@ -278,11 +280,13 @@ const MyTrips = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Accept-Language": language,
         },
         body: JSON.stringify({
           destination: selectedTrip.name,
           startDate: selectedTrip.startDate,
           endDate: selectedTrip.endDate,
+          lang: language,
         }),
       });
 

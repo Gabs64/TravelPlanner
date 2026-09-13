@@ -11,6 +11,7 @@ import {
   FaSync
 } from "react-icons/fa";
 import API_BASE from "../apiConfig";
+import { useLanguage } from "../context/LanguageContext";
 import "./Home.css";
 
 const destinations = [
@@ -123,6 +124,7 @@ const navigateWithTransition = (navigate, path, cardElement, imgElement) => {
 
 const Home = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const lastClickedId = sessionStorage.getItem("lastClickedId");
 
   const [stats, setStats] = useState({
@@ -144,10 +146,11 @@ const Home = () => {
     const token = localStorage.getItem("token");
     const excludeParam = currentHistory.join(",");
     try {
-      const res = await fetch(`${API_BASE}/ai/popular-destinations?exclude=${encodeURIComponent(excludeParam)}&country=${encodeURIComponent(country)}`, {
+      const res = await fetch(`${API_BASE}/ai/popular-destinations?exclude=${encodeURIComponent(excludeParam)}&country=${encodeURIComponent(country)}&lang=${encodeURIComponent(language)}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Accept-Language": language,
         },
       });
       if (res.ok) {

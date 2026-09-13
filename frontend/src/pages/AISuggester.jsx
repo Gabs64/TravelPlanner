@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaRobot, FaPaperPlane, FaMapMarkerAlt } from "react-icons/fa";
 import API_BASE from "../apiConfig";
+import { useLanguage } from "../context/LanguageContext";
 import "./AISuggester.css";
 
 const parseMessageText = (text, onPlaceClick, messageObj) => {
@@ -104,6 +105,7 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || "";
 
 const AISuggester = () => {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [messages, setMessages] = useState([
     {
       role: "model",
@@ -625,10 +627,12 @@ const AISuggester = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "Accept-Language": language,
         },
         body: JSON.stringify({
           message: text,
           history,
+          lang: language,
         }),
       });
 

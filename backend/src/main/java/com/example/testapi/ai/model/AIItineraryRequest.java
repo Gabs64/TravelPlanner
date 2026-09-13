@@ -5,6 +5,7 @@ public class AIItineraryRequest {
     private String startDate;
     private String endDate;
     private String apiKey;
+    private String lang;
 
     public AIItineraryRequest() {}
 
@@ -38,5 +39,13 @@ public class AIItineraryRequest {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 }

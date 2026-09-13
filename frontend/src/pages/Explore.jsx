@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 import { FaSearch, FaCompass } from "react-icons/fa";
+import { useLanguage } from "../context/LanguageContext";
 import "./Explore.css";
 
 const destinations = [
@@ -69,6 +70,7 @@ const navigateWithTransition = (navigate, path, cardElement, imgElement) => {
 
 const Explore = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const lastClickedId = sessionStorage.getItem("lastClickedId");
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -95,8 +97,8 @@ const Explore = () => {
               <FaCompass />
             </div>
             <div>
-              <h2>Explore Destinations</h2>
-              <p>Browse places you can add to your next travel plan.</p>
+              <h2>{t("explore_title", "Explore Destinations")}</h2>
+              <p>{t("explore_subtitle", "Discover incredible spots around the globe curated for your journey.")}</p>
             </div>
           </div>
 
@@ -111,7 +113,7 @@ const Explore = () => {
             <FaSearch className="search-icon" />
             <input
               type="text"
-              placeholder="Search destinations..."
+              placeholder={t("search_placeholder", "Search destinations...")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />

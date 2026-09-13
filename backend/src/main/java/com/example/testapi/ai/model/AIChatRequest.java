@@ -6,6 +6,7 @@ public class AIChatRequest {
     private String message;
     private List<ChatMessage> history;
     private String apiKey;
+    private String lang;
 
     public AIChatRequest() {}
 
@@ -31,5 +32,13 @@ public class AIChatRequest {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    public String getLang() {
+        return lang;
+    }
+
+    public void setLang(String lang) {
+        this.lang = lang;
     }
 }
